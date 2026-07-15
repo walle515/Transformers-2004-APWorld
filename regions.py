@@ -27,12 +27,13 @@ def create_all_regions(world: Transformers04World) -> None:
     amazon = Region("Amazon", world.player, world.multiworld)
     antartica = Region("Antartica", world.player, world.multiworld)
     deepAmazon = Region("Deep Amazon", world.player, world.multiworld)
-    midAtlantic = Region("Mid Atlantic", world.player, world.multiworld)
+    midAtlanticTidal = Region("Mid Atlantic", world.player, world.multiworld)
+    midAtlanticEmpty = Region("Mid Atlantic Empty", world.player, world.multiworld)
     alaska = Region("Alaska", world.player, world.multiworld)
     starship = Region("Starship", world.player, world.multiworld)
     pacificIsland = Region("Pacific Island", world.player, world.multiworld)
     
-    regions = [amazon, antartica, deepAmazon, midAtlantic, alaska, starship, pacificIsland]
+    regions = [amazon, antartica, deepAmazon, midAtlanticTidal, midAtlanticEmpty, alaska, starship, pacificIsland]
     
     world.multiworld.regions += regions
     
