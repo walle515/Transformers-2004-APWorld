@@ -43,11 +43,15 @@ class StartWithRandomWeapon(Toggle):
     display_name = "Start with Random Weapon"
     
     
-class RandomizeLevelOrder(Toggle):
+class DataconCount(Range):
     """
-    Randomizes the order in which levels are unlocked. Start will always be Amazon
+    How many datacons are needed for the goal
     """
-    display_name = "Randomize Level Order"
+    display_name = "Datacon Count"
+    
+    range_start = 30
+    range_end = 64
+    default = 50
     
     
 class GoalOption(Choice):
@@ -59,6 +63,7 @@ class GoalOption(Choice):
     option_Minicon = 0
     option_Bosses = 1
     option_Unicron = 2
+    option_Datacon = 3
     
     default = option_Unicron
     
@@ -70,56 +75,63 @@ class Transformers04Options(PerGameCommonOptions):
     trap_chance: TrapChance
     minicon_count: MiniconCount
     start_with_random_weapon: StartWithRandomWeapon
-    randomize_level_order: RandomizeLevelOrder
+    datacon_count: DataconCount
     goal_option: GoalOption
     
     # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
     option_groups = [
         OptionGroup(
             "Goal Options",
-            [GoalOption, MiniconCount],
+            [GoalOption, MiniconCount, DataconCount],
         ),
         OptionGroup(
             "Gameplay Options",
-            [StartWithRandomWeapon, RandomizeLevelOrder, TrapChance],
+            [StartWithRandomWeapon, TrapChance],
         ),
     ]
     
     # Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".
     option_presets = {
         "Standard":{
-            "goal_option": GoalOption.optionUnicron,
+            "goal_option": GoalOption.option_Unicron,
             "minicon_count": 30,
             "start_with_random_weapon": False,
-            "randomize_level_order": False,
+            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
         },
-        "Extra Rando":{
-            "goal_option": GoalOption.optionUnicron,
+        "Rando":{
+            "goal_option": GoalOption.option_Unicron,
             "minicon_count": 30,
             "start_with_random_weapon": True,
-            "randomize_level_order": True,
+            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 25,
         },
         "Hard Mode":{
-            "goal_option": GoalOption.optionUnicron,
+            "goal_option": GoalOption.option_Unicron,
             "minicon_count": 40,
             "start_with_random_weapon": True,
-            "randomize_level_order": True,
+            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 75,
         },
         "Boss Fighter":{
-            "goal_option": GoalOption.optionBosses,
+            "goal_option": GoalOption.option_Bosses,
             "minicon_count": 30,                    #would be unused for this goal
             "start_with_random_weapon": True,
-            "randomize_level_order": True,
+            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
         },
         "Scardy Cat":{
-            "goal_option": GoalOption.optionMinicons,
+            "goal_option": GoalOption.option_Minicon,
             "minicon_count": 25,
             "start_with_random_weapon": False,
-            "randomize_level_order": False,
+            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
         },
+        "The Grind":{
+            "goal_option": GoalOption.option_Datacon,
+            "minicon_count": 30,                    #unused for this goal
+            "start_with_random_weapon": False,
+            "datacon_count": 64,
+            "trap_chance": 0,
+        }
     }
