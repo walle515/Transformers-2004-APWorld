@@ -81,6 +81,10 @@ class Transformers04World(World):
                     minicon_bool = 0
                 if item_id >= 150:
                     item_id = database.Archipelago_Item_ID
+                
+                if (item_id < 50 and minicon_bool==1):
+                    item_id += 3
+                
                 f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
                 
                 for loc,link in database.Linked_Locations.items():

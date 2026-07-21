@@ -129,7 +129,7 @@ ITEM_NAME_TO_ID = {
 
 #location ids are ID+1
 LOCATION_NAME_TO_ID = {
-        "Amazon-Claymore Cave": 1,
+    "Amazon-Claymore Cave": 1,
     "Amazon-Spire": 3,
     "Amazon-Neighboring Mountain": 5,
     "Amazon-Ravine Cliff Cave": 6,
@@ -254,6 +254,7 @@ LOCATION_NAME_TO_ID = {
 }
 
 
+#Original location (name) : linked location's ID
 Linked_Locations{
     "Mid Atlantic-Vanilla Progression": 80,
     "Mid Atlantic-Distant Island": 81,
@@ -263,4 +264,5 @@ Linked_Locations{
 }
 
 
-Archipelago_Item_ID = 16
+#adds 3 when outputing the file, so minicon ID is actually 16
+Archipelago_Item_ID = 13
