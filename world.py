@@ -70,7 +70,10 @@ class Transformers04World(World):
             for location, item in data.items():
                 loc_id = database.LOCATION_NAME_TO_ID.get(location)
                 loc_id -= 1
-                item_id = database.ITEM_NAME_TO_ID.get(item)
+                if item in database.ITEM_NAME_TO_ID:
+                    item_id = database.ITEM_NAME_TO_ID.get(item)
+                else:
+                    item_id = database.Archipelago_Item_ID
                 minicon_bool = 1
                 
                 if (item_id >= 50 and item_id < 150):
