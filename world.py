@@ -87,8 +87,4 @@ class Transformers04World(World):
                 
                 f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
                 
-                for loc,link in database.Linked_Locations.items():
-                    if loc == location:
-                        loc_id = link - 1
-                        f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
         
