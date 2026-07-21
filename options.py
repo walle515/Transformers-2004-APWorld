@@ -21,7 +21,7 @@ class TrapChance(Range):
     display_name = "Trap Chance"
     
     range_start = 0
-    range_end = 100
+    range_end = 99
     default = 0
     
 

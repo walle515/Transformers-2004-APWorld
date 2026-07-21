@@ -16,8 +16,8 @@ class Transformers04World(World):
     options_dataclass = tf04_options.Transformers04Options
     options: tf04_options.Transformers04Options
     
-    location_name_to_id = locations.LOCATION_NAME_TO_ID
-    item_name_to_id = items.ITEM_NAME_TO_ID
+    location_name_to_id = database.LOCATION_NAME_TO_ID
+    item_name_to_id = database.ITEM_NAME_TO_ID
     
     #This is the start region that should always be accessible. Amazon1 (named just Amazon here) is likely the start
     origin_region_name = "Amazon"
@@ -51,3 +51,37 @@ class Transformers04World(World):
         return self.options.as_dict(
             "hard_mode", "hammer", "extra_starting_chest", "confetti_explosiveness", "player_sprite"
         )
+    
+    def generate_output(self, output_directory: str) -> None:
+        file_name = self.multiworld.get_out_file_name_base(self.player)
+        out_file = os.path.join(output_directory, file_name + ".txt")
+        
+        random_num = world.random.randint(0,65535)
+        data = {
+            location.name: location.item.name
+            if location.item.player == self.player else "Remote"
+            for location in self.multiworld.get_filled_locations(self.player)
+        }
+        
+        
+        with open(out_file, "w") as f:
+            f.write(str(random_num) + " \n")
+            
+            for location, item in data.items():
+                loc_id = database.LOCATION_NAME_TO_ID.get(location)
+                loc_id -= 1
+                item_id = database.ITEM_NAME_TO_ID.get(item)
+                minicon_bool = 1
+                
+                if (item_id >= 50 and item_id < 150):
+                    item_id -= 50
+                    minicon_bool = 0
+                if item_id >= 150:
+                    item_id = database.Archipelago_Item_ID
+                f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
+                
+                for loc,link in database.Linked_Locations.items():
+                    if loc == location:
+                        loc_id = link - 1
+                        f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
+        

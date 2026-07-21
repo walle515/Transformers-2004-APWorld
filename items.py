@@ -7,132 +7,7 @@ from BaseClasses import Item, ItemClassification
 if TYPE_CHECKING:
     from .world import Transformers04World
 
-ITEM_NAME_TO_ID = {
-    "Blaster": 1,
-    "Skirmish": 2,
-    "Firefight": 3,
-    "Aftershock": 4,
-    "Sparkjump": 5,
-    "Jumpstart": 6,
-    "Overwatch": 7,
-    "Aurora": 8,
-    "Corona": 9,
-    #"UltimatePrimary": 10,
-    "Flashbang": 11,
-    "Hailstorm": 12,
-    "Knockdown": 15,
-    "Airburst": 16,
-    "Slapshot": 17,
-    "Lock-on": 18,
-    "Watchdog": 19,
-    "Claymore": 20,
-    "Lookout": 21,
-    "Twister": 22,
-    #"UltimateR1": 23,
-    "Shockpunch": 24,
-    "Slipstream": 25,
-    #"UltimateGlide": 26,
-    "Discord": 27,
-    "Safeguard": 28,
-    "Bulletproof": 29,
-    "Stronghold": 30,
-    "Highgear": 31,
-    "Smackdown": 33,
-    "Shieldwall": 34,
-    "Hawkeye": 35,
-    "Deflector": 36,
-    "Fullspeed": 37,
-    "Pressurepoint": 38,
-    "Shepherd": 39,
-    "Rangefinder": 40,
-    "Kickback": 41,
-    "Covert": 42,
-    "Tractor": 43,
-    #"UltimateShield": 44,
-    "Buildup": 45,
-    "Comeback": 46,
-    "Highjump": 47,
-    "Failsafe": 48,
-    
-    #Adding 50 for the Datacons, not sure if this order is correct or not, but what I am doing for now
-    "Datacon (None)": 51,
-    "Datacon (CharacterEnergon)": 52,
-    "Datacon (RendersAutobots2)": 53,
-    "Datacon (CardArtwork)": 54,
-    "Datacon (DecepticloneSubmission)": 55,
-    "Datacon (LeClezio1)": 56,
-    "Datacon (RendersDecepticons2)": 57,
-    "Datacon (ConceptArtDecepticlone)": 58,
-    "Datacon (LeClezio2)": 59,
-    "Datacon (TVSeriesThemeMusic)": 60,
-    "Datacon (LevelStoryboardsAmazon)": 61,
-    "Datacon (ArtPostcards)": 62,
-    "Datacon (InstructionSheetOptimus)": 63,
-    "Datacon (ConceptArtAutobots)": 64,
-    "Datacon (MovieStills6)": 65,
-    "Datacon (MovieStills7)": 66,
-    "Datacon (RendersDecepticon)": 67,
-    "Datacon (ThemeRegurgitator)": 68,
-    "Datacon (MiniComic1)": 69,
-    "Datacon (MiniComic2)": 70,
-    "Datacon (MiniComic3)": 71,
-    "Datacon (MiniComic4)": 72,
-    "Datacon (ProductionArtAmazon)": 73,
-    "Datacon (ProductionArtAntarctica)": 74,
-    "Datacon (ProductionArtDeepAmazon)": 75,
-    "Datacon (ProductionArtMidAtlantic)": 76,
-    "Datacon (ProductionArtAlaska)": 77,
-    "Datacon (ProductionArtStarship)": 78,
-    "Datacon (ProdcutionArtPacificIsland)": 79,
-    "Datacon (ProductionArtAutobotHQ)": 80,
-    "Datacon (RendersAutobots)": 81,
-    "Datacon (RendersDecepticlone)": 82,
-    "Datacon (RendersMiniCons)": 83,
-    "Datacon (ToyProductionHotShot)": 84,
-    "Datacon (ToyProductionOptimus)": 85,
-    "Datacon (ToyProductionRedAlert)": 86,
-    "Datacon (ToyProductionMinicons)": 87,
-    "Datacon (ToyProductionCyclonus)": 88,
-    "Datacon (ToyProductionStarscream)": 89,
-    "Datacon (ToyProductionTidalWave)": 90,
-    "Datacon (ToyProductionMegatron)": 91,
-    "Datacon (RendersAutobots3)": 92,
-    "Datacon (CGProductionSequence2)": 93,
-    "Datacon (CGProductionSequence)": 94,
-    "Datacon (InstructionSheetMegatron)": 95,
-    "Datacon (InstructionSheetHotShot)": 96,
-    "Datacon (RendersDecepticlone2)": 97,
-    "Datacon (RendersDecepticlone3)": 98,
-    "Datacon (RendersDecepticlone4)": 99,
-    "Datacon (TVSpot1)": 100,
-    "Datacon (TVSpot2)": 101,
-    "Datacon (TVSpot3)": 102,
-    "Datacon (TVSpot4)": 103,
-    "Datacon (TVSpot5)": 104,
-    "Datacon (InstructionSheetRedAlert)": 105,
-    "Datacon (MovieStills1)": 106,
-    "Datacon (MovieStills2)": 107,
-    "Datacon (MovieStills3)": 108,
-    "Datacon (MovieStills4)": 109,
-    "Datacon (MovieStills5)": 110,
-    "Datacon (Dropbox_Wishbone)": 111,
-    "Datacon (ThemeDropbox)": 112,
-    "Datacon (LaunchPhotos)": 113,
-    "Datacon (ThemeOrchestral)": 114,
-    
-    #saw this on the pickup list, I assume this is the powerlink
-    #"Melee Damage Enhance": 150,
-    
-    #adding this per a requirement in the world.py
-    "Health Drop": 151,
-    
-    #not sure if possible, but prepping here
-    "Antartica Unlock": 152,
-    "Deep Amazon Unlock": 153,
-    "Mid Atlantic Unlock": 154,
-    "Alaska Unlock": 155,
-    "Pacific Island Unlock": 156
-}
+
 
 DEFAULT_ITEM_ClASSIFICATIONS = {
     "Blaster": ItemClassification.useful,
@@ -264,20 +139,23 @@ DEFAULT_ITEM_ClASSIFICATIONS = {
     
     #per requirement in world.py
     "Health Drop": ItemClassification.filler,
+    "Big Head (2min)": ItemClassification.filler,
+    "Stealth Trap": ItemClassification.trap,
     
-    #not sure if possible, but prepping here
-    "Antartica Unlock": ItemClassification.progression,
-    "Deep Amazon Unlock": ItemClassification.progression,
-    "Mid Atlantic Unlock": ItemClassification.progression,
-    "Alaska Unlock": ItemClassification.progression,
-    "Pacific Island Unlock": ItemClassification.progression
 }
 
 class Transformers04Item(Item):
     game = "Transformers (2004)"
     
     def get_random_filler_item_name(world: Transformers04World) -> str:
-        return "Health Drop"
+        if world.random.randint(0,99) < world.options.trap_chance:
+            world.create_item("Stealth Trap")
+            return "Stealth Trap"
+        if world.random.randint(0,1) == 1
+            world.create_item("Health Drop")
+            return "Health Drop"
+        world.create_item("Big Head (2min)")
+        return "Big Head (2min)"
         
     def create_item_with_correct_classification(world: Transformers04World, name: str) -> Transformers04Item:
         # Our world class must have a create_item() function that can create any of our items by name at any time.
@@ -286,7 +164,7 @@ class Transformers04Item(Item):
         # but it seemed nicer to have it in its own function over here in items.py.
         classification = DEFAULT_ITEM_CLASSIFICATIONS[name]
         
-        return Transformers04Item(name, classification, ITEM_NAME_TO_ID[name], world.player)
+        return Transformers04Item(name, classification, database.ITEM_NAME_TO_ID[name], world.player)
         
     def create_all_items(world: Transformers04World) -> None:
         itempool: list[Item] = [
@@ -399,13 +277,6 @@ class Transformers04Item(Item):
             world.create_item("Datacon (ThemeDropbox)"),
             world.create_item("Datacon (LaunchPhotos)"),
             world.create_item("Datacon (ThemeOrchestral)"),
-            world.create_item("Melee Damage Enhance"),
-            world.create_item("Health Drop"),
-            world.create_item("Antartica Unlock"),
-            world.create_item("Deep Amazon Unlock"),
-            world.create_item("Mid Atlantic Unlock"),
-            world.create_item("Alaska Unlock"),
-            world.create_item("Pacific Island Unlock")
         ]
         
         number_of_items = len(itempool)
