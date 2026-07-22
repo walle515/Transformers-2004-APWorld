@@ -40,7 +40,7 @@ class Transformers04Location(Location):
         pacific_island = world.get_region("Pacific Island")
         
         amazon_locations = get_location_names_with_ids(
-            [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Amazon")]
+            [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Amazon-")]
         )
         amazon.add_locations(amazon_locations, Transformers04Location)
         

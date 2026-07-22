@@ -258,16 +258,16 @@ LOCATION_NAME_TO_ID = {
     "Pacific Island-Bunker 9": 146,
     "Pacific Island-Bunker 2": 147,
     "Pacific Island-Bunker 3": 148,
-    "Amazon-Beginner Weapon": 42069,
+    "Amazon Beginner Weapon": 42069,
     
     #Boss Defeats
-    "Amazon-Boss": 200,
-    "Antartica-Boss": 201,
-    "Deep Amazon-Boss": 202,
-    "Mid Atlantic-Boss": 203,
-    "Alaska-Boss": 204,
-    "Starship-Boss": 205,
-    "Pacific Island-Boss": 206,
+    "Amazon Boss": 200,
+    "Antartica Boss": 201,
+    "Deep Amazon Boss": 202,
+    "Mid Atlantic Boss": 203,
+    "Alaska Boss": 204,
+    "Starship Boss": 205,
+    "Pacific Island Boss": 206,
 }
 
 
