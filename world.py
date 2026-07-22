@@ -67,8 +67,13 @@ class Transformers04World(World):
         with open(out_file, "w") as f:
             f.write(str(random_num) + " \n")
             
+            if options.start_with_random_weapon == False:
+                f.write(str(1) + " " + str(42069) + " " + str(4) + " \n")
+            
             for location, item in data.items():
                 loc_id = database.LOCATION_NAME_TO_ID.get(location)
+                if loc_id >= 200:
+                    continue
                 loc_id -= 1
                 if item in database.ITEM_NAME_TO_ID:
                     item_id = database.ITEM_NAME_TO_ID.get(item)

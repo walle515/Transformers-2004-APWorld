@@ -38,9 +38,16 @@ class MiniconCount(Range):
     
 class StartWithRandomWeapon(Toggle):
     """
-    Start with no weapon and a random minicon nearby
+    The starting minicon will be a random minicon instead of the default blaster
     """
     display_name = "Start with Random Weapon"
+    
+    
+class RandomizeLevels(Toggle):
+    """
+    Randomize the order of the levels
+    """
+    display_name = "Randomize Levels"
     
     
 class DataconCount(Range):
@@ -77,6 +84,7 @@ class Transformers04Options(PerGameCommonOptions):
     start_with_random_weapon: StartWithRandomWeapon
     datacon_count: DataconCount
     goal_option: GoalOption
+    randomize_levels: RandomizeLevels
     
     # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
     option_groups = [
@@ -86,7 +94,7 @@ class Transformers04Options(PerGameCommonOptions):
         ),
         OptionGroup(
             "Gameplay Options",
-            [StartWithRandomWeapon, TrapChance],
+            [RandomizeLevels, StartWithRandomWeapon, TrapChance],
         ),
     ]
     
@@ -98,6 +106,7 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": False,
             "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
+            "randomize_levels": False,
         },
         "Rando":{
             "goal_option": GoalOption.option_Unicron,
@@ -105,6 +114,7 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": True,
             "datacon_count": 50,                    #unused for this goal
             "trap_chance": 25,
+            "randomize_levels": True,
         },
         "Hard Mode":{
             "goal_option": GoalOption.option_Unicron,
@@ -112,6 +122,7 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": True,
             "datacon_count": 50,                    #unused for this goal
             "trap_chance": 75,
+            "randomize_levels": True,
         },
         "Boss Fighter":{
             "goal_option": GoalOption.option_Bosses,
@@ -119,6 +130,7 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": True,
             "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
+            "randomize_levels": False,
         },
         "Scardy Cat":{
             "goal_option": GoalOption.option_Minicon,
@@ -126,6 +138,7 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": False,
             "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
+            "randomize_levels": False,
         },
         "The Grind":{
             "goal_option": GoalOption.option_Datacon,
@@ -133,5 +146,6 @@ class Transformers04Options(PerGameCommonOptions):
             "start_with_random_weapon": False,
             "datacon_count": 64,
             "trap_chance": 0,
+            "randomize_levels": True,
         }
     }

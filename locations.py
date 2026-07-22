@@ -31,4 +31,17 @@ class Transformers04Location(Location):
     def create_regular_locations(world: Transformers04World) -> None:
         # Finally, we need to put the Locations ("checks") into their regions.
         # Once again, before we do anything, we can grab our regions we created by using world.get_region()
+        amazon = world.get_region("Amazon")
+        antartica = world.get_region("Antartica")
+        deep_amazon = world.get_region("Deep Amazon")
+        mid_atlantic = world.get_region("Mid Atlantic")
+        alaska = world.get_region("Alaska")
+        starhsip = world.get_region("Starship")
+        pacific_island = world.get_region("Pacific Island")
         
+        amazon_locations = get_location_names_with_ids(
+            [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Amazon")]
+        )
+        amazon.add_locations(amazon_locations, Transformers04Location)
+        
+        #event items and locations (level unlocks and killing bosses) are handled differently than regular items and locations

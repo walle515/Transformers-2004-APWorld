@@ -142,6 +142,14 @@ DEFAULT_ITEM_ClASSIFICATIONS = {
     "Big Head (2min)": ItemClassification.filler,
     "Stealth Trap": ItemClassification.trap,
     
+    #Level Unlocks
+    "Antartica Level Unlock": ItemClassification.progression,
+    "Deep Amazon Level Unlock": ItemClassification.progression,
+    "Mid Atlantic Level Unlock": ItemClassification.progression,
+    "Alaska Level Unlock": ItemClassification.progression,
+    "Starship Level Unlock": ItemClassification.progression,
+    "Pacific Island Level Unlock": ItemClassification.progression,
+    
 }
 
 class Transformers04Item(Item):
@@ -168,7 +176,6 @@ class Transformers04Item(Item):
         
     def create_all_items(world: Transformers04World) -> None:
         itempool: list[Item] = [
-            world.create_item("Blaster"),
             world.create_item("Skirmish"),
             world.create_item("Firefight"),
             world.create_item("Aftershock"),
@@ -278,6 +285,17 @@ class Transformers04Item(Item):
             world.create_item("Datacon (LaunchPhotos)"),
             world.create_item("Datacon (ThemeOrchestral)"),
         ]
+        
+        if world.options.start_with_random_weapon:
+            itempool.append(world.create_item("Blaster"))
+        
+        if(world.options.randomize_levels:
+            itempool.append(world.create_item("Antartica Level Unlock"))
+            itempool.append(world.create_item("Deep Amazon Level Unlock"))
+            itempool.append(world.create_item("Mid Atlantic Level Unlock"))
+            itempool.append(world.create_item("Alaska Level Unlock"))
+            itempool.append(world.create_item("Starship Level Unlock"))
+            itempool.append(world.create_item("Pacific Island Level Unlock"))
         
         number_of_items = len(itempool)
         
