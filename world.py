@@ -7,6 +7,7 @@ from worlds.AutoWorld import World
 from . import items, locations, regions, rules
 #from . import web_world
 from . import options as tf04_options
+from . import database
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -19,8 +20,8 @@ class Transformers04World(World):
     location_name_to_id = database.LOCATION_NAME_TO_ID
     item_name_to_id = database.ITEM_NAME_TO_ID
     
-    #This is the start region that should always be accessible. Amazon1 (named just Amazon here) is likely the start
-    origin_region_name = "Amazon"
+    #This is the start region that should always be accessible
+    origin_region_name = "Menu"
     
     def create_regions(self) -> None:
         regions.create_and_connect_regions(self)
