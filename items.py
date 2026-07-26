@@ -143,12 +143,14 @@ DEFAULT_ITEM_ClASSIFICATIONS = {
     "Stealth Trap": ItemClassification.trap,
     
     #Level Unlocks
+    "Amazon Level Unlock": ItemClassification.progression,
     "Antartica Level Unlock": ItemClassification.progression,
     "Deep Amazon Level Unlock": ItemClassification.progression,
     "Mid Atlantic Level Unlock": ItemClassification.progression,
     "Alaska Level Unlock": ItemClassification.progression,
     "Starship Level Unlock": ItemClassification.progression,
     "Pacific Island Level Unlock": ItemClassification.progression,
+    "Unicron Unlock": ItemClassification.progression,
     
 }
 
@@ -289,13 +291,41 @@ class Transformers04Item(Item):
         if world.options.start_with_random_weapon:
             itempool.append(world.create_item("Blaster"))
         
-        if(world.options.randomize_levels:
-            itempool.append(world.create_item("Antartica Level Unlock"))
-            itempool.append(world.create_item("Deep Amazon Level Unlock"))
-            itempool.append(world.create_item("Mid Atlantic Level Unlock"))
-            itempool.append(world.create_item("Alaska Level Unlock"))
-            itempool.append(world.create_item("Starship Level Unlock"))
-            itempool.append(world.create_item("Pacific Island Level Unlock"))
+        if world.options.randomize_levels:
+            rand_num = world.random.randint(0,6)
+            if rand_num != 0:
+                itempool.append(world.create_item("Amazon Level Unlock"))
+            if rand_num != 1:
+                itempool.append(world.create_item("Antartica Level Unlock"))
+            if rand_num != 2:
+                itempool.append(world.create_item("Deep Amazon Level Unlock"))
+            if rand_num != 3:
+                itempool.append(world.create_item("Mid Atlantic Level Unlock"))
+            if rand_num != 4:
+                itempool.append(world.create_item("Alaska Level Unlock"))
+            if rand_num != 5:
+                itempool.append(world.create_item("Starship Level Unlock"))
+            if rand_num != 6:
+                itempool.append(world.create_item("Pacific Island Level Unlock"))
+            
+            if rand_num == 0:
+                world.push_precollected(world.create_item("Amazon Level Unlock"))
+            if rand_num == 1:
+                world.push_precollected(world.create_item("Alaska Level Unlock"))
+            if rand_num == 2:
+                world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
+            if rand_num == 3:
+                world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
+            if rand_num == 4:
+                world.push_precollected(world.create_item("Alaska Level Unlock"))
+            if rand_num == 5:
+                world.push_precollected(world.create_item("Starship Level Unlock"))
+            if rand_num == 6:
+                world.push_precollected(world.create_item("Pacific Island Level Unlock"))
+            
+            itempool.append(world.create_item("Unicron Unlock"))
+        else:
+            world.push_precollected(world.create_item("Amazon Level Unlock"))
         
         number_of_items = len(itempool)
         

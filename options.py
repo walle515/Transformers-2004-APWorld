@@ -27,7 +27,7 @@ class TrapChance(Range):
 
 class MiniconCount(Range):
     """
-    How many minicons are needed for the goal or to unlock the Unicron Fight
+    How many minicons are needed to unlock the Unicron Fight
     """
     display_name = "Minicon Count"
     
@@ -50,27 +50,14 @@ class RandomizeLevels(Toggle):
     display_name = "Randomize Levels"
     
     
-class DataconCount(Range):
-    """
-    How many datacons are needed for the goal
-    """
-    display_name = "Datacon Count"
-    
-    range_start = 30
-    range_end = 64
-    default = 50
-    
-    
 class GoalOption(Choice):
     """
-    Can choose between Minicon Count, Bosses Killed, or Unicron Killed
+    Can choose between Unicron Killed or All Bosses Killed
     """
     display_name = "Goal Option"
     
-    option_Minicon = 0
+    option_Unicron = 0
     option_Bosses = 1
-    option_Unicron = 2
-    option_Datacon = 3
     
     default = option_Unicron
     
@@ -82,7 +69,6 @@ class Transformers04Options(PerGameCommonOptions):
     trap_chance: TrapChance
     minicon_count: MiniconCount
     start_with_random_weapon: StartWithRandomWeapon
-    datacon_count: DataconCount
     goal_option: GoalOption
     randomize_levels: RandomizeLevels
     
@@ -90,7 +76,7 @@ class Transformers04Options(PerGameCommonOptions):
     option_groups = [
         OptionGroup(
             "Goal Options",
-            [GoalOption, MiniconCount, DataconCount],
+            [GoalOption, MiniconCount],
         ),
         OptionGroup(
             "Gameplay Options",
@@ -104,7 +90,6 @@ class Transformers04Options(PerGameCommonOptions):
             "goal_option": GoalOption.option_Unicron,
             "minicon_count": 30,
             "start_with_random_weapon": False,
-            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
             "randomize_levels": False,
         },
@@ -112,40 +97,22 @@ class Transformers04Options(PerGameCommonOptions):
             "goal_option": GoalOption.option_Unicron,
             "minicon_count": 30,
             "start_with_random_weapon": True,
-            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 25,
             "randomize_levels": True,
         },
         "Hard Mode":{
-            "goal_option": GoalOption.option_Unicron,
+            "goal_option": GoalOption.option_Boses,
             "minicon_count": 40,
             "start_with_random_weapon": True,
-            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 75,
             "randomize_levels": True,
         },
         "Boss Fighter":{
             "goal_option": GoalOption.option_Bosses,
-            "minicon_count": 30,                    #would be unused for this goal
+            "minicon_count": 30,
             "start_with_random_weapon": True,
-            "datacon_count": 50,                    #unused for this goal
             "trap_chance": 0,
             "randomize_levels": False,
         },
-        "Scardy Cat":{
-            "goal_option": GoalOption.option_Minicon,
-            "minicon_count": 25,
-            "start_with_random_weapon": False,
-            "datacon_count": 50,                    #unused for this goal
-            "trap_chance": 0,
-            "randomize_levels": False,
-        },
-        "The Grind":{
-            "goal_option": GoalOption.option_Datacon,
-            "minicon_count": 30,                    #unused for this goal
-            "start_with_random_weapon": False,
-            "datacon_count": 64,
-            "trap_chance": 0,
-            "randomize_levels": True,
-        }
+        
     }

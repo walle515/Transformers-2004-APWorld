@@ -120,13 +120,14 @@ ITEM_NAME_TO_ID = {
     "Stealth Trap": 153,
     
     #Level Unlocks
+    "Amazon Level Unlock": 160,
     "Antartica Level Unlock": 161,
     "Deep Amazon Level Unlock": 162,
     "Mid Atlantic Level Unlock": 163,
     "Alaska Level Unlock": 164,
     "Starship Level Unlock": 165,
     "Pacific Island Level Unlock": 166,
-    
+    "Unicron Unlock": 167
 }
 
 
@@ -265,7 +266,7 @@ LOCATION_NAME_TO_ID = {
     "Antartica Boss": 201,
     "Deep Amazon Boss": 202,
     "Mid Atlantic Boss": 203,
-    "Alaska Boss": 204,
+    "Alaska Complete": 204,
     "Starship Boss": 205,
     "Pacific Island Boss": 206,
 }
@@ -283,3 +284,152 @@ Linked_Locations = {
 
 #adds 3 when outputing the file, so minicon ID is actually 16
 Archipelago_Item_ID = 13
+
+
+Minicons = [
+    #"Blaster",
+    "Skirmish",
+    "Firefight",
+    "Aftershock",
+    "Sparkjump",
+    "Jumpstart",
+    "Overwatch",
+    "Aurora",
+    "Corona",
+    #"UltimatePrimary",
+    "Flashbang",
+    "Hailstorm",
+    "Knockdown",
+    "Airburst",
+    "Slapshot",
+    "Lock-on",
+    "Watchdog",
+    "Claymore",
+    "Lookout",
+    "Twister",
+    #"UltimateR1",
+    "Shockpunch",
+    "Slipstream",
+    #"UltimateGlide",
+    "Discord",
+    "Safeguard",
+    "Bulletproof",
+    "Stronghold",
+    "Highgear",
+    "Smackdown",
+    "Shieldwall",
+    "Hawkeye",
+    "Deflector",
+    "Fullspeed",
+    "Pressurepoint",
+    "Shepherd",
+    "Rangefinder",
+    "Kickback",
+    "Covert",
+    "Tractor",
+    #"UltimateShield"
+    "Buildup",
+    "Comeback",
+    "Highjump",
+    "Failsafe"
+]
+
+
+Explosive_Minicons = {
+    "Claymore",
+    "Failsafe",
+    "Flashbang",
+    "Hailstorm",
+    "Lock-on",
+    "Watchdog",
+    "Slapshot"
+}
+
+
+
+Explosive_Locations = [
+    "Antartica-Research Base Office 1",
+    "Antartica-Research Base Containers 1",
+    "Antartica-Research Base Containers 2",
+    "Antartica-Research Base Office 3",
+    "Antartica-Research Base Office 4",
+    "Antartica-Research Base Office 2"
+]
+
+Slipstream_Locations = [
+    "Amazon-Spire",
+    "Amazon-Neighboring Mountain",
+    "Amazon-Ravine Cliff Cave",
+    "Amazon-Surprise",
+    "Amazon-Forgettable Location",
+    "Amazon-Medium Unit Party",
+    "Amazon-Forest Across from the Basin 1",
+    "Amazon-Forest Across from the Basin 2",
+    "Antartica-Midfield Beacon",
+    "Antartica-Lonely Island",
+    "Deep Amazon-Island Altar",
+    "Deep Amazon-Spawn Ledge",
+    "Deep Amazon-Waterfall Rock",
+    "Deep Amazon-Patrolling Dropship",
+    "Mid Atlantic-Distant Island",
+    "Alaska-Along the Canyon",
+    "Pacific Island-Moai",
+    "Pacific Island-Back of the Volcano",
+    "Pacific Island-Volcano Path",
+    "Pacific Island-Lighthouse",
+    "Pacific Island-Waterfall Climb",
+    "Pacific Island-Stronghold Ledge",
+    "Pacific Island-High Volcano Ledge",
+    "Pacific Island-Hidden Ledge",
+    "Pacific Island-Above the Waterfall",
+    "Pacific Island-Small Island",
+    "Pacific Island-Bunker 1",
+    "Pacific Island-Bunker 4",
+    "Pacific Island-Bunker 5",
+    "Pacific Island-Bunker 6",
+    "Pacific Island-Bunker 7",
+    "Pacific Island-Bunker 8",
+    "Pacific Island-Bunker 9",
+    "Pacific Island-Bunker 2",
+    "Pacific Island-Bunker 3"
+]
+
+Slipstream_Explosive = [
+    "Pacific Island-Small Silo",
+    "Pacific Island-Large Silo"
+]
+
+Highjump_Locations = [
+    "Antartica-Rock of Power",
+    "Deep Amazon-Temple Pool",
+    "Deep Amazon-Antechamber Alcove",
+    "Alaska-Mountaintop",
+    "Alaska-Cave's Right Fork",
+    "Alaska-Cave's Left Fork",
+    "Alaska-Cave's Pool",
+    "Alaska-Escape",
+    "Starship-Start of the Climb",
+    "Starship-First Steps",
+    "Starship-Main Elevator",
+    "Starship-Sideways Elevator",
+    "Starship-Lower Dropship",
+    "Starship-Bait",
+    "Starship-Free Space",
+    "Starship-Across the Gap",
+    "Starship-Early Gift",
+    "Starship-Bridge",
+    "Starship-Top of the Crashed Ship",
+    "Starship-Dropdown 1",
+    "Starship-Risky Jump",
+    "Starship-Middle Dropship",
+    "Starship-Dropdown 2"
+]
+
+Slipstream_Highjump = [
+    "Amazon-Spidertank Triplets",
+    "Starship-Rock 1",
+    "Starship-Rock 2",
+    "Starship-Rock 3",
+    "Starship-Rock 4",
+    "Alaska-Cave's Far Ledge"
+]

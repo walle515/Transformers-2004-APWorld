@@ -31,9 +31,31 @@ def create_all_regions(world: Transformers04World) -> None:
     alaska = Region("Alaska", world.player, world.multiworld)
     starship = Region("Starship", world.player, world.multiworld)
     pacificIsland = Region("Pacific Island", world.player, world.multiworld)
+    unicron = Region("Unicron", world.player, world.multiworld)
+    menu = Region("Menu", world.player, world.multiworld)
     
-    regions = [amazon, antartica, deepAmazon, midAtlantic, alaska, starship, pacificIsland]
+    regions = [menu, amazon, antartica, deepAmazon, midAtlantic, alaska, starship, pacificIsland, unicron]
     
     world.multiworld.regions += regions
     
     
+def connect_regions(world: Transformers04World) -> None:
+    amazon = world.get_region("Amazon")
+    antartica = world.get_region("Antartica")
+    deep_amazon = world.get_region("Deep Amazon")
+    mid_atlantic = world.get_region("Mid Atlantic")
+    alaska = world.get_region("Alaska")
+    starship = world.get_region("Starship")
+    pacific_island = world.get_region("Pacific Island")
+    unicron = world.get_region("Unicron")
+    menu = world.get_region("Menu")
+    
+    
+    menu.connect(amazon, "Amazon Unlocked", lambda state: state.has("Amazon Level Unlock", world.player))
+    menu.connect(antartica, "Antartica Unlocked", lambda state: state.has("Antartica Level Unlock", world.player))
+    menu.connect(deep_amazon, "Deep Amazon Unlocked", lambda state: state.has("Deep Amazon Level Unlock", world.player))
+    menu.connect(mid_atlantic, "Mid Atlantic Unlocked") #need to add rule for rangefinder and level unlock
+    menu.connect(alaska, "Alaska Unlocked", lambda state: state.has("Alaska Level Unlock", world.player))
+    menu.connect(starship, "Starship Unlocked", lambda state: state.has("Starship Level Unlock", world.player))
+    menu.connect(pacific_island, "Pacific Island Unlocked", lambda state: state.has("Pacific Island Level Unlock", world.player))
+    menu.connect(unicron, "Unicron Unlocked") #Unlocked by level unlock and number of minicons
