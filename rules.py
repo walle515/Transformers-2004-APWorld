@@ -32,14 +32,14 @@ def set_all_entrance_rules(world: Transformers04World) -> None:
     def minicons_collected(state: CollectionState) -> int:
         numMini = 0
         from .database import Minicons
-        for mini in Minicons[]:
+        for mini in Minicons:
             if Has(mini):
                 numMini += 1
         return numMini
     
     unicron_entrance_rule = lambda state: (minicons_collected(state) >= world.options.minicon_count.value
                                             and state.has("Unicron Level Unlock", self.player)
-                                            and (state.has("All Bosses Beaten", self.player) | (world.options.goal_option.value != 1))
+                                            and (state.has("All Bosses Beaten", self.player) | (world.options.goal_option.value != 1)))
     
 
 

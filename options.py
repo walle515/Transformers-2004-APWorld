@@ -1,4 +1,4 @@
-rom dataclasses import dataclass
+from dataclasses import dataclass
 
 from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
 
@@ -72,47 +72,47 @@ class Transformers04Options(PerGameCommonOptions):
     goal_option: GoalOption
     randomize_levels: RandomizeLevels
     
-    # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
-    option_groups = [
-        OptionGroup(
-            "Goal Options",
-            [GoalOption, MiniconCount],
-        ),
-        OptionGroup(
-            "Gameplay Options",
-            [RandomizeLevels, StartWithRandomWeapon, TrapChance],
-        ),
-    ]
+# If we want to group our options by similar type, we can do so as well. This looks nice on the website.
+option_groups = [
+    OptionGroup(
+        "Goal Options",
+        [GoalOption, MiniconCount],
+    ),
+    OptionGroup(
+        "Gameplay Options",
+        [RandomizeLevels, StartWithRandomWeapon, TrapChance],
+    ),
+]
+
+# Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".
+option_presets = {
+    "Standard":{
+        "goal_option": GoalOption.option_Unicron,
+        "minicon_count": 30,
+        "start_with_random_weapon": False,
+        "trap_chance": 0,
+        "randomize_levels": False,
+    },
+    "Rando":{
+        "goal_option": GoalOption.option_Unicron,
+        "minicon_count": 30,
+        "start_with_random_weapon": True,
+        "trap_chance": 25,
+        "randomize_levels": True,
+    },
+    "Hard Mode":{
+        "goal_option": GoalOption.option_Bosses,
+        "minicon_count": 40,
+        "start_with_random_weapon": True,
+        "trap_chance": 75,
+        "randomize_levels": True,
+    },
+    "Boss Fighter":{
+        "goal_option": GoalOption.option_Bosses,
+        "minicon_count": 30,
+        "start_with_random_weapon": True,
+        "trap_chance": 0,
+        "randomize_levels": False,
+    },
     
-    # Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".
-    option_presets = {
-        "Standard":{
-            "goal_option": GoalOption.option_Unicron,
-            "minicon_count": 30,
-            "start_with_random_weapon": False,
-            "trap_chance": 0,
-            "randomize_levels": False,
-        },
-        "Rando":{
-            "goal_option": GoalOption.option_Unicron,
-            "minicon_count": 30,
-            "start_with_random_weapon": True,
-            "trap_chance": 25,
-            "randomize_levels": True,
-        },
-        "Hard Mode":{
-            "goal_option": GoalOption.option_Boses,
-            "minicon_count": 40,
-            "start_with_random_weapon": True,
-            "trap_chance": 75,
-            "randomize_levels": True,
-        },
-        "Boss Fighter":{
-            "goal_option": GoalOption.option_Bosses,
-            "minicon_count": 30,
-            "start_with_random_weapon": True,
-            "trap_chance": 0,
-            "randomize_levels": False,
-        },
-        
-    }
+}
