@@ -9,6 +9,7 @@ from . import web_world
 from . import options as tf04_options
 from . import database
 import os
+from .patch import Transformers04Patch
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -56,7 +57,8 @@ class Transformers04World(World):
     
     def generate_output(self, output_directory: str) -> None:
         file_name = self.multiworld.get_out_file_name_base(self.player)
-        out_file = os.path.join(output_directory, file_name + ".txt")
+        player_num = int(self.player)
+        player_name_str = str(self.multiworld.player_name[self.player])
         
         random_num = self.random.randint(0,65535)
         data = {
@@ -66,35 +68,42 @@ class Transformers04World(World):
         }
         
         
-        with open(out_file, "w") as f:
-            f.write(str(random_num) + " \n")
+        contents = ""
+        contents += str(random_num) + " \n"
+        
+        if self.options.start_with_random_weapon == False:
+            contents += str(1) + " " + str(42069) + " " + str(4) + " \n"
+        
+        for location, item in data.items():
+            if location in database.LOCATION_NAME_TO_ID:
+                loc_id = database.LOCATION_NAME_TO_ID.get(location)
+            else:
+                continue
+            if (loc_id >= 200 and loc_id < 1000):
+                continue
+            loc_id -= 1
+            if item in database.ITEM_NAME_TO_ID:
+                item_id = database.ITEM_NAME_TO_ID.get(item)
+            else:
+                item_id = database.Archipelago_Item_ID
+            minicon_bool = 1
             
-            if self.options.start_with_random_weapon == False:
-                f.write(str(1) + " " + str(42069) + " " + str(4) + " \n")
+            if (item_id >= 50 and item_id < 150):
+                item_id -= 50
+                minicon_bool = 0
+            if item_id >= 150:
+                item_id = database.Archipelago_Item_ID
             
-            for location, item in data.items():
-                if location in database.LOCATION_NAME_TO_ID:
-                    loc_id = database.LOCATION_NAME_TO_ID.get(location)
-                else:
-                    continue
-                if (loc_id >= 200 and loc_id < 1000):
-                    continue
-                loc_id -= 1
-                if item in database.ITEM_NAME_TO_ID:
-                    item_id = database.ITEM_NAME_TO_ID.get(item)
-                else:
-                    item_id = database.Archipelago_Item_ID
-                minicon_bool = 1
-                
-                if (item_id >= 50 and item_id < 150):
-                    item_id -= 50
-                    minicon_bool = 0
-                if item_id >= 150:
-                    item_id = database.Archipelago_Item_ID
-                
-                if (item_id < 50 and minicon_bool==1):
-                    item_id += 3
-                
-                f.write(str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n")
-                
+            if (item_id < 50 and minicon_bool==1):
+                item_id += 3
+            
+            contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n"
+            
+            patch = Transformers04Patch(
+                player_num,
+                player_name_str
+            )
+            patch.contents = contents
+            
+            patch.write(os.path.join(output_directory, file_name + ".aptf"))
         
