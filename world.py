@@ -57,8 +57,6 @@ class Transformers04World(World):
     
     def generate_output(self, output_directory: str) -> None:
         file_name = self.multiworld.get_out_file_name_base(self.player)
-        player_num = int(self.player)
-        player_name_str = str(self.multiworld.player_name[self.player])
         
         random_num = self.random.randint(0,65535)
         data = {
@@ -79,9 +77,8 @@ class Transformers04World(World):
                 loc_id = database.LOCATION_NAME_TO_ID.get(location)
             else:
                 continue
-            if (loc_id >= 200 and loc_id < 1000):
+            if (loc_id >= 200):
                 continue
-            loc_id -= 1
             if item in database.ITEM_NAME_TO_ID:
                 item_id = database.ITEM_NAME_TO_ID.get(item)
             else:
@@ -100,10 +97,11 @@ class Transformers04World(World):
             contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n"
             
             patch = Transformers04Patch(
-                player_num,
-                player_name_str
+                self.player,
+                self.multiworld.player_name[self.player]
             )
+            
             patch.contents = contents
             
-            patch.write(os.path.join(output_directory, file_name + ".aptf"))
+            patch.write(os.path.join(output_directory, file_name + ".txt"))
         
