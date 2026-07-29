@@ -1,4 +1,4 @@
-ITEM_NAME_TO_ID = {
+ITEM_NAME_TO_ID: dict[str,int] = {
     "Blaster": 1,
     "Skirmish": 2,
     "Firefight": 3,
@@ -137,7 +137,7 @@ ITEM_NAME_TO_ID = {
 # Even if a location doesn't exist on specific options, it must be present in this lookup.
 
 #location ids are ID+1
-LOCATION_NAME_TO_ID = {
+LOCATION_NAME_TO_ID: dict[str,int] = {
     "Amazon-Claymore Cave": 1,
     "Amazon-Spire": 3,
     "Amazon-Neighboring Mountain": 5,
@@ -259,7 +259,7 @@ LOCATION_NAME_TO_ID = {
     "Pacific Island-Bunker 9": 146,
     "Pacific Island-Bunker 2": 147,
     "Pacific Island-Bunker 3": 148,
-    "Amazon Beginner Weapon": 42069,
+    "Amazon Beginner Weapon": 42070,
     
     #Boss Defeats
     "Amazon Boss": 200,
@@ -268,7 +268,7 @@ LOCATION_NAME_TO_ID = {
     "Mid Atlantic Boss": 203,
     "Alaska Complete": 204,
     "Starship Boss": 205,
-    "Pacific Island Boss": 206,
+    "Pacific Island Boss": 206
 }
 
 

@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from rule_builder.options import OptionFilter
 from rule_builder.rules import Has, HasAll, Rule
+from . import database
 
 
 if TYPE_CHECKING:

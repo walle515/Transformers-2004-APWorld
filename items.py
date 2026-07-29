@@ -179,6 +179,8 @@ def create_item_with_correct_classification(world: Transformers04World, name: st
     return Transformers04Item(name, classification, database.ITEM_NAME_TO_ID[name], world.player)
     
 def create_all_items(world: Transformers04World) -> None:
+    rand_num = world.random.randint(0,6)
+    print("TF04 World Random Num: " + str(rand_num))
     itempool: list[Item] = [
         world.create_item("Skirmish"),
         world.create_item("Firefight"),
@@ -294,7 +296,6 @@ def create_all_items(world: Transformers04World) -> None:
         itempool.append(world.create_item("Blaster"))
     
     if world.options.randomize_levels:
-        rand_num = world.random.randint(0,6)
         if rand_num != 0:
             itempool.append(world.create_item("Amazon Level Unlock"))
         if rand_num != 1:
@@ -309,25 +310,8 @@ def create_all_items(world: Transformers04World) -> None:
             itempool.append(world.create_item("Starship Level Unlock"))
         if rand_num != 6:
             itempool.append(world.create_item("Pacific Island Level Unlock"))
-        
-        if rand_num == 0:
-            world.push_precollected(world.create_item("Amazon Level Unlock"))
-        if rand_num == 1:
-            world.push_precollected(world.create_item("Alaska Level Unlock"))
-        if rand_num == 2:
-            world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
-        if rand_num == 3:
-            world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
-        if rand_num == 4:
-            world.push_precollected(world.create_item("Alaska Level Unlock"))
-        if rand_num == 5:
-            world.push_precollected(world.create_item("Starship Level Unlock"))
-        if rand_num == 6:
-            world.push_precollected(world.create_item("Pacific Island Level Unlock"))
-        
         itempool.append(world.create_item("Unicron Unlock"))
-    else:
-        world.push_precollected(world.create_item("Amazon Level Unlock"))
+    
     
     number_of_items = len(itempool)
     
@@ -347,3 +331,20 @@ def create_all_items(world: Transformers04World) -> None:
 #if world.options.start_with_one_confetti_cannon:
     #starting_confetti_cannon = world.create_item("Confetti Cannon")
     #world.push_precollected(starting_confetti_cannon)
+    if world.options.randomize_levels:
+        if rand_num == 0:
+            world.push_precollected(world.create_item("Amazon Level Unlock"))
+        if rand_num == 1:
+            world.push_precollected(world.create_item("Alaska Level Unlock"))
+        if rand_num == 2:
+            world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
+        if rand_num == 3:
+            world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
+        if rand_num == 4:
+            world.push_precollected(world.create_item("Alaska Level Unlock"))
+        if rand_num == 5:
+            world.push_precollected(world.create_item("Starship Level Unlock"))
+        if rand_num == 6:
+            world.push_precollected(world.create_item("Pacific Island Level Unlock"))
+    else:
+        world.push_precollected(world.create_item("Amazon Level Unlock"))

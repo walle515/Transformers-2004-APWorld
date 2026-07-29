@@ -8,6 +8,7 @@ from . import items, locations, regions, rules
 from . import web_world
 from . import options as tf04_options
 from . import database
+import os
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -50,14 +51,14 @@ class Transformers04World(World):
     def fill_slot_data(self) -> Mapping[str, Any]:
         # If you need access to the player's chosen options on the client side, there is a helper for that.
         return self.options.as_dict(
-            "hard_mode", "hammer", "extra_starting_chest", "confetti_explosiveness", "player_sprite"
+            "trap_chance", "minicon_count", "start_with_random_weapon", "goal_option", "randomize_levels"
         )
     
     def generate_output(self, output_directory: str) -> None:
         file_name = self.multiworld.get_out_file_name_base(self.player)
         out_file = os.path.join(output_directory, file_name + ".txt")
         
-        random_num = world.random.randint(0,65535)
+        random_num = self.random.randint(0,65535)
         data = {
             location.name: location.item.name
             if location.item.player == self.player else "Remote"
@@ -68,12 +69,15 @@ class Transformers04World(World):
         with open(out_file, "w") as f:
             f.write(str(random_num) + " \n")
             
-            if options.start_with_random_weapon == False:
+            if self.options.start_with_random_weapon == False:
                 f.write(str(1) + " " + str(42069) + " " + str(4) + " \n")
             
             for location, item in data.items():
-                loc_id = database.LOCATION_NAME_TO_ID.get(location)
-                if loc_id >= 200:
+                if location in database.LOCATION_NAME_TO_ID:
+                    loc_id = database.LOCATION_NAME_TO_ID.get(location)
+                else:
+                    continue
+                if (loc_id >= 200 and loc_id < 1000):
                     continue
                 loc_id -= 1
                 if item in database.ITEM_NAME_TO_ID:
