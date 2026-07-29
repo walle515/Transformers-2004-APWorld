@@ -5,14 +5,14 @@ from typing import Any
 from worlds.AutoWorld import World
 
 from . import items, locations, regions, rules
-#from . import web_world
+from . import web_world
 from . import options as tf04_options
 from . import database
 
 class Transformers04World(World):
     game = "Transformers (2004)"
     
-    #web = web_world.Transformers04WebWorld()
+    web = web_world.Transformers04WebWorld()
     
     options_dataclass = tf04_options.Transformers04Options
     options: tf04_options.Transformers04Options
@@ -28,7 +28,7 @@ class Transformers04World(World):
         locations.create_all_locations(self)
         
     def set_rules(self) -> None:
-        rules.set_all_items(self)
+        rules.set_all_rules(self)
     
     def create_items(self) -> None:
         items.create_all_items(self)
