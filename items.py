@@ -335,7 +335,7 @@ def create_all_items(world: Transformers04World) -> None:
         if rand_num == 0:
             world.push_precollected(world.create_item("Amazon Level Unlock"))
         if rand_num == 1:
-            world.push_precollected(world.create_item("Alaska Level Unlock"))
+            world.push_precollected(world.create_item("Antartica Level Unlock"))
         if rand_num == 2:
             world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
         if rand_num == 3:

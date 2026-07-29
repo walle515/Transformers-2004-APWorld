@@ -25,7 +25,8 @@ def set_all_rules(world: Transformers04World) -> None:
     
 def set_all_entrance_rules(world: Transformers04World) -> None:
     mid_atlantic_entrance = world.get_entrance("Mid Atlantic Unlocked")
-    mid_atlantic_rule = Has("Mid Atlantic Level Unlock") & Has("Rangefinder")
+    mid_atlantic_rule = Has("Mid Atlantic Level Unlock")# & Has("Rangefinder")
+    
     world.set_rule(mid_atlantic_entrance, mid_atlantic_rule)
     
     unicron_entrance = world.get_entrance("Unicron Unlocked")
@@ -51,6 +52,9 @@ def set_all_location_rules(world: Transformers04World) -> None:
     rule_explosive = (Has("Claymore") | Has("Failsafe") | Has("Flashbang") | Has("Hailstorm")
                      | Has("Lock-on") | Has("Watchdog") | Has("Slapshot"))
     rule_slip_explosive = rule_slipstream & rule_explosive
+    mid_atlantic_boss_rule = Has("Rangefinder")
+    
+    world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
     
     for location in database.Explosive_Locations:
         world.set_rule(world.get_location(location), rule_explosive)

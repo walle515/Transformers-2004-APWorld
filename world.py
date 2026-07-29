@@ -9,7 +9,6 @@ from . import web_world
 from . import options as tf04_options
 from . import database
 import os
-from .patch import Transformers04Patch
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -96,12 +95,6 @@ class Transformers04World(World):
             
             contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n"
             
-            patch = Transformers04Patch(
-                self.player,
-                self.multiworld.player_name[self.player]
-            )
-            
-            patch.contents = contents
-            
-            patch.write(os.path.join(output_directory, file_name + ".txt"))
+        with open(os.path.join(output_directory, file_name + ".txt"), "w") as f:
+            f.write(contents)
         
