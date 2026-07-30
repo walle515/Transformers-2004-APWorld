@@ -39,13 +39,14 @@ def create_regular_locations(world: Transformers04World) -> None:
     alaska = world.get_region("Alaska")
     starship = world.get_region("Starship")
     pacific_island = world.get_region("Pacific Island")
+    menu = world.get_region("Menu")
     
     amazon_locations = get_location_names_with_ids(
         [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Amazon-")]
     )
     amazon.add_locations(amazon_locations, Transformers04Location)
     if(world.options.start_with_random_weapon):
-        amazon.add_locations(get_location_names_with_ids(["Amazon Beginner Weapon"]), Transformers04Location)
+        menu.add_locations(get_location_names_with_ids(["Amazon Beginner Weapon"]), Transformers04Location)
     if(world.options.randomize_levels):
         amazon.add_locations(get_location_names_with_ids(["Amazon Boss"]), Transformers04Location)
     

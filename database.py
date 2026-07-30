@@ -127,7 +127,7 @@ ITEM_NAME_TO_ID: dict[str,int] = {
     "Alaska Level Unlock": 164,
     "Starship Level Unlock": 165,
     "Pacific Island Level Unlock": 166,
-    "Unicron Unlock": 167
+    "Unicron Level Unlock": 167
 }
 
 

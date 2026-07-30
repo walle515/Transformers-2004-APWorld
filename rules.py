@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING
 from rule_builder.options import OptionFilter
 from rule_builder.rules import Has, HasAll, Rule
 from . import database
+from . import options
 
 
 if TYPE_CHECKING:
@@ -31,17 +32,12 @@ def set_all_entrance_rules(world: Transformers04World) -> None:
     
     unicron_entrance = world.get_entrance("Unicron Unlocked")
     
-    def minicons_collected(state: CollectionState) -> int:
-        numMini = 0
-        from .database import Minicons
-        for mini in Minicons:
-            if Has(mini):
-                numMini += 1
-        return numMini
+    number_minicons = lambda state: sum(state.has(minicon, world.player) for minicon in database.Minicons) >= world.options.minicon_count.value
     
-    unicron_entrance_rule = lambda state: (minicons_collected(state) >= world.options.minicon_count.value
-                                            and state.has("Unicron Level Unlock", self.player)
-                                            and (state.has("All Bosses Beaten", self.player) | (world.options.goal_option.value != 1)))
+    unicron_entrance_rule = lambda state: (number_minicons(state) 
+                                            and state.has("Unicron Level Unlock", world.player)
+                                            and (state.has("All Bosses Beaten", world.player) or (world.options.goal_option != options.GoalOption.option_Bosses)))
+    world.set_rule(unicron_entrance, unicron_entrance_rule)
     
 
 
@@ -53,6 +49,14 @@ def set_all_location_rules(world: Transformers04World) -> None:
                      | Has("Lock-on") | Has("Watchdog") | Has("Slapshot"))
     rule_slip_explosive = rule_slipstream & rule_explosive
     mid_atlantic_boss_rule = Has("Rangefinder") & rule_slipstream
+    rule_all_levels = (Has("Amazon Level Unlock") &
+                        Has ("Antartica Level Unlock") &
+                        Has ("Deep Amazon Level Unlock") & 
+                        Has ("Mid Atlantic Level Unlock") &
+                        Has ("Alaska Level Unlock") &
+                        Has ("Starship Level Unlock") &
+                        Has ("Pacific Island Level Unlock") &
+                        rule_slip_high)
     
     world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
     
@@ -71,6 +75,7 @@ def set_all_location_rules(world: Transformers04World) -> None:
     for location in database.Slipstream_Highjump:
         world.set_rule(world.get_location(location), rule_slip_high)
     
+    world.set_rule(world.get_location("Defeat All Bosses"), rule_all_levels)
     
     
 def set_completion_condition(world: Transformers04World) -> None:

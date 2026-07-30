@@ -152,7 +152,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Alaska Level Unlock": ItemClassification.progression,
     "Starship Level Unlock": ItemClassification.progression,
     "Pacific Island Level Unlock": ItemClassification.progression,
-    "Unicron Unlock": ItemClassification.progression,
+    "Unicron Level Unlock": ItemClassification.progression,
     
 }
 
@@ -310,7 +310,7 @@ def create_all_items(world: Transformers04World) -> None:
             itempool.append(world.create_item("Starship Level Unlock"))
         if rand_num != 6:
             itempool.append(world.create_item("Pacific Island Level Unlock"))
-        itempool.append(world.create_item("Unicron Unlock"))
+        itempool.append(world.create_item("Unicron Level Unlock"))
     
     
     number_of_items = len(itempool)
