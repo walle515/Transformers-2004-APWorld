@@ -76,7 +76,7 @@ class Transformers04World(World):
                 loc_id = database.LOCATION_NAME_TO_ID.get(location)
             else:
                 continue
-            if (loc_id >= 200):
+            if (loc_id >= 200 and loc_id <1000):
                 continue
             if item in database.ITEM_NAME_TO_ID:
                 item_id = database.ITEM_NAME_TO_ID.get(item)

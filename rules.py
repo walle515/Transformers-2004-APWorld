@@ -48,11 +48,11 @@ def set_all_entrance_rules(world: Transformers04World) -> None:
 def set_all_location_rules(world: Transformers04World) -> None:
     rule_slipstream = Has("Slipstream")
     rule_highjump = Has("Highjump")
-    rule_slip_high = rule_slipstream | rule_highjump
+    rule_slip_high = rule_slipstream & rule_highjump
     rule_explosive = (Has("Claymore") | Has("Failsafe") | Has("Flashbang") | Has("Hailstorm")
                      | Has("Lock-on") | Has("Watchdog") | Has("Slapshot"))
     rule_slip_explosive = rule_slipstream & rule_explosive
-    mid_atlantic_boss_rule = Has("Rangefinder")
+    mid_atlantic_boss_rule = Has("Rangefinder") & rule_slipstream
     
     world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
     
