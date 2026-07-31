@@ -67,7 +67,7 @@ class Transformers04World(World):
         
         
         contents = ""
-        contents += str(random_num) + " \n"
+        contents += str(random_num) + " \r\n"
         
         
         for location, item in data.items():
@@ -92,14 +92,17 @@ class Transformers04World(World):
             if (item_id < 50 and minicon_bool==1):
                 item_id += 3
             
-            contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n"
+            contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \r\n"
             
         # with open(os.path.join(output_directory, file_name + ".txt"), "w") as f:
             # f.write(contents)
         
         patch_path = os.path.join(output_directory, file_name + ".aptf")
-        patch = Transformers04Patch(patch_path)
-        patch.filename = file_name + ".txt"
+        patch = Transformers04Patch(
+            player = self.player,
+            player_name = self.player_name
+        )
+        patch.filename = "Exodus.txt"
         patch.contents = contents
-        patch.write()
-        self.output_file = patch_path
+        patch.write(patch_path)
+        #self.output_file = patch_path

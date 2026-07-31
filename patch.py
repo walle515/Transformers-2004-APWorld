@@ -1,8 +1,8 @@
-from worlds.Files import APContainer
+from worlds.Files import APPatch
 import zipfile
 
 
-class Transformers04Patch(APContainer):
+class Transformers04Patch(APPatch):
     game = "Transformers (2004)"
     patch_file_ending = ".aptf"
     contents = ""

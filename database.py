@@ -283,7 +283,8 @@ Linked_Locations = {
 
 #adds 3 when outputing the file, so minicon ID is actually 16
 Archipelago_Minicon_ID = 13
-Archipelago_Datacon_ID = 15
+#subtracts 50 when outputting, so datacon ID is actually 15
+Archipelago_Datacon_ID = 65
 
 
 Minicons = [
