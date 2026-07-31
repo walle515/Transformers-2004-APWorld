@@ -33,7 +33,7 @@ def create_regular_locations(world: Transformers04World) -> None:
     # Finally, we need to put the Locations ("checks") into their regions.
     # Once again, before we do anything, we can grab our regions we created by using world.get_region()
     amazon = world.get_region("Amazon")
-    antartica = world.get_region("Antartica")
+    antartica = world.get_region("Antarctica")
     deep_amazon = world.get_region("Deep Amazon")
     mid_atlantic = world.get_region("Mid Atlantic")
     alaska = world.get_region("Alaska")
@@ -45,18 +45,18 @@ def create_regular_locations(world: Transformers04World) -> None:
         [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Amazon-")]
     )
     amazon.add_locations(amazon_locations, Transformers04Location)
-    if(world.options.start_with_random_weapon):
-        menu.add_locations(get_location_names_with_ids(["Amazon Beginner Weapon"]), Transformers04Location)
+    if(world.options.add_starting_location):
+        menu.add_locations(get_location_names_with_ids(["Beginner Location"]), Transformers04Location)
     if(world.options.randomize_levels):
         amazon.add_locations(get_location_names_with_ids(["Amazon Boss"]), Transformers04Location)
     
     
     antartica_locations = get_location_names_with_ids(
-        [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Antartica-")]
+        [k for k in database.LOCATION_NAME_TO_ID if k.startswith("Antarctica-")]
     )
     antartica.add_locations(antartica_locations, Transformers04Location)
     if(world.options.randomize_levels):
-        antartica.add_locations(get_location_names_with_ids(["Antartica Boss"]), Transformers04Location)
+        antartica.add_locations(get_location_names_with_ids(["Antarctica Boss"]), Transformers04Location)
     
     
     deep_amazon_locations = get_location_names_with_ids(
@@ -106,7 +106,7 @@ def create_regular_locations(world: Transformers04World) -> None:
 def create_events(world: Transformers04World) -> None:
     menu = world.get_region("Menu")
     amazon = world.get_region("Amazon")
-    antartica = world.get_region("Antartica")
+    antartica = world.get_region("Antarctica")
     deep_amazon = world.get_region("Deep Amazon")
     mid_atlantic = world.get_region("Mid Atlantic")
     alaska = world.get_region("Alaska")
@@ -116,7 +116,7 @@ def create_events(world: Transformers04World) -> None:
     
     
     amazon_boss = Transformers04Location(world.player, "Amazon Boss", None, amazon)
-    antartica_boss = Transformers04Location(world.player, "Antartica Boss", None, antartica)
+    antartica_boss = Transformers04Location(world.player, "Antarctica Boss", None, antartica)
     deep_amazon_boss = Transformers04Location(world.player, "Deep Amazon Boss", None, deep_amazon)
     mid_atlantic_boss = Transformers04Location(world.player, "Mid Atlantic Boss", None, mid_atlantic)
     alaska_complete = Transformers04Location(world.player, "Alaska Complete", None, alaska)
@@ -125,7 +125,7 @@ def create_events(world: Transformers04World) -> None:
     all_bosses_location = Transformers04Location(world.player, "Defeat All Bosses", None, menu)
     
     
-    antartica_unlock = items.Transformers04Item("Antartica Level Unlock", ItemClassification.progression, None, world.player)
+    antartica_unlock = items.Transformers04Item("Antarctica Level Unlock", ItemClassification.progression, None, world.player)
     deep_amazon_unlock = items.Transformers04Item("Deep Amazon Level Unlock", ItemClassification.progression, None, world.player)
     mid_atlantic_unlock = items.Transformers04Item("Mid Atlantic Level Unlock", ItemClassification.progression, None, world.player)
     alaska_unlock = items.Transformers04Item("Alaska Level Unlock", ItemClassification.progression, None, world.player)

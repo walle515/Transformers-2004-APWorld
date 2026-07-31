@@ -6,6 +6,7 @@ from rule_builder.options import OptionFilter
 from rule_builder.rules import Has, HasAll, Rule
 from . import database
 from . import options
+from worlds.generic.Rules import add_item_rule
 
 
 if TYPE_CHECKING:
@@ -50,7 +51,7 @@ def set_all_location_rules(world: Transformers04World) -> None:
     rule_slip_explosive = rule_slipstream & rule_explosive
     mid_atlantic_boss_rule = Has("Rangefinder") & rule_slipstream
     rule_all_levels = (Has("Amazon Level Unlock") &
-                        Has ("Antartica Level Unlock") &
+                        Has ("Antarctica Level Unlock") &
                         Has ("Deep Amazon Level Unlock") & 
                         Has ("Mid Atlantic Level Unlock") &
                         Has ("Alaska Level Unlock") &
@@ -76,6 +77,11 @@ def set_all_location_rules(world: Transformers04World) -> None:
         world.set_rule(world.get_location(location), rule_slip_high)
     
     world.set_rule(world.get_location("Defeat All Bosses"), rule_all_levels)
+    
+    # add_item_rule(
+        # world.get_location("Beginner Location"),
+        # lambda item: item.name in database.Start_Progressive_Items
+    # )
     
     
 def set_completion_condition(world: Transformers04World) -> None:

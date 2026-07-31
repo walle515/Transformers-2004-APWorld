@@ -9,6 +9,7 @@ from . import web_world
 from . import options as tf04_options
 from . import database
 import os
+from .patch import Transformers04Patch
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -51,7 +52,7 @@ class Transformers04World(World):
     def fill_slot_data(self) -> Mapping[str, Any]:
         # If you need access to the player's chosen options on the client side, there is a helper for that.
         return self.options.as_dict(
-            "trap_chance", "minicon_count", "start_with_random_weapon", "goal_option", "randomize_levels"
+            "trap_chance", "minicon_count", "add_starting_location", "goal_option", "randomize_levels"
         )
     
     def generate_output(self, output_directory: str) -> None:
@@ -68,8 +69,6 @@ class Transformers04World(World):
         contents = ""
         contents += str(random_num) + " \n"
         
-        if self.options.start_with_random_weapon == False:
-            contents += str(1) + " " + str(42069) + " " + str(4) + " \n"
         
         for location, item in data.items():
             if location in database.LOCATION_NAME_TO_ID:
@@ -81,20 +80,26 @@ class Transformers04World(World):
             if item in database.ITEM_NAME_TO_ID:
                 item_id = database.ITEM_NAME_TO_ID.get(item)
             else:
-                item_id = database.Archipelago_Item_ID
+                item_id = database.Archipelago_Datacon_ID
             minicon_bool = 1
             
             if (item_id >= 50 and item_id < 150):
                 item_id -= 50
                 minicon_bool = 0
             if item_id >= 150:
-                item_id = database.Archipelago_Item_ID
+                item_id = database.Archipelago_Minicon_ID
             
             if (item_id < 50 and minicon_bool==1):
                 item_id += 3
             
             contents += str(minicon_bool) + " " + str(loc_id) + " " + str(item_id) + " \n"
             
-        with open(os.path.join(output_directory, file_name + ".txt"), "w") as f:
-            f.write(contents)
+        # with open(os.path.join(output_directory, file_name + ".txt"), "w") as f:
+            # f.write(contents)
         
+        patch_path = os.path.join(output_directory, file_name + ".aptf")
+        patch = Transformers04Patch(patch_path)
+        patch.filename = file_name + ".txt"
+        patch.contents = contents
+        patch.write()
+        self.output_file = patch_path
