@@ -1,4 +1,6 @@
 import struct
+from pwd import struct_passwd
+
 from Scripts.pine import Pine, pcsx2
 from Data.tf_data import add_minicon
 from enum import Enum
@@ -59,9 +61,23 @@ def read_target_addresses() -> tuple[PineCommand, ...]:
         return (PineCommand.comm_set_health, 1,)
     return (PineCommand.comm_nothing,)
 
-def write_mod_lines(target_address: int, lines_to_write: list[int]):
-    for line in range(len(lines_to_write)):
-        pcsx2.write_int32(target_address + 4*line, lines_to_write[line])
+def insert_mod_lines(start_address: int, end_address:int, stored_lines: list[int]) -> list[int]:
+    current_address = start_address
+    while current_address < end_address:
+        target_instruction = pcsx2.read_int32(current_address)
+        stored_lines.append(target_instruction)
+        pcsx2.write_int32(current_address, stored_lines[0])
+        stored_lines = stored_lines[1:]
+        current_address += 4
+    return stored_lines
+
+def remove_mod_lines(start_address: int, end_address:int, amount: int):
+    current_address = start_address
+    while current_address < end_address:
+        target_instruction = pcsx2.read_int32(current_address + (amount*4))
+        pcsx2.write_int32(current_address, target_instruction)
+
+
 def apply_mod(file_name):
     #check if mod file exists in Data folder
     #iterate through mod sections, write data to RAM
@@ -78,20 +94,23 @@ def apply_mod(file_name):
         return
     file = MipsMod()
     file.prase_file(file_path)
+    #there should never be both inserts and deletes waiting, they cancel each other out
+    hanging_inserts = 0
+    hanging_deletes = 0
+    stored_lines = []
     #using the i's and j's separate from the loop also seems wrong
     i = 0
     for section in file.sections:
         print("section " + str(i) + " address: " + str(section.starting_address))
         j = 0
-        #there should never be both inserts and deletes waiting, they cancel each other out
-        hanging_inserts = 0
-        hanging_deletes = 0
-        stored_lines = []
-        stored_addresses = []
         for line in section.lines:
             print("line " + str(j) + " is type " + str(line.type) + " with data " + str(line.data))
-            #here we run into an issue. The different line types work differently, and some of them are gonna be annoying here
-            #replacements are fine, no problem. But inserts and deletes are an issue.
+            '''Iterates through a section, handling the different types of mod lines. Since all lines in a section
+            are consecutive, we don't have to worry about missing one with this algorithm
+            Essentially, Inserts and Deletes build up a balance of unhandled lines. These will need to be pulled
+            forward or pushed back, depending on the balance. When lines of the other type are encountered, they 
+            cancel out and the outstanding balance is reduced. Any active balance's effects are handled at the start
+            of each loop.'''
             if hanging_deletes > 0:
                 #currently shifting lines back - take the next line, copy it to the current address
                 next_line = pcsx2.read_int32(section.starting_address + (4*j+hanging_deletes))
@@ -132,9 +151,16 @@ def apply_mod(file_name):
                     #ezpz
                     pcsx2.write_int32(section.starting_address + (4*j), line.data)
             j+=1
-        if hanging_deletes > 0 or hanging_inserts > 0:
-            #TODO: add logic to handle shifting lines between sections (see Glide Always mod for example, sections 3 & 4)
-            print("Mod file has unhandled deletions and insertions. This will currently lead to unexpected game behavior.")
+        '''If we have any extra deletes or inserts after a section, those need to be bridged over into the next one
+        otherwise, we'll have code that's not supposed to be there or miss code that is supposed to be there
+        '''
+        if hanging_deletes > 0:
+            next_section = file.sections[i] #this feels gross, but we need to know the next section to correct the imbalance
+            remove_mod_lines(section.starting_address + (4*j), next_section.starting_address, hanging_deletes)
+        if hanging_inserts > 0:
+            next_section = file.sections[i] #this feels gross, but we need to know the next section to correct the imbalance
+            insert_mod_lines(section.starting_address + (4*j), next_section.starting_address, stored_lines)
+
         i+=1
 
 async def monitor_ram():
