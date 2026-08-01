@@ -54,9 +54,10 @@ def get_user_command() -> tuple[PineCommand, ...]:
 
 def read_target_addresses() -> tuple[PineCommand, ...]:
     minicon_unlocks = pcsx2.read_int32(0x007173C0)
-    if minicon_unlocks & 0x20000: #0x1000: #0x1000 is Endgame, 0x20000 should be Lock-on
-        #since this doesn't reset the minicon unlock value, you'll get in an infinite loop here. But for testing, it works.
-        return (PineCommand.comm_set_health, 1,)
+    if minicon_unlocks & 0x1000: #0x1000 is Endgame
+        print("Archipelago item pickup detected.")
+        pcsx2.write_int32(0x007173C0, minicon_unlocks ^ 0x1000)
+        #return (PineCommand.comm_set_health, 1,)
     return (PineCommand.comm_nothing,)
 
 def write_mod_lines(target_address: int, lines_to_write: list[int]):
