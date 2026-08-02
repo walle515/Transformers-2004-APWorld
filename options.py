@@ -36,11 +36,11 @@ class MiniconCount(Range):
     default = 30
     
     
-class StartWithRandomWeapon(Toggle):
+class AddStartingLocation(Toggle):
     """
-    The starting minicon will be a random minicon instead of the default blaster
+    Adds a location at spawn of the first level (including randomized)
     """
-    display_name = "Start with Random Weapon"
+    display_name = "Add Starting Location"
     
     
 class RandomizeLevels(Toggle):
@@ -68,7 +68,7 @@ class GoalOption(Choice):
 class Transformers04Options(PerGameCommonOptions):
     trap_chance: TrapChance
     minicon_count: MiniconCount
-    start_with_random_weapon: StartWithRandomWeapon
+    add_starting_location: AddStartingLocation
     goal_option: GoalOption
     randomize_levels: RandomizeLevels
     
@@ -80,7 +80,7 @@ option_groups = [
     ),
     OptionGroup(
         "Gameplay Options",
-        [RandomizeLevels, StartWithRandomWeapon, TrapChance],
+        [RandomizeLevels, AddStartingLocation, TrapChance],
     ),
 ]
 
@@ -89,28 +89,28 @@ option_presets = {
     "Standard":{
         "goal_option": GoalOption.option_Unicron,
         "minicon_count": 30,
-        "start_with_random_weapon": False,
+        "add_starting_location": False,
         "trap_chance": 0,
         "randomize_levels": False,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
         "minicon_count": 30,
-        "start_with_random_weapon": True,
+        "add_starting_location": True,
         "trap_chance": 25,
         "randomize_levels": True,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
         "minicon_count": 40,
-        "start_with_random_weapon": True,
+        "add_starting_location": True,
         "trap_chance": 75,
         "randomize_levels": True,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
         "minicon_count": 30,
-        "start_with_random_weapon": True,
+        "add_starting_location": True,
         "trap_chance": 0,
         "randomize_levels": False,
     },
