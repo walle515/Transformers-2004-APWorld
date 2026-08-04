@@ -16,9 +16,31 @@ class PineCommand(Enum):
     comm_exit = 5
     comm_unlock_minicon = 6
     comm_apply_mod = 7
+    comm_read_location = 8
 
 def raw_bytes_to_float(read_output: int) -> float:
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
+
+def get_location_id(read_values: list[int]) -> int:
+    '''Location IDs are written to the game by Exodus using the 4 values of its orientation,
+    since this conveniently lets us get all 4 digits. However, in order to not make the camera
+    cutscenes absolutely horrible, we have to scale down those digits within the quaternion.
+    So, each digit is stored in the hundreths place in-game. When we extract them, we need to
+    multiply them back to their correct place.
+
+    If this seems a bit convoluted, it might be. I like it though.
+    '''
+    factor = 100000
+    location_value = 0
+    for value in read_values:
+        float_value = raw_bytes_to_float(value)
+        if float_value > 1:
+            #this accounts for the scalar value, which needs to be approximately 1.
+            #in an ideal world, we would subtract the modified ID from this instead of adding it
+            float_value -= 1
+        location_value += int(float_value*factor)
+        factor /= 10
+    return location_value
 
 def get_user_command() -> tuple[PineCommand, ...]:
     user_input = input('\n> ')
@@ -57,7 +79,8 @@ def read_target_addresses() -> tuple[PineCommand, ...]:
     if minicon_unlocks & 0x1000: #0x1000 is Endgame
         print("Archipelago item pickup detected.")
         pcsx2.write_int32(0x007173C0, minicon_unlocks ^ 0x1000)
-        #return (PineCommand.comm_set_health, 1,)
+        pickup_instance = pcsx2.read_int32(0x01FAECD0)
+        return (PineCommand.comm_read_location, pickup_instance,)
     return (PineCommand.comm_nothing,)
 
 async def monitor_ram():
@@ -99,3 +122,13 @@ async def monitor_ram():
 
         if command[0] == PineCommand.comm_unlock_minicon:
             add_minicon(command[1])
+
+        if command[0] == PineCommand.comm_read_location:
+            read_values = []
+            #first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
+            read_values.append(pcsx2.read_int32(command[1]+80))
+            read_values.append(pcsx2.read_int32(command[1]+84))
+            read_values.append(pcsx2.read_int32(command[1]+88))
+            read_values.append(pcsx2.read_int32(command[1]+92))
+            location = get_location_id(read_values)
+            print("Location ID read as: " + str(location) + ". Send to Archipelago.")
