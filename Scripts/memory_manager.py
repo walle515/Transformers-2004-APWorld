@@ -1,5 +1,5 @@
 import struct
-from pwd import struct_passwd
+#from pwd import struct_passwd
 
 from Scripts.pine import Pine, pcsx2
 from Data.tf_data import add_minicon
@@ -32,14 +32,17 @@ def get_location_id(read_values: list[int]) -> int:
     '''
     factor = 100000
     location_value = 0
+    rounding_place = -3
     for value in read_values:
         float_value = raw_bytes_to_float(value)
         if float_value > 1:
             #this accounts for the scalar value, which needs to be approximately 1.
             #in an ideal world, we would subtract the modified ID from this instead of adding it
             float_value -= 1
-        location_value += int(float_value*factor)
+        rounded_float = round(float_value*factor, rounding_place)
+        location_value += int(rounded_float)
         factor /= 10
+        rounding_place += 1
     return location_value
 
 def get_user_command() -> tuple[PineCommand, ...]:
@@ -83,9 +86,24 @@ def read_target_addresses() -> tuple[PineCommand, ...]:
         return (PineCommand.comm_read_location, pickup_instance,)
     return (PineCommand.comm_nothing,)
 
+def write_initial_values():
+    '''Sets values in RAM and single-line ELF codes to allow Archipelago randomizers to work'''
+
+    #increase PickupPlaced limit to 20 (0x14)
+    pcsx2.write_int32(0x379534,0x2A230014)
+
+    #write pickup redirection code (this will be replaced with a mod file once functionality is verified)
+    pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
+    pcsx2.write_int32(0x1FAECE0, 0x3C0201FB)
+    pcsx2.write_int32(0x1FAECE4, 0x2442ECD0)
+    pcsx2.write_int32(0x1FAECE8, 0xAC440000)
+    pcsx2.write_int32(0x1FAECEC, 0x03E00008)
+    pcsx2.write_int32(0x1FAECF0, 0x0080882D)
+
 async def monitor_ram():
     print("Starting PCSX2 RAM monitor.")
     pcsx2.connect()
+    write_initial_values()
     while True:
         mode = 'Auto' #'Manual' #
         if mode == 'Manual':
@@ -126,9 +144,11 @@ async def monitor_ram():
         if command[0] == PineCommand.comm_read_location:
             read_values = []
             #first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
-            read_values.append(pcsx2.read_int32(command[1]+80))
-            read_values.append(pcsx2.read_int32(command[1]+84))
-            read_values.append(pcsx2.read_int32(command[1]+88))
-            read_values.append(pcsx2.read_int32(command[1]+92))
+            read_values.append(pcsx2.read_int32(command[1]+0x5C))
+            read_values.append(pcsx2.read_int32(command[1]+0x50))
+            read_values.append(pcsx2.read_int32(command[1]+0x54))
+            read_values.append(pcsx2.read_int32(command[1]+0x58))
             location = get_location_id(read_values)
             print("Location ID read as: " + str(location) + ". Send to Archipelago.")
+
+#asyncio.run(monitor_ram()) #used for testing
