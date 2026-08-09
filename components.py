@@ -1,7 +1,7 @@
 from worlds.LauncherComponents import Component, Type, components, launch
+from ..LauncherComponents import icon_paths
 
 
-icon_path['tf04_icon'] = f"ap:{__name__}/assets/tf04_icon.png"
 
 
 def run_client(*args: str) -> None:
@@ -21,3 +21,5 @@ components.append(
         supports_uri=True,
     )
 )
+
+icon_paths["tf04_icon"] = f"ap:{__name__}/assets/tf04_icon.png"
