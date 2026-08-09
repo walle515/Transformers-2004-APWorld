@@ -45,7 +45,8 @@ class AddStartingLocation(Toggle):
     
 class RandomizeLevels(Toggle):
     """
-    Randomize the order of the levels
+    Randomize the order of the levels.
+    This creates level unlock items and adds boss fights as checks
     """
     display_name = "Randomize Levels"
     
@@ -62,6 +63,27 @@ class GoalOption(Choice):
     default = option_Unicron
     
     
+class RandomizeStats(Toggle):
+    """
+    Randomize the stats of the Autobots
+    """
+    display_name = "Randomize Stats"
+    
+    
+class RandomizeMiniconLevels(Toggle):
+    """
+    Randomize the power level of each minicon
+    """
+    display_name = "Randomize Minicon Power Levels"
+    
+    
+class RandomizeMiniconColors(Toggle):
+    """
+    Randomize the team color for each minicon
+    """
+    display_name = "Randomize Minicon Team Colors"
+    
+    
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -71,6 +93,9 @@ class Transformers04Options(PerGameCommonOptions):
     add_starting_location: AddStartingLocation
     goal_option: GoalOption
     randomize_levels: RandomizeLevels
+    randomize_stats: RandomizeStats
+    randomize_mini_power: RandomizeMiniconLevels
+    randomize_mini_color: RandomizeMiniconColors
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
@@ -80,7 +105,7 @@ option_groups = [
     ),
     OptionGroup(
         "Gameplay Options",
-        [RandomizeLevels, AddStartingLocation, TrapChance],
+        [RandomizeLevels, AddStartingLocation, TrapChance, RandomizeStats, RandomizeMiniconLevels, RandomizeMiniconColors],
     ),
 ]
 
@@ -92,6 +117,9 @@ option_presets = {
         "add_starting_location": False,
         "trap_chance": 0,
         "randomize_levels": False,
+        "randomize_stats": False,
+        "randomize_mini_power": False,
+        "randomize_mini_color", False,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -99,6 +127,9 @@ option_presets = {
         "add_starting_location": True,
         "trap_chance": 25,
         "randomize_levels": True,
+        "randomize_stats": True,
+        "randomize_mini_power": True,
+        "randomize_mini_color", True,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -106,6 +137,9 @@ option_presets = {
         "add_starting_location": True,
         "trap_chance": 75,
         "randomize_levels": True,
+        "randomize_stats": False,
+        "randomize_mini_power": False,
+        "randomize_mini_color", False,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -113,6 +147,9 @@ option_presets = {
         "add_starting_location": True,
         "trap_chance": 0,
         "randomize_levels": False,
+        "randomize_stats": False,
+        "randomize_mini_power": False,
+        "randomize_mini_color", False,
     },
     
 }
