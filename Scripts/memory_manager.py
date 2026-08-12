@@ -3,11 +3,20 @@ import struct
 
 from Scripts.pine import Pine, pcsx2
 from Data.tf_data import add_minicon
-from enum import Enum
+from enum import IntEnum
 from Scripts.mips_mods import MipsMod
 import asyncio
 
-class PineCommand(Enum):
+class GameAddress(IntEnum):
+    gameadd_minicon_unlocks = 0x7173C0
+    gameadd_level_unlocks = 0x717114 #episode length = 0x4C
+    gameadd_episode_function = 0x351B0C
+
+class CleanAddress(IntEnum):
+    cleanadd_level_unlocked = 0x1FAED00
+    cleanadd_pickup_code = 0x1FAECE0
+
+class PineCommand(IntEnum):
     comm_nothing = 0
     comm_get_health = 1
     comm_set_health = 2
@@ -78,12 +87,19 @@ def get_user_command() -> tuple[PineCommand, ...]:
         return(PineCommand.comm_apply_mod, args,)
 
 def read_target_addresses() -> tuple[PineCommand, ...]:
-    minicon_unlocks = pcsx2.read_int32(0x007173C0)
+    minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
     if minicon_unlocks & 0x1000: #0x1000 is Endgame
         print("Archipelago item pickup detected.")
-        pcsx2.write_int32(0x007173C0, minicon_unlocks ^ 0x1000)
+        pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
         pickup_instance = pcsx2.read_int32(0x01FAECD0)
+        #we also need to decrease the minicon collection count for the current level
+        #TODO: make command execution its own function instead of relying on the monitor_ram loop
         return (PineCommand.comm_read_location, pickup_instance,)
+    level_unlocks = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked)
+    if level_unlocks != 0:
+        #for now, just unlocking the next episode and reset the bit
+        unlock_episode(level_unlocks + 1)
+        pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)
     return (PineCommand.comm_nothing,)
 
 def write_initial_values():
@@ -94,11 +110,36 @@ def write_initial_values():
 
     #write pickup redirection code (this will be replaced with a mod file once functionality is verified)
     pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
-    pcsx2.write_int32(0x1FAECE0, 0x3C0201FB)
-    pcsx2.write_int32(0x1FAECE4, 0x2442ECD0)
-    pcsx2.write_int32(0x1FAECE8, 0xAC440000)
-    pcsx2.write_int32(0x1FAECEC, 0x03E00008)
-    pcsx2.write_int32(0x1FAECF0, 0x0080882D)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x4, 0x2442ECD0)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC440000)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0xC, 0x03E00008)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x10, 0x0080882D)
+
+    #This line stops the SetEpisodeCompleted function from unlocking the next episode
+    #all of the code from 0x351B10 to 0x351B9C is free to use, since the code in this range is ignored by us.
+    #pcsx2.write_int32(0x00351B0C, 0x10000024) #single-line mod to just skip the unlock of the next episode
+    #write the index of the current episode to 0x0x1FAED00, then skip to the next part of the function
+    pcsx2.write_int32(GameAddress.gameadd_episode_function, 0x3C0201FB)
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x4, 0x2442ED00)
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x8, 0xAC450000)
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0xC, 0x10000021)
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x10, 0xAC830034)
+
+def unlock_episode(episode_id: int):
+    #using the ID, set the level to Available and the first warpgate to Unlocked
+    if episode_id > 7 or episode_id < 0:
+        #invalid episode ID. No can do
+        print("Invalid episode ID " + str(episode_id) + " provided.")
+    episode_offset = episode_id * 0x4C
+    unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
+    print("Unlock byte read as " + str(unlock_byte))
+    if unlock_byte & 0x1:
+        print("Level " + str(episode_id) + " is already unlocked.")
+    else:
+        unlock_byte ^= 0x1
+        pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
+        pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
 async def monitor_ram():
     print("Starting PCSX2 RAM monitor.")
