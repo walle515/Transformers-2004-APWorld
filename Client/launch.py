@@ -8,6 +8,8 @@ from CommonClient import get_base_parser, handle_url_arg
 
 
 def launch_tf04_client(*args: Sequence[str]) -> None:
+    from .client import main
+    
     parser = get_base_parser()
     parser.add_argument("--name", default=None, help="Slot Name to connect as")
     parser.add_argument("url", nargs="?", help="Archipelago connection url")
@@ -16,6 +18,6 @@ def launch_tf04_client(*args: Sequence[str]) -> None:
     
     colorama.just_fix_windows_console()
     
-    #put function inside parenthesis for client main
-    asyncio.run( )
+    
+    asyncio.run(main(launch_args))
     colorama.deinit()

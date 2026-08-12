@@ -52,7 +52,14 @@ class Transformers04World(World):
     def fill_slot_data(self) -> Mapping[str, Any]:
         # If you need access to the player's chosen options on the client side, there is a helper for that.
         return self.options.as_dict(
-            "trap_chance", "minicon_count", "add_starting_location", "goal_option", "randomize_levels"
+            "trap_chance", 
+            "minicon_count", 
+            "add_starting_location", 
+            "goal_option", 
+            "randomize_levels", 
+            "randomize_stats",
+            "randomize_mini_power",
+            "randomize_mini_color"
         )
     
     def generate_output(self, output_directory: str) -> None:
@@ -67,6 +74,11 @@ class Transformers04World(World):
         
         
         contents = ""
+        
+        contents += str(int(self.options.randomize_stats)) + " "
+        contents += str(int(self.options.randomize_mini_power)) + " "
+        contents += str(int(self.options.randomize_mini_color)) + " \r\n"
+        
         contents += str(random_num) + " \r\n"
         
         
