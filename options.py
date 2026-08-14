@@ -84,6 +84,15 @@ class RandomizeMiniconColors(Toggle):
     display_name = "Randomize Minicon Team Colors"
     
     
+class VisibleProgressionItems(Toggle):
+    """
+    Changes how items appear in the game
+    Off: Items for other games show as datacons only
+    On: Items for other games can be minicons if they are progression or trap
+    """
+    display_name = "Visible Progression Items"
+    
+    
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -96,6 +105,7 @@ class Transformers04Options(PerGameCommonOptions):
     randomize_stats: RandomizeStats
     randomize_mini_power: RandomizeMiniconLevels
     randomize_mini_color: RandomizeMiniconColors
+    visible_progression_items: VisibleProgressionItems
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
@@ -105,7 +115,14 @@ option_groups = [
     ),
     OptionGroup(
         "Gameplay Options",
-        [RandomizeLevels, AddStartingLocation, TrapChance, RandomizeStats, RandomizeMiniconLevels, RandomizeMiniconColors],
+        [   RandomizeLevels, 
+            AddStartingLocation, 
+            TrapChance, 
+            RandomizeStats, 
+            RandomizeMiniconLevels, 
+            RandomizeMiniconColors,
+            VisibleProgressionItems
+        ],
     ),
 ]
 
@@ -119,7 +136,8 @@ option_presets = {
         "randomize_levels": False,
         "randomize_stats": False,
         "randomize_mini_power": False,
-        "randomize_mini_color", False,
+        "randomize_mini_color": False,
+        "visible_progression_items": True,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -129,7 +147,8 @@ option_presets = {
         "randomize_levels": True,
         "randomize_stats": True,
         "randomize_mini_power": True,
-        "randomize_mini_color", True,
+        "randomize_mini_color": True,
+        "visible_progression_items": False,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -139,7 +158,8 @@ option_presets = {
         "randomize_levels": True,
         "randomize_stats": False,
         "randomize_mini_power": False,
-        "randomize_mini_color", False,
+        "randomize_mini_color": False,
+        "visible_progression_items": False,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -149,7 +169,8 @@ option_presets = {
         "randomize_levels": False,
         "randomize_stats": False,
         "randomize_mini_power": False,
-        "randomize_mini_color", False,
+        "randomize_mini_color": False,
+        "visible_progression_items": True,
     },
     
 }
