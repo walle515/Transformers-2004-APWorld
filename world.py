@@ -10,6 +10,7 @@ from . import options as tf04_options
 from . import database
 import os
 from .patch import Transformers04Patch
+from BaseClasses import ItemClassification
 
 class Transformers04World(World):
     game = "Transformers (2004)"
@@ -64,10 +65,11 @@ class Transformers04World(World):
     
     def generate_output(self, output_directory: str) -> None:
         file_name = self.multiworld.get_out_file_name_base(self.player)
+        visible_progression = self.options.visible_progression_items
         
         random_num = self.random.randint(0,65535)
         data = {
-            location.name: location.item.name
+            location.name: location.item
             if location.item.player == self.player else "Remote"
             for location in self.multiworld.get_filled_locations(self.player)
         }
@@ -89,18 +91,38 @@ class Transformers04World(World):
                 continue
             if (loc_id >= 200 and loc_id <1000):
                 continue
-            if item in database.ITEM_NAME_TO_ID:
-                item_id = database.ITEM_NAME_TO_ID.get(item)
+                
+            if visible_progression:
+                if item.name in database.ITEM_NAME_TO_ID:
+                    item_id = database.ITEM_NAME_TO_ID.get(item.name)
+                    if item_id >= 150:
+                        item_id = database.Archipelago_Minicon_ID
+                    if (item_id >= 50 and item_id < 150):
+                        item_id -= 50
+                    if ((item.classification & ItemClassification.progression) or (item.classification & ItemClassification.trap)):
+                        minicon_bool = 1
+                    else:
+                        minicon_bool = 0
+                else:
+                    if ((item.classification & ItemClassification.progression) or (item.classification & ItemClassification.trap)):
+                        item_id = database.Archipelago_Minicon_ID
+                        minicon_bool = 1
+                    else:
+                        item_id = database.Archipelago_Datacon_ID
+                        minicon_bool = 0
             else:
-                item_id = database.Archipelago_Datacon_ID
-            minicon_bool = 1
-            
-            if (item_id >= 50 and item_id < 150):
-                item_id -= 50
-                minicon_bool = 0
-            if item_id >= 150:
-                item_id = database.Archipelago_Minicon_ID
-            
+                if item.name in database.ITEM_NAME_TO_ID:
+                    item_id = database.ITEM_NAME_TO_ID.get(item.name)
+                else:
+                    item_id = database.Archipelago_Datacon_ID
+                minicon_bool = 1
+                
+                if (item_id >= 50 and item_id < 150):
+                    item_id -= 50
+                    minicon_bool = 0
+                if item_id >= 150:
+                    item_id = database.Archipelago_Minicon_ID
+                
             if (item_id < 50 and minicon_bool==1):
                 item_id += 3
             
