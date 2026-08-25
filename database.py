@@ -261,13 +261,13 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
     "Beginner Location": 42069,
     
     #Boss Defeats
-    "Amazon Boss": 200,
-    "Antarctica Boss": 201,
-    "Deep Amazon Boss": 202,
-    "Mid Atlantic Boss": 203,
-    "Alaska Complete": 204,
-    "Starship Boss": 205,
-    "Pacific Island Boss": 206
+    "Amazon Boss": 9001,
+    "Antarctica Boss": 9002,
+    "Deep Amazon Boss": 9003,
+    "Mid Atlantic Boss": 9004,
+    "Alaska Complete": 9005,
+    "Starship Boss": 9006,
+    "Pacific Island Boss": 9007
 }
 
 

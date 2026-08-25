@@ -295,9 +295,9 @@ def create_all_items(world: Transformers04World) -> None:
     
     # if world.options.start_with_random_weapon:
         # itempool.append(world.create_item("Blaster"))
-    
-    if world.options.add_starting_location:
-        if world.options.randomize_levels:
+        
+    if world.options.randomize_levels:
+        if world.options.add_starting_location:
             print("TF04 World Random Num: " + str(rand_num))
             if rand_num != 0:
                 itempool.append(world.create_item("Amazon Level Unlock"))
@@ -314,8 +314,7 @@ def create_all_items(world: Transformers04World) -> None:
             if rand_num != 6:
                 itempool.append(world.create_item("Pacific Island Level Unlock"))
             itempool.append(world.create_item("Unicron Level Unlock"))
-    else:
-        if world.options.randomize_levels:
+        else:
             print("TF04 World Random Num: " + str(rand_num_2))
             if rand_num_2 != 0:
                 itempool.append(world.create_item("Amazon Level Unlock"))
@@ -330,6 +329,22 @@ def create_all_items(world: Transformers04World) -> None:
             if rand_num_2 != 5:
                 itempool.append(world.create_item("Pacific Island Level Unlock"))
             itempool.append(world.create_item("Unicron Level Unlock"))
+    else:
+        amazon_boss = world.get_location("Amazon Boss", world.player)
+        amazon_boss.place_locked_item(world.create_item("Antarctica Level Unlock"))
+        antarctica_boss = world.get_location("Antarctica Boss", world.player)
+        antarctica_boss.place_locked_item(world.create_item("Deep Amazon Level Unlock"))
+        deep_amazon_boss = world.get_location("Deep Amazon Boss", world.player)
+        deep_amazon_boss.place_locked_item(world.create_item("Mid Atlantic Level Unlock"))
+        mid_atlantic_boss = world.get_location("Mid Atlantic Boss", world.player)
+        mid_atlantic_boss.place_locked_item(world.create_item("Alaska Level Unlock"))
+        alaska_complete = world.get_location("Alaska Complete", world.player)
+        alaska_complete.place_locked_item(world.create_item("Starship Level Unlock"))
+        starship_boss = world.get_location("Starship Boss", world.player)
+        starship_boss.place_locked_item(world.create_item("Pacific Island Level Unlock"))
+        pacific_island_boss = world.get_location("Pacific Island Boss", world.player)
+        pacific_island_boss.place_locked_item(world.create_item("Unicron Level Unlock"))
+        
     
     
     number_of_items = len(itempool)
