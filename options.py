@@ -75,6 +75,15 @@ class RandomizeMiniconLevels(Toggle):
     Randomize the power level of each minicon
     """
     display_name = "Randomize Minicon Power Levels"
+
+
+class BalanceMiniconLevels(Toggle):
+    """
+    If checked, the minicon's power level will be 
+    within 1 of its original level (wont go higher than 4).
+    Only used with Randomize Minicon Power Levels
+    """
+    display_name = "Balance Minicon Power Levels"
     
     
 class RandomizeMiniconColors(Toggle):
@@ -82,6 +91,14 @@ class RandomizeMiniconColors(Toggle):
     Randomize the team color for each minicon
     """
     display_name = "Randomize Minicon Team Colors"
+
+
+class BalanceMiniconColors(Toggle):
+    """
+    Balances the number of minicons in each team color.
+    Only used with Randomized Minicon Team Colors
+    """
+    display_name = "Balance Minicon Team Colors"
     
     
 class VisibleProgressionItems(Toggle):
@@ -106,6 +123,8 @@ class Transformers04Options(PerGameCommonOptions):
     randomize_mini_power: RandomizeMiniconLevels
     randomize_mini_color: RandomizeMiniconColors
     visible_progression_items: VisibleProgressionItems
+    balance_minicon_levels: BalanceMiniconLevels
+    balance_minicon_colors: BalanceMiniconColors
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
@@ -120,7 +139,9 @@ option_groups = [
             TrapChance, 
             RandomizeStats, 
             RandomizeMiniconLevels, 
+            BalanceMiniconLevels,
             RandomizeMiniconColors,
+            BalanceMiniconColors,
             VisibleProgressionItems
         ],
     ),
@@ -136,7 +157,9 @@ option_presets = {
         "randomize_levels": False,
         "randomize_stats": False,
         "randomize_mini_power": False,
+        "balance_minicon_levels": False,
         "randomize_mini_color": False,
+        "balance_minicon_colors": False,
         "visible_progression_items": True,
     },
     "Rando":{
@@ -147,7 +170,9 @@ option_presets = {
         "randomize_levels": True,
         "randomize_stats": True,
         "randomize_mini_power": True,
+        "balance_minicon_levels": False,
         "randomize_mini_color": True,
+        "balance_minicon_colors": False,
         "visible_progression_items": False,
     },
     "Hard Mode":{
@@ -158,7 +183,9 @@ option_presets = {
         "randomize_levels": True,
         "randomize_stats": False,
         "randomize_mini_power": False,
+        "balance_minicon_levels": False,
         "randomize_mini_color": False,
+        "balance_minicon_colors": False,
         "visible_progression_items": False,
     },
     "Boss Fighter":{
@@ -169,7 +196,9 @@ option_presets = {
         "randomize_levels": False,
         "randomize_stats": False,
         "randomize_mini_power": False,
+        "balance_minicon_levels": False,
         "randomize_mini_color": False,
+        "balance_minicon_colors": False,
         "visible_progression_items": True,
     },
     

@@ -60,7 +60,10 @@ class Transformers04World(World):
             "randomize_levels", 
             "randomize_stats",
             "randomize_mini_power",
-            "randomize_mini_color"
+            "balance_minicon_levels",
+            "randomize_mini_color",
+            "balance_minicon_colors",
+            "visible_progression_items"
         )
     
     def generate_output(self, output_directory: str) -> None:
@@ -79,7 +82,10 @@ class Transformers04World(World):
         
         contents += str(int(self.options.randomize_stats)) + " "
         contents += str(int(self.options.randomize_mini_power)) + " "
-        contents += str(int(self.options.randomize_mini_color)) + " \r\n"
+        contents += str(int(self.options.balance_minicon_levels)) + " "
+        contents += str(int(self.options.randomize_mini_color)) + " "
+        contents += str(int(self.options.balance_minicon_colors)) + " "
+        contents += "\r\n"
         
         contents += str(random_num) + " \r\n"
         
