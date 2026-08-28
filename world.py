@@ -86,7 +86,7 @@ class Transformers04World(World):
         contents += str(int(self.options.randomize_mini_color)) + " "
         contents += str(int(self.options.balance_minicon_colors)) + " "
         contents += "\r\n"
-        
+        contents += str(int(self.options.minicon_count)) + " \r\n"
         contents += str(random_num) + " \r\n"
         
         
