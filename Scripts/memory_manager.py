@@ -14,6 +14,7 @@ class GameAddress(IntEnum):
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
+    gameadd_cheats = 0x8F0480
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -32,8 +33,21 @@ class PineCommand(IntEnum):
     comm_read_location = 8
     comm_check_spawn = 9
 
+class CheatIndex(IntEnum):
+    cheat_tractor = 0x15
+    cheat_powerlink = 0x16
+    cheat_immortal = 0x19
+    cheat_oneshot = 0x1A
+    cheat_enemystealth = 0x1B
+    cheat_bighead = 0x1C
+    cheat_turbo = 0x1D
+
 def raw_bytes_to_float(read_output: int) -> float:
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
+
+def cheat_toggle(cheat_index: int, cheat_state: bool):
+    #might need to be async so we can call this on a timer while still monitoring RAM? 
+    pcsx2.write_bytes(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
 
 def get_location_id(read_values: list[int]) -> int:
     '''Location IDs are written to the game by Exodus using the 4 values of its orientation,
@@ -100,16 +114,23 @@ def read_target_addresses() -> tuple[PineCommand, ...]:
         #we also need to decrease the minicon collection count for the current level
         #TODO: make command execution its own function instead of relying on the monitor_ram loop
         return (PineCommand.comm_read_location, pickup_instance,)
+
     level_unlocks = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked)
     if level_unlocks != 0:
         #for now, just unlocking the next episode and reset the bit
         unlock_episode(level_unlocks + 1)
         pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)
+
     checking_spawn = pcsx2.read_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC)
     if checking_spawn != 0:
         #checking_spawn is the memory address, get the location from offset 0xB from that address
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC, 0)
         return (PineCommand.comm_check_spawn, checking_spawn,)
+
+    check_cheats = pcsx2.read_int32(GameAddress.gameadd_cheats)
+    if check_cheats != 0xFFFFFFFF:
+        #the game has put us on a valid cheat screen, we need to invalidate that
+        pcsx2.write_int32(GameAddress.gameadd_cheats, 0xFFFFFFFF)
     return (PineCommand.comm_nothing,)
 
 def write_initial_values():
