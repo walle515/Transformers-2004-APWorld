@@ -15,6 +15,7 @@ class GameAddress(IntEnum):
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
     gameadd_cheats = 0x8F0480
+    gameadd_mission_status = 0x0716FA8
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -42,12 +43,22 @@ class CheatIndex(IntEnum):
     cheat_bighead = 0x1C
     cheat_turbo = 0x1D
 
+class MissionStatus(IntEnum):
+    status_normal = 0
+    status_stasis_lock = 2
+    status_HQ_warp = 3
+    status_freeze = 5
+
 def raw_bytes_to_float(read_output: int) -> float:
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
 
 def cheat_toggle(cheat_index: int, cheat_state: bool):
     #might need to be async so we can call this on a timer while still monitoring RAM? 
     pcsx2.write_bytes(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
+
+def set_mission_status(status_index: int):
+    #Same thoughts here as cheat_toggle
+    pcsx2.write_int32(GameAddress.gameadd_mission_status, status_index)
 
 def get_location_id(read_values: list[int]) -> int:
     '''Location IDs are written to the game by Exodus using the 4 values of its orientation,
