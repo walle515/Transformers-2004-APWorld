@@ -258,7 +258,7 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
     "Pacific Island-Bunker 9": 6124,
     "Pacific Island-Bunker 2": 6125,
     "Pacific Island-Bunker 3": 6126,
-    "Beginner Location": 42069,
+    "Beginner Location": 0,
     
     #Boss Defeats
     "Amazon Boss": 9001,
@@ -271,13 +271,19 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
 }
 
 
-#Original location (name) : linked location's ID
+# linked location's ID : Original Location's ID
 Linked_Locations = {
-    "Mid Atlantic-Vanilla Progression": 3065,
-    "Mid Atlantic-Distant Island": 3066,
-    "Mid Atlantic-Pinnacle Rock": 3068,
-    "Mid Atlantic-Atoll": 3067,
-    "Starship-Bridge": 5095,
+    3065 : 3061,
+    3066 : 3062,
+    3068 : 3063,
+    3067 : 3064,
+    5095 : 5094,
+    1000 : 0,
+    2000 : 0,
+    3000 : 0,
+    4000 : 0,
+    5000 : 0,
+    6000 : 0,
 }
 
 
