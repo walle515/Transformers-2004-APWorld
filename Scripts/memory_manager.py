@@ -35,6 +35,7 @@ class PineCommand(IntEnum):
     comm_check_spawn = 9
 
 class CheatIndex(IntEnum):
+    cheat_reset = 0
     cheat_tractor = 0x15
     cheat_powerlink = 0x16
     cheat_immortal = 0x19
@@ -53,8 +54,18 @@ def raw_bytes_to_float(read_output: int) -> float:
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
 
 def cheat_toggle(cheat_index: int, cheat_state: bool):
-    #might need to be async so we can call this on a timer while still monitoring RAM? 
-    pcsx2.write_bytes(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
+    #might need to be async so we can call this on a timer while still monitoring RAM?
+    if cheat_index == 0:
+        #reset all valid cheat indecies. Since I have this set up as an enum, there's not a clean way to do this (that I know of)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_tractor, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_powerlink, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_immortal, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_oneshot, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_enemystealth, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_bighead, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_turbo, 0)
+    else:
+        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
 
 def set_mission_status(status_index: int):
     #Same thoughts here as cheat_toggle
