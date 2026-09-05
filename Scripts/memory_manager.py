@@ -223,6 +223,67 @@ def unlock_episode(episode_id: int):
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
+def execute_command(command):
+    if command[0] == PineCommand.comm_get_health:
+        address: int = 0x00716FB4
+        health_raw = pcsx2.read_int32(address)
+        return raw_bytes_to_float(health_raw)
+
+    if command[0] == PineCommand.comm_get_game_id:
+        return pcsx2.get_game_id()
+
+    if command[0] == PineCommand.comm_status:
+        return pcsx2.is_connected() #not really necessary, since the script errors if we disconnect.
+
+    if command[0] == PineCommand.comm_exit:
+        pcsx2.disconnect()
+        return
+
+    '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
+    '''
+    if command[0] == PineCommand.comm_set_health:
+        if len(command) != 2:
+            return
+        address: int = 0x00716FB4
+        value: float = float(command[1])
+
+        pcsx2.write_float(address, value)
+
+        print(f'Set health to {command[1]}')
+
+    if command[0] == PineCommand.comm_unlock_minicon:
+        add_minicon(command[1])
+
+    if command[0] == PineCommand.comm_read_location:
+        read_values = []
+        # first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
+        read_values.append(pcsx2.read_int32(command[1] + 0x5C))
+        read_values.append(pcsx2.read_int32(command[1] + 0x50))
+        read_values.append(pcsx2.read_int32(command[1] + 0x54))
+        read_values.append(pcsx2.read_int32(command[1] + 0x58))
+        location = get_location_id(read_values)
+        checked_locations.append(location)
+        print("Location ID read as: " + str(location) + ". Send to Archipelago.")
+        return location
+
+    if command[0] == PineCommand.comm_check_spawn:
+        read_values = []
+        read_values.append(pcsx2.read_int32(command[1] + 0xBC))
+        read_values.append(pcsx2.read_int32(command[1] + 0xB0))
+        read_values.append(pcsx2.read_int32(command[1] + 0xB4))
+        read_values.append(pcsx2.read_int32(command[1] + 0xB8))
+        location = get_location_id(read_values)
+        print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
+
+        # write the check value for the game to read
+        if location in checked_locations:
+            pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 1)
+        else:
+            pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 0)
+        # write the process complete so the game breaks out of the loop
+        # keep an eye on this, we may need the game to reset this value before entering the loop
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x8, 1)
+
 async def monitor_ram():
     print("Starting PCSX2 RAM monitor.")
     pcsx2.connect()
@@ -233,63 +294,8 @@ async def monitor_ram():
             command = get_user_command()
         else:
             command = read_target_addresses()
+        if command[0] != PineCommand.comm_nothing:
+            execute_command(command)
 
-        if command[0] == PineCommand.comm_get_health:
-            address: int = 0x00716FB4
-            health_raw = pcsx2.read_int32(address)
-            print(raw_bytes_to_float(health_raw))
-
-        if command[0] == PineCommand.comm_get_game_id:
-            print(pcsx2.get_game_id())
-
-        if command[0] == PineCommand.comm_status:
-            print(pcsx2.is_connected())
-
-        if command[0] == PineCommand.comm_exit:
-            pcsx2.disconnect()
-            break
-
-        '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
-        '''
-        if command[0] == PineCommand.comm_set_health:
-            if len(command) != 2:
-                continue
-            address: int = 0x00716FB4
-            value: float = float(command[1])
-
-            pcsx2.write_float(address, value)
-
-            print(f'Set health to {command[1]}')
-
-        if command[0] == PineCommand.comm_unlock_minicon:
-            add_minicon(command[1])
-
-        if command[0] == PineCommand.comm_read_location:
-            read_values = []
-            #first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
-            read_values.append(pcsx2.read_int32(command[1]+0x5C))
-            read_values.append(pcsx2.read_int32(command[1]+0x50))
-            read_values.append(pcsx2.read_int32(command[1]+0x54))
-            read_values.append(pcsx2.read_int32(command[1]+0x58))
-            location = get_location_id(read_values)
-            checked_locations.append(location)
-            print("Location ID read as: " + str(location) + ". Send to Archipelago.")
-
-        if command[0] == PineCommand.comm_check_spawn:
-            read_values = []
-            read_values.append(pcsx2.read_int32(command[1]+0xBC))
-            read_values.append(pcsx2.read_int32(command[1]+0xB0))
-            read_values.append(pcsx2.read_int32(command[1]+0xB4))
-            read_values.append(pcsx2.read_int32(command[1]+0xB8))
-            location = get_location_id(read_values)
-            print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
-            #write the check value for the game to read
-            if location in checked_locations:
-                pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0x4, 1)
-            else:
-                pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0x4, 0)
-            #write the process complete so the game breaks out of the loop
-            #keep an eye on this, we may need the game to reset this value before entering the loop
-            pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0x8, 1)
 
 #asyncio.run(monitor_ram()) #used for testing
