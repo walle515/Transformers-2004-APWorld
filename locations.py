@@ -122,7 +122,7 @@ def create_events(world: Transformers04World) -> None:
     # alaska_complete = Transformers04Location(world.player, "Alaska Complete", None, alaska)
     # starship_boss = Transformers04Location(world.player, "Starship Boss", None, starship)
     # pacific_island_boss = Transformers04Location(world.player, "Pacific Island Boss", None, pacific_island)
-    # all_bosses_location = Transformers04Location(world.player, "Defeat All Bosses", None, menu)
+    all_bosses_location = Transformers04Location(world.player, "Defeat All Bosses", None, menu)
     
     
     # antartica_unlock = items.Transformers04Item("Antarctica Level Unlock", ItemClassification.progression, None, world.player)
@@ -132,7 +132,7 @@ def create_events(world: Transformers04World) -> None:
     # starship_unlock = items.Transformers04Item("Starship Level Unlock", ItemClassification.progression, None, world.player)
     # pacific_island_unlock = items.Transformers04Item("Pacific Island Level Unlock", ItemClassification.progression, None, world.player)
     # unicron_unlock = items.Transformers04Item("Unicron Level Unlock", ItemClassification.progression, None, world.player)
-    # all_bosses_beaten = items.Transformers04Item("All Bosses Beaten", ItemClassification.progression, None, world.player)
+    all_bosses_beaten = items.Transformers04Item("All Bosses Beaten", ItemClassification.progression, None, world.player)
     
     
     # if not (world.options.randomize_levels):
