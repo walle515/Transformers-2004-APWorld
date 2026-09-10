@@ -501,3 +501,9 @@ Slipstream_Highjump = [
     "Starship-Rock 4",
     "Alaska-Cave's Far Ledge"
 ]
+
+
+game_codes = [
+    "SLUS-20668",
+    
+]

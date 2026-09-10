@@ -5,6 +5,8 @@ from Data.tf_data import minicon_ids
 from enum import IntEnum
 from Scripts.mips_mods import MipsMod
 import asyncio
+import ..client.Transformers04Context as TFContext
+from ..database import game_codes
 
 '''Most of this file should be self-contained. If everything is set up correctly, the only things that 
 should be needed from outside are:
@@ -267,6 +269,7 @@ def execute_command(command):
     if command[0] == PineCommand.comm_exit:
         #Disconnects the PINE client from PCSX2. We currently do not have a way to reconnect from this state without restarting the client.
         pcsx2.disconnect()
+        TFContext.pine_connected = False    #Tell client pine was disconnected
         return
 
     '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
@@ -299,7 +302,18 @@ async def monitor_ram():
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
     pcsx2.connect() #if PCSX2 is not open, this will throw an error. TODO: handle this error in a way that's less disruptive
+    
+    #Created a loop to try to connect to the game
+    while not (pcsx2.is_connected && pcsx2.get_game_id() in game_codes):
+        print("PCSX2 Failed to connect, trying again in 5 seconds")
+        await asyncio.sleep(5)
+        pcsx2.connect()
+    
+    TFContext.pine_connected = True #tell client pine is connected
+    
     write_initial_values()
+    
+    checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
     while True:
         mode = 'Auto' #'Manual' #
         if mode == 'Manual':
@@ -308,6 +322,7 @@ async def monitor_ram():
             command = read_target_addresses()
         if command[0] != PineCommand.comm_nothing:
             execute_command(command)
+        await asyncio.sleep(0.1)
 
 
 def read_target_addresses() -> tuple[PineCommand, ...]:
