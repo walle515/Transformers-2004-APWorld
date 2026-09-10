@@ -2,6 +2,11 @@ import Scripts.memory_manager as memman
 from asyncio import sleep
 from enum import IntEnum
 
+'''Most of this file should be self-contained. If everything is set up correctly, the only things that 
+should be needed from outside are:
+get_effect(effect_name:str) (defined in __init__)
+async apply_effect(effect: return value from get_effect)'''
+
 class EffectStyle(IntEnum):
     style_invalid = -1
     style_cheat = 0

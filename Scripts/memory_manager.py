@@ -1,13 +1,26 @@
 import struct
-#from pwd import struct_passwd
 
 from Scripts.pine import Pine, pcsx2
-from Data.tf_data import add_minicon
+from Data.tf_data import minicon_ids
 from enum import IntEnum
 from Scripts.mips_mods import MipsMod
 import asyncio
 
+'''Most of this file should be self-contained. If everything is set up correctly, the only things that 
+should be needed from outside are:
+The PineCommand enum
+execute_command(tuple[PineCommand, params,])
+monitor_ram()
+the checked_locations list, just to populate its values.'''
+
+#The checked_locations list should be populated from Archipelago on connection to the server to keep our
+# local checks in sync. TODO: Populate this list on connection
 checked_locations: list[int] = []
+
+'''-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+This section defines enum values that can be easilly passed around functions instead of having to 
+refer to values directly
+'''
 
 class GameAddress(IntEnum):
     gameadd_minicon_unlocks = 0x7173C0
@@ -16,6 +29,7 @@ class GameAddress(IntEnum):
     gameadd_pickup_spawn_check = 0x379EF8
     gameadd_cheats = 0x8F0480
     gameadd_mission_status = 0x0716FA8
+    gameadd_player_health = 0x00716FB4
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -25,14 +39,15 @@ class CleanAddress(IntEnum):
 class PineCommand(IntEnum):
     comm_nothing = 0
     comm_get_health = 1
-    comm_set_health = 2
+    comm_set_health = 2 #one arg, float, health value
     comm_get_game_id = 3
     comm_status = 4
     comm_exit = 5
-    comm_unlock_minicon = 6
+    comm_unlock_minicon = 6 #one arg, string, minicon name (refer to Data.tf_data.py)
     comm_apply_mod = 7
-    comm_read_location = 8
-    comm_check_spawn = 9
+    comm_read_location = 8 #one arg, int, address of taPickupPlaced instance
+    comm_check_spawn = 9 #one arg, int, address of taPickupPlaced instance
+    comm_unlock_episode = 10 #one arg, int, episode ID
 
 class CheatIndex(IntEnum):
     cheat_reset = 0
@@ -50,26 +65,14 @@ class MissionStatus(IntEnum):
     status_HQ_warp = 3
     status_freeze = 5
 
+'''-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
+End Enums
+-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~'''
+
 def raw_bytes_to_float(read_output: int) -> float:
+    #helper function for converting byte data from PCSX2's RAM to a float value
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
 
-def cheat_toggle(cheat_index: int, cheat_state: bool):
-    #might need to be async so we can call this on a timer while still monitoring RAM?
-    if cheat_index == 0:
-        #reset all valid cheat indecies. Since I have this set up as an enum, there's not a clean way to do this (that I know of)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_tractor, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_powerlink, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_immortal, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_oneshot, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_enemystealth, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_bighead, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_turbo, 0)
-    else:
-        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
-
-def set_mission_status(status_index: int):
-    #Same thoughts here as cheat_toggle
-    pcsx2.write_int32(GameAddress.gameadd_mission_status, status_index)
 
 def get_location_id(read_values: list[int]) -> int:
     '''Location IDs are written to the game by Exodus using the 4 values of its orientation,
@@ -95,73 +98,53 @@ def get_location_id(read_values: list[int]) -> int:
         rounding_place += 1
     return location_value
 
-def get_user_command() -> tuple[PineCommand, ...]:
-    user_input = input('\n> ')
 
-    command_list = user_input.split()
-    command = command_list[0]
-    if len(command_list) > 1:
-        args = command_list[1]
+def read_pickup_location(target_address: int):
+    # Using the modified code from write_initial_values, the game will write the pickup's unique ID to the
+    # clean region in RAM. This then reads that data, processes it, and returns the location
+    # ID as an int value
+    read_values = []
+    # first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
+    read_values.append(pcsx2.read_int32(target_address + 0x5C))
+    read_values.append(pcsx2.read_int32(target_address + 0x50))
+    read_values.append(pcsx2.read_int32(target_address + 0x54))
+    read_values.append(pcsx2.read_int32(target_address + 0x58))
+    location = get_location_id(read_values)
+    checked_locations.append(location)
+    print("Location ID read as: " + str(location) + ". Send to Archipelago.")
+    return location
+
+
+def cheat_toggle(cheat_index: int, cheat_state: bool):
+    #Used by effects.py to directly toggle a cheat's bit value to active or inactive
+    if cheat_index == 0:
+        #reset all valid cheat indecies. Since I have this set up as an enum, there's not a clean way to do this (that I know of)
+        #an arguement could be made that a dict would be better here.
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_tractor, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_powerlink, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_immortal, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_oneshot, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_enemystealth, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_bighead, 0)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_turbo, 0)
     else:
-        args = None
+        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
 
-    if command == "get_health":
-        return(PineCommand.comm_get_health,)
 
-    if command == "get_game_id":
-        return(PineCommand.comm_get_game_id,)
+def set_mission_status(status_index: int):
+    #Used by effects.py to directly set the mission status bit
+    pcsx2.write_int32(GameAddress.gameadd_mission_status, status_index)
 
-    if command == "status":
-        return(PineCommand.comm_status,)
-
-    if command == "exit":
-        return(PineCommand.comm_exit,)
-
-    if command == "set_health":
-        value: float = float(args)
-        return(PineCommand.comm_set_health, value,)
-
-    if command == "minicon":
-        return(PineCommand.comm_unlock_minicon, args,)
-
-    if command == "mod":
-        return(PineCommand.comm_apply_mod, args,)
-
-def read_target_addresses() -> tuple[PineCommand, ...]:
-    minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
-    if minicon_unlocks & 0x1000: #0x1000 is Endgame
-        print("Archipelago item pickup detected.")
-        pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
-        pickup_instance = pcsx2.read_int32(0x1FAECE0-0x10)
-        #we also need to decrease the minicon collection count for the current level
-        #TODO: make command execution its own function instead of relying on the monitor_ram loop
-        return (PineCommand.comm_read_location, pickup_instance,)
-
-    level_unlocks = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked)
-    if level_unlocks != 0:
-        #for now, just unlocking the next episode and reset the bit
-        unlock_episode(level_unlocks + 1)
-        pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)
-
-    checking_spawn = pcsx2.read_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC)
-    if checking_spawn != 0:
-        #checking_spawn is the memory address, get the location from offset 0xB from that address
-        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC, 0)
-        return (PineCommand.comm_check_spawn, checking_spawn,)
-
-    check_cheats = pcsx2.read_int32(GameAddress.gameadd_cheats)
-    if check_cheats != 0xFFFFFFFF:
-        #the game has put us on a valid cheat screen, we need to invalidate that
-        pcsx2.write_int32(GameAddress.gameadd_cheats, 0xFFFFFFFF)
-    return (PineCommand.comm_nothing,)
 
 def write_initial_values():
-    '''Sets values in RAM and single-line ELF codes to allow Archipelago randomizers to work'''
+    '''Sets values in RAM and single-line ELF codes to allow Archipelago randomizers to work
+    this can be replaced with mod files once their functionality is verified. For now I haven't done that,
+    since this is already reliable'''
 
     #increase PickupPlaced limit to 20 (0x14)
     pcsx2.write_int32(0x379534,0x2A230014)
 
-    #write pickup redirection code (this will be replaced with a mod file once functionality is verified)
+    #write pickup redirection code
     pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x4, 0x2442ECD0)
@@ -223,70 +206,99 @@ def unlock_episode(episode_id: int):
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
+
+def unlock_minicon(minicon_name: str):
+    try:
+        minicon_id = minicon_ids[minicon_name]
+    except:
+        print("Couldn't find minicon")
+        return -1
+
+    bit = 0x1 << (minicon_id - 1)
+    old_inventory = pcsx2.read_int64(GameAddress.gameadd_minicon_unlocks)
+    new_inventory = old_inventory | bit
+    pcsx2.write_int64(GameAddress.gameadd_minicon_unlocks, new_inventory)
+    return 0
+
+
+def check_valid_spawn(target_address: int):
+    # When loading a level, the game will check if a minicon/datacon is unlocked or not to see if it needs to be placed.
+    # Using the modified code from write_initial_values, read the location ID of the currently checked location
+    # and compare it to the locations in checked_locations. If it's present in our list, it doesn't need to be
+    # spawned. The value from this decision is written to RAM, along with a "process complete" value
+    # that tells the game it's safe to proceed.
+    read_values = []
+    read_values.append(pcsx2.read_int32(target_address + 0xBC))
+    read_values.append(pcsx2.read_int32(target_address + 0xB0))
+    read_values.append(pcsx2.read_int32(target_address + 0xB4))
+    read_values.append(pcsx2.read_int32(target_address + 0xB8))
+    location = get_location_id(read_values)
+    print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
+
+    # write the check value for the game to read
+    if location in checked_locations:
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 1)
+    else:
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 0)
+    # write the process complete so the game breaks out of the loop
+    # keep an eye on this, we may need the game to reset this value before entering the loop
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x8, 1)
+
+
 def execute_command(command):
+    #This function handles all the commands listed in the PineCommand enum. Commands are taken as a tuple
+    #of values. The first value is the PineCommand option, while any following values are parameters/arguments passed
+    #to the command itself.
+    #Some of these should be rewritten as their own functions which this then calls
+    #See comments under each case for more information
     if command[0] == PineCommand.comm_get_health:
-        address: int = 0x00716FB4
-        health_raw = pcsx2.read_int32(address)
+        #Returns the player's current health as a float value
+        health_raw = pcsx2.read_int32(GameAddress.gameadd_player_health)
         return raw_bytes_to_float(health_raw)
 
     if command[0] == PineCommand.comm_get_game_id:
+        #Returns the current game ID as a string
         return pcsx2.get_game_id()
 
     if command[0] == PineCommand.comm_status:
-        return pcsx2.is_connected() #not really necessary, since the script errors if we disconnect.
+        #Checks the connection status. Currently this is redundant, since PINE errors if we lose connection
+        return pcsx2.is_connected()
 
     if command[0] == PineCommand.comm_exit:
+        #Disconnects the PINE client from PCSX2. We currently do not have a way to reconnect from this state without restarting the client.
         pcsx2.disconnect()
         return
 
     '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
     '''
     if command[0] == PineCommand.comm_set_health:
+        #Sets the player's health to the value of the first parameter
         if len(command) != 2:
             return
-        address: int = 0x00716FB4
         value: float = float(command[1])
 
-        pcsx2.write_float(address, value)
+        pcsx2.write_float(GameAddress.gameadd_player_health, value)
 
         print(f'Set health to {command[1]}')
 
     if command[0] == PineCommand.comm_unlock_minicon:
-        add_minicon(command[1])
+        #Unlocks the minicon indicated by the name in the first parameter
+        unlock_minicon(command[1])
+
+    if command[0] == PineCommand.comm_unlock_episode:
+        unlock_episode(command[1])
 
     if command[0] == PineCommand.comm_read_location:
-        read_values = []
-        # first arg should be the address of the taPickupPlaced instance. The orientation is at 0x50 from it
-        read_values.append(pcsx2.read_int32(command[1] + 0x5C))
-        read_values.append(pcsx2.read_int32(command[1] + 0x50))
-        read_values.append(pcsx2.read_int32(command[1] + 0x54))
-        read_values.append(pcsx2.read_int32(command[1] + 0x58))
-        location = get_location_id(read_values)
-        checked_locations.append(location)
-        print("Location ID read as: " + str(location) + ". Send to Archipelago.")
-        return location
+        return get_location_id(command[1])
 
     if command[0] == PineCommand.comm_check_spawn:
-        read_values = []
-        read_values.append(pcsx2.read_int32(command[1] + 0xBC))
-        read_values.append(pcsx2.read_int32(command[1] + 0xB0))
-        read_values.append(pcsx2.read_int32(command[1] + 0xB4))
-        read_values.append(pcsx2.read_int32(command[1] + 0xB8))
-        location = get_location_id(read_values)
-        print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
+        check_valid_spawn(command[1])
 
-        # write the check value for the game to read
-        if location in checked_locations:
-            pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 1)
-        else:
-            pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 0)
-        # write the process complete so the game breaks out of the loop
-        # keep an eye on this, we may need the game to reset this value before entering the loop
-        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x8, 1)
 
 async def monitor_ram():
+    #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
-    pcsx2.connect()
+    pcsx2.connect() #if PCSX2 is not open, this will throw an error. TODO: handle this error in a way that's less disruptive
     write_initial_values()
     while True:
         mode = 'Auto' #'Manual' #
@@ -296,6 +308,69 @@ async def monitor_ram():
             command = read_target_addresses()
         if command[0] != PineCommand.comm_nothing:
             execute_command(command)
+
+
+def read_target_addresses() -> tuple[PineCommand, ...]:
+    #Checks specific RAM addresses to see if PINE intervention is required
+    minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
+    if minicon_unlocks & 0x1000: #0x1000 is Endgame
+        print("Archipelago item pickup detected.")
+        pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
+        pickup_instance = pcsx2.read_int32(0x1FAECE0-0x10)
+        #we also need to decrease the minicon collection count for the current level
+        return (PineCommand.comm_read_location, pickup_instance,)
+
+    level_unlocks = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked)
+    if level_unlocks != 0:
+        #for now, just unlocking the next episode and reset the bit
+        unlock_episode(level_unlocks + 1)
+        pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)
+
+    checking_spawn = pcsx2.read_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC)
+    if checking_spawn != 0:
+        #checking_spawn is the memory address, get the location from offset 0xB from that address
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC, 0)
+        return (PineCommand.comm_check_spawn, checking_spawn,)
+
+    check_cheats = pcsx2.read_int32(GameAddress.gameadd_cheats)
+    if check_cheats != 0xFFFFFFFF:
+        #the game has put us on a valid cheat screen, we need to invalidate that
+        pcsx2.write_int32(GameAddress.gameadd_cheats, 0xFFFFFFFF)
+    return (PineCommand.comm_nothing,)
+
+
+def get_user_command() -> tuple[PineCommand, ...]:
+    #Can be used for manual command testing. Has not been kept up to date.
+    user_input = input('\n> ')
+
+    command_list = user_input.split()
+    command = command_list[0]
+    if len(command_list) > 1:
+        args = command_list[1]
+    else:
+        args = None
+
+    if command == "get_health":
+        return(PineCommand.comm_get_health,)
+
+    if command == "get_game_id":
+        return(PineCommand.comm_get_game_id,)
+
+    if command == "status":
+        return(PineCommand.comm_status,)
+
+    if command == "exit":
+        return(PineCommand.comm_exit,)
+
+    if command == "set_health":
+        value: float = float(args)
+        return(PineCommand.comm_set_health, value,)
+
+    if command == "minicon":
+        return(PineCommand.comm_unlock_minicon, args,)
+
+    if command == "mod":
+        return(PineCommand.comm_apply_mod, args,)
 
 
 #asyncio.run(monitor_ram()) #used for testing
