@@ -143,6 +143,8 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     "Health Drop": ItemClassification.filler,
     "Big Head (2min)": ItemClassification.filler,
     "Stealth Trap": ItemClassification.trap,
+    "Freeze Trap" : ItemClassification.trap,
+    "Warp Trap": ItemClassification.trap,
     
     #Level Unlocks
     "Amazon Level Unlock": ItemClassification.progression,
@@ -161,8 +163,16 @@ class Transformers04Item(Item):
     
 def get_random_filler_item_name(world: Transformers04World) -> str:
     if world.random.randint(0,99) < world.options.trap_chance:
-        world.create_item("Stealth Trap")
-        return "Stealth Trap"
+        num = world.randint(0,2)
+        if num == 0:
+            world.create_item("Stealth Trap")
+            return "Stealth Trap"
+        else if num == 1:
+            world.create_item("Freeze Trap")
+            return "Freeze Trap"
+        else:
+            world.create_item ("Warp Trap")
+            return "Warp Trap"
     if world.random.randint(0,1) == 1:
         world.create_item("Health Drop")
         return "Health Drop"

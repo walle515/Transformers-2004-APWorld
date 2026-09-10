@@ -117,6 +117,8 @@ ITEM_NAME_TO_ID: dict[str,int] = {
     "Health Drop": 151,
     "Big Head (2min)": 152,
     "Stealth Trap": 153,
+    "Freeze Trap": 154,
+    "Warp Trap": 155,
     
     #Level Unlocks
     "Amazon Level Unlock": 160,
