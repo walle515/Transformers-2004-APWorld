@@ -50,6 +50,8 @@ def __init__():
                                   , memman.CheatIndex.cheat_immortal, 10))
     effect_list.append(GameEffect("BuffTractor", False, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_tractor, -1))
+    effect_list.append(GameEffect("BuffBigHead", False, EffectStyle.style_cheat
+                                  , memman.CheatIndex.cheat_bighead, 120))
 
 def get_effect(effect_name: str) -> GameEffect:
     for effect in effect_list:

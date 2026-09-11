@@ -4,9 +4,18 @@ import logging
 from CommonClient import CommonContext, server_loop, ClientStatus
 from .. import database
 import ..scripts.memory_manager
-
+from ..scripts.memory_manager import PineCommand as PineCommand
+from ..scripts.memory_manager import CheatIndex as CheatIndex
+from enum import IntEnum
+import ..scripts.effects as Effects
 
 unhandled_locations: list[int] = []
+
+class ItemType(IntEnum):
+    minicon = 0
+    datacon = 1
+    level_unlock = 2
+    special = 3
 
 # Context is how Archipelago stores data for the game, like slot number, name, server connections, etc.
 # It also can hold variables we want persistant, so if we need to save some data and lose connection, we will still
@@ -24,6 +33,9 @@ class Transformers04Context(CommonContext):
         self.pine_connected = False
         
         self.game_completion = False
+        
+        self.received_items: list[string] = []
+        self.item_last_index = 0
 
 
 
@@ -40,6 +52,10 @@ async def game_loop(context: Transformers04Context):
     This is the function that communicates between the game and the archipelago server.
     It is continuously called and run asyncronous to the archipelago server stuff.
     """
+    
+    item = ""
+    item_id = 0
+    item_type = ItemType.minicon
 
     while not context.exit_event.is_set():
 
@@ -54,6 +70,44 @@ async def game_loop(context: Transformers04Context):
             #   the game had to reconnect and get all items given while gone, or if the game had to restart from a crash
             #   or something like that. 
             
+            if context.items_received.len() > context.received_items.len():
+                item_id = context.items_received(context.item_last_index).item
+                context.item_last_index += 1
+                for key,value in database.ITEM_NAME_TO_ID.items():
+                    if value = item_id:
+                        item = key
+                context.received_items.append(item)
+                if item_id < 50:
+                    item_type = ItemType.minicon
+                else if item_id < 150:
+                    item_type = ItemType.datacon
+                    item_id -= 50
+                else if item_id < 160:
+                    item_type = ItemType.special
+                    item_id -= 150
+                else:
+                    item_type = Item_Type.level_unlock
+                    item_id -= 160
+                
+                match item_type:
+                    case ItemType.minicon:
+                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item))
+                    case ItemType.datacon:
+                        #datacon unlock command here
+                    case ItemType.level_unlock:
+                        memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id))
+                    case ItemType.special:
+                        if item_id == 0:    #Health Drop
+                            #set health to max
+                        else if item_id == 1:   #big head
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                        else if item_id == 2:   #Stealth Trap
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth")))
+                        else if item_id == 3:   #Freeze Trap
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze")))
+                        else if item_id == 4:   #warp trap
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ")))
+            
             # check goal completion
             if "Victory" in context.items_received:
                 context.game_completion = True
@@ -62,6 +116,8 @@ async def game_loop(context: Transformers04Context):
 
         await asyncio.sleep(0.1)
     
+    self.item_last_index = 0
+    memory_manager.execute_command((PineCommand.comm_exit,))
     
 
 
