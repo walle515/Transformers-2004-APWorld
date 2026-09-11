@@ -9,8 +9,17 @@ from ..scripts.memory_manager import CheatIndex as CheatIndex
 from enum import IntEnum
 import ..scripts.effects as Effects
 
+
+# list of unhandled locations. Kept out of context incase there is some issue when someone leaves
+# the game and returns later to a lost save or something.
 unhandled_locations: list[int] = []
 
+# int to store the index of the list of received items. Same as list, leaving out of context incase
+# there is a save issue and data is lost, it will try to unlock all items that were previously unlocked.
+item_index = 0
+
+
+#Enum for what type of item is received
 class ItemType(IntEnum):
     minicon = 0
     datacon = 1
@@ -29,21 +38,30 @@ class Transformers04Context(CommonContext):
         
         self.pine = None    #will change from none to pine client once we have it setup
 
-        # Variable for setting if the pcsx2 is connected. 
+        # Variable for setting if the pcsx2 is connected. Set in MemMan
         self.pine_connected = False
         
         self.game_completion = False
         
-        self.received_items: list[string] = []
-        self.item_last_index = 0
+        #self.item_last_index = 0
 
 
-
+# This function takes the location ID from Memory Manager and stores it in a list for the client to
+# handle. It also changes the ID if it was a linked location to the location's original ID
+# Needs to receive 2 arguments, the location ID and the context (already imported on MemMan as TFContext)
 def send_location(location_id: int, context: Transformers04Context):
     if location_id in database.Linked_Locations:
         location_id = database.Linked_Locations[location_id]
-    unhandled_locations.append(location_id)
-    memory_manager.checked_locations.append(location_id)
+        
+    unhandled_locations.append(location_id)     # adds location ID to list
+    memory_manager.checked_locations.append(location_id)   # adds location ID to MemMan list
+    
+
+# Function to tell Archipelago that the game has been completed upon goal completion (typically killing Unicron)
+def Archipelago_Completed(context: Transformers04Context):
+    if not context.game_completion:
+        context.game_completion = True
+        await context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
 
 
@@ -53,52 +71,65 @@ async def game_loop(context: Transformers04Context):
     It is continuously called and run asyncronous to the archipelago server stuff.
     """
     
-    item = ""
+    #item = ""
     item_id = 0
     item_type = ItemType.minicon
 
     while not context.exit_event.is_set():
 
+        # make sure Pine is connected and the game is not complete
         if context.pine_connected and not context.game_completion:
             
-            #check if new location was checked and check it
-            if unhandled_locations.len() > 0:
+            #check if new location was checked and if so, send the ID to Archipelago
+            if len(unhandled_locations) > 0:
                 context.check_location({unhandled_locations[0]})
                 del unhandled_locations[0]
+                
+                
             # Give received items
             # context.items_received is a list of all items our game should have received from Archipelago. This helps if
             #   the game had to reconnect and get all items given while gone, or if the game had to restart from a crash
             #   or something like that. 
             
-            if context.items_received.len() > context.received_items.len():
-                item_id = context.items_received(context.item_last_index).item
-                context.item_last_index += 1
-                for key,value in database.ITEM_NAME_TO_ID.items():
-                    if value = item_id:
-                        item = key
-                context.received_items.append(item)
+            # check if the length of received items is bigger than the index, meaning there is an item to receive
+            if len(context.items_received) > item_index:
+                item_id = context.items_received(item_index).item   # get the item ID
+                item_index += 1     #increase the index
+                
+                #if the ID is less than 50, then the item is a minicon
                 if item_id < 50:
                     item_type = ItemType.minicon
+                    
+                #if the item is somewhere between 50 and 150, its a datacon, so we need to subtract 50 from the ID
                 else if item_id < 150:
                     item_type = ItemType.datacon
                     item_id -= 50
+                    
+                #if its between 150 and 160, its a special item, like a trap or health drop, so subtract 150
                 else if item_id < 160:
                     item_type = ItemType.special
                     item_id -= 150
+                    
+                # if its 160 or higher, its a level unlock, so subtract 160 (level ids range from 0-7)
                 else:
                     item_type = Item_Type.level_unlock
                     item_id -= 160
                 
+                #give the item based on the type of item
                 match item_type:
+                    
                     case ItemType.minicon:
-                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item))
+                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id))
+                    
                     case ItemType.datacon:
                         #datacon unlock command here
+                    
                     case ItemType.level_unlock:
                         memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id))
+                    
                     case ItemType.special:
                         if item_id == 0:    #Health Drop
-                            #set health to max
+                            memory_manager.execute_command((PineCommand.comm_set_max_health,))
                         else if item_id == 1:   #big head
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                         else if item_id == 2:   #Stealth Trap
@@ -107,16 +138,10 @@ async def game_loop(context: Transformers04Context):
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze")))
                         else if item_id == 4:   #warp trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ")))
-            
-            # check goal completion
-            if "Victory" in context.items_received:
-                context.game_completion = True
-                await context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
-            
 
         await asyncio.sleep(0.1)
     
-    self.item_last_index = 0
+    
     memory_manager.execute_command((PineCommand.comm_exit,))
     
 

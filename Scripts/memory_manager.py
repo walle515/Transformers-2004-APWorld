@@ -32,6 +32,7 @@ class GameAddress(IntEnum):
     gameadd_cheats = 0x8F0480
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
+    gameadd_player_max_health = 0x00716FBB
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -50,6 +51,7 @@ class PineCommand(IntEnum):
     comm_read_location = 8 #one arg, int, address of taPickupPlaced instance
     comm_check_spawn = 9 #one arg, int, address of taPickupPlaced instance
     comm_unlock_episode = 10 #one arg, int, episode ID
+    comm_set_max_health = 11
 
 class CheatIndex(IntEnum):
     cheat_reset = 0
@@ -209,11 +211,14 @@ def unlock_episode(episode_id: int):
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
 
-def unlock_minicon(minicon_name: str):
-    try:
-        minicon_id = minicon_ids[minicon_name]
-    except:
-        print("Couldn't find minicon")
+def unlock_minicon(minicon_id: int):
+    # try:
+        # minicon_id = minicon_ids[minicon_name]
+    # except:
+        # print("Couldn't find minicon")
+        # return -1
+    if not minicon_id < 50:
+        print("Minicon ID out of bounds")
         return -1
 
     bit = 0x1 << (minicon_id - 1)
@@ -296,6 +301,15 @@ def execute_command(command):
 
     if command[0] == PineCommand.comm_check_spawn:
         check_valid_spawn(command[1])
+    
+    if command[0] == PineCommand.comm_set_max_health:
+        #Sets player health to the maximum for the character
+        max_health_raw = pcsx2.read_int32(GameAddress.gameadd_player_max_health)
+        max_health: float = raw_bytes_to_float(max_health_raw)
+        
+        pcsx2.write_float(GameAddress.gameadd_player_health, max_health)
+        
+        print(f'Set health to {max_health} (Max)')
 
 
 async def monitor_ram():
