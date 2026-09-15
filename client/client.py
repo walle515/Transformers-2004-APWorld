@@ -58,7 +58,7 @@ def send_location(location_id: int, context: Transformers04Context):
     
 
 # Function to tell Archipelago that the game has been completed upon goal completion (typically killing Unicron)
-def Archipelago_Completed(context: Transformers04Context):
+async def Archipelago_Completed(context: Transformers04Context):
     if not context.game_completion:
         context.game_completion = True
         await context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
@@ -101,12 +101,12 @@ async def game_loop(context: Transformers04Context):
                     item_type = ItemType.minicon
                     
                 #if the item is somewhere between 50 and 150, its a datacon, so we need to subtract 50 from the ID
-                else if item_id < 150:
+                elif item_id < 150:
                     item_type = ItemType.datacon
                     item_id -= 50
                     
                 #if its between 150 and 160, its a special item, like a trap or health drop, so subtract 150
-                else if item_id < 160:
+                elif item_id < 160:
                     item_type = ItemType.special
                     item_id -= 150
                     
@@ -123,6 +123,7 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.datacon:
                         #datacon unlock command here
+                        continue
                     
                     case ItemType.level_unlock:
                         memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id))
@@ -130,13 +131,13 @@ async def game_loop(context: Transformers04Context):
                     case ItemType.special:
                         if item_id == 0:    #Health Drop
                             memory_manager.execute_command((PineCommand.comm_set_max_health,))
-                        else if item_id == 1:   #big head
+                        elif item_id == 1:   #big head
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
-                        else if item_id == 2:   #Stealth Trap
+                        elif item_id == 2:   #Stealth Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth")))
-                        else if item_id == 3:   #Freeze Trap
+                        elif item_id == 3:   #Freeze Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze")))
-                        else if item_id == 4:   #warp trap
+                        elif item_id == 4:   #warp trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ")))
 
         await asyncio.sleep(0.1)

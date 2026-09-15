@@ -318,7 +318,7 @@ async def monitor_ram():
     pcsx2.connect() #if PCSX2 is not open, this will throw an error. TODO: handle this error in a way that's less disruptive
     
     #Created a loop to try to connect to the game
-    while not (pcsx2.is_connected && pcsx2.get_game_id() in game_codes):
+    while not (pcsx2.is_connected and pcsx2.get_game_id() in game_codes):
         print("PCSX2 Failed to connect, trying again in 5 seconds")
         await asyncio.sleep(5)
         pcsx2.connect()

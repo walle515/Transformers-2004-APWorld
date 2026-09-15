@@ -167,7 +167,7 @@ def get_random_filler_item_name(world: Transformers04World) -> str:
         if num == 0:
             world.create_item("Stealth Trap")
             return "Stealth Trap"
-        else if num == 1:
+        elif num == 1:
             world.create_item("Freeze Trap")
             return "Freeze Trap"
         else:
