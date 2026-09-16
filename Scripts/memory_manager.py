@@ -237,7 +237,7 @@ def unlock_datacon(datacon_id: int):
     # except:
         # print("Couldn't find minicon")
         # return -1
-    if not datacon_id < 63:
+    if not datacon_id < 64:
         print("Minicon ID out of bounds")
         return -1
 

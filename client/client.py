@@ -122,7 +122,7 @@ async def game_loop(context: Transformers04Context):
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id))
                     
                     case ItemType.datacon:
-                        #datacon unlock command here
+                        memory_manager.unlock_datacon(item_id)
                         continue
                     
                     case ItemType.level_unlock:
