@@ -1,4 +1,4 @@
-from pine import pcsx2
+from ..scripts.pine import pcsx2
 
 INVENTORY_MEMORY_OFFSET = 0x007173C0
 

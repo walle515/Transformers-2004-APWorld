@@ -3,11 +3,11 @@ import logging
 
 from CommonClient import CommonContext, server_loop, ClientStatus
 from .. import database
-import ..scripts.memory_manager
+from ..scripts import memory_manager
 from ..scripts.memory_manager import PineCommand as PineCommand
 from ..scripts.memory_manager import CheatIndex as CheatIndex
 from enum import IntEnum
-import ..scripts.effects as Effects
+from ..scripts import effects as Effects
 
 
 # list of unhandled locations. Kept out of context incase there is some issue when someone leaves
@@ -93,7 +93,7 @@ async def game_loop(context: Transformers04Context):
             
             # check if the length of received items is bigger than the index, meaning there is an item to receive
             if len(context.items_received) > item_index:
-                item_id = context.items_received(item_index).item   # get the item ID
+                item_id = context.items_received[item_index].item   # get the item ID
                 item_index += 1     #increase the index
                 
                 #if the ID is less than 50, then the item is a minicon
@@ -112,7 +112,7 @@ async def game_loop(context: Transformers04Context):
                     
                 # if its 160 or higher, its a level unlock, so subtract 160 (level ids range from 0-7)
                 else:
-                    item_type = Item_Type.level_unlock
+                    item_type = ItemType.level_unlock
                     item_id -= 160
                 
                 #give the item based on the type of item
@@ -156,9 +156,11 @@ async def main(args):
         args.password
     )
     
+    context.run_cli()
+    
     #Setup the game loop to handle items and locations from the game
     asyncio.create_task(game_loop(context))
-    asyncio.create_task(memory_manager())
+    asyncio.create_task(memory_manager.monitor_ram())
 
     # Start the Archipelago network connection.
     await server_loop(context)

@@ -1,11 +1,11 @@
 import struct
 
-from Scripts.pine import Pine, pcsx2
-from Data.tf_data import minicon_ids
+from .pine import Pine, pcsx2
+from ..data.tf_data import minicon_ids
 from enum import IntEnum
-from Scripts.mips_mods import MipsMod
+from .mips_mods import MipsMod
 import asyncio
-import ..client.Transformers04Context as TFContext
+from ..client import Transformers04Context as TFContext
 from ..database import game_codes
 
 '''Most of this file should be self-contained. If everything is set up correctly, the only things that 

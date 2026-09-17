@@ -1,5 +1,5 @@
 import filedialpy
-from Scripts.pine import pcsx2
+from .pine import pcsx2
 import os
 
 class ModLine:

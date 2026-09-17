@@ -1,4 +1,4 @@
-from worlds.LauncherComponents import Component, Type, components, launch
+from worlds.LauncherComponents import Component, Type, components, launch_subprocess
 from ..LauncherComponents import icon_paths
 
 
@@ -7,7 +7,7 @@ from ..LauncherComponents import icon_paths
 def run_client(*args: str) -> None:
     from .client.launch import launch_tf04_client
     
-    launch(launch_tf04_client, name="Transformers (2004) Client", args=args)
+    launch_subprocess(launch_tf04_client, name="Transformers (2004) Client", args=args)
     
     
     
