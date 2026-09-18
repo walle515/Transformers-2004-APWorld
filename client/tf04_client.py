@@ -8,6 +8,7 @@ from ..scripts.memory_manager import PineCommand as PineCommand
 from ..scripts.memory_manager import CheatIndex as CheatIndex
 from enum import IntEnum
 from ..scripts import effects as Effects
+from Utils import gui_enabled
 
 
 # list of unhandled locations. Kept out of context incase there is some issue when someone leaves
@@ -162,14 +163,26 @@ async def main(args):
         args.password
     )
     
+    # Start the Archipelago Server connection.
+    # If no address was supplied, the GUI will allow us to connect.
+    context.server_task = asyncio.create_task(server_loop(context), name="ServerLoop")
+    
+    # start the Archipelago Client Window
+    if gui_enabled:
+        context.run_gui()
+        
+    # Enable normal command-line input when available. Used by other Archipelago Processes.
     context.run_cli()
     
     #Setup the game loop to handle items and locations from the game
     asyncio.create_task(game_loop(context))
     asyncio.create_task(memory_manager.monitor_ram())
-
-    # Start the Archipelago network connection.
-    await server_loop(context)
+    
+    # keep the client alive until the user closes it
+    await context.exit_event.wait()
+    
+    context.server_address = None
+    await context.shutdown()
 
 
 
