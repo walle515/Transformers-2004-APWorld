@@ -47,7 +47,14 @@ class Transformers04Context(CommonContext):
         self.game_completion = False
         
         #self.item_last_index = 0
-
+    
+    def make_gui(self):
+        from kvui import GameManager
+        
+        class Transformers04Manager(GameManager):
+            base_title = "Transformers (2004) Client"
+        
+        return Transformers04Manager
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
 # handle. It also changes the ID if it was a linked location to the location's original ID
