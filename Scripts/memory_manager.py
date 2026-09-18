@@ -5,8 +5,9 @@ from ..data.tf_data import minicon_ids
 from enum import IntEnum
 from .mips_mods import MipsMod
 import asyncio
-from ..client import Transformers04Context as TFContext
+#from ..client import client as TFClient
 from ..database import game_codes
+from .. import database
 
 '''Most of this file should be self-contained. If everything is set up correctly, the only things that 
 should be needed from outside are:
@@ -18,6 +19,12 @@ the checked_locations list, just to populate its values.'''
 #The checked_locations list should be populated from Archipelago on connection to the server to keep our
 # local checks in sync. TODO: Populate this list on connection
 checked_locations: list[int] = []
+
+
+pine_is_connected = False
+# list of unhandled locations. Kept out of context incase there is some issue when someone leaves
+# the game and returns later to a lost save or something.
+unhandled_locations: list[int] = []
 
 '''-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
 This section defines enum values that can be easilly passed around functions instead of having to 
@@ -73,6 +80,13 @@ class MissionStatus(IntEnum):
 '''-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~
 End Enums
 -~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~'''
+def send_location(location_id: int):
+    if location_id in database.Linked_Locations:
+        location_id = database.Linked_Locations[location_id]
+        
+    unhandled_locations.append(location_id)     # adds location ID to list
+
+
 
 def raw_bytes_to_float(read_output: int) -> float:
     #helper function for converting byte data from PCSX2's RAM to a float value
@@ -117,7 +131,7 @@ def read_pickup_location(target_address: int):
     location = get_location_id(read_values)
     checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
-    TFContext.send_location(location)
+    send_location(location)
     return location
 
 
@@ -294,7 +308,7 @@ def execute_command(command):
     if command[0] == PineCommand.comm_exit:
         #Disconnects the PINE client from PCSX2. We currently do not have a way to reconnect from this state without restarting the client.
         pcsx2.disconnect()
-        TFContext.pine_connected = False    #Tell client pine was disconnected
+        pine_is_connected = False    #Tell client pine was disconnected
         return
 
     '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
@@ -343,7 +357,7 @@ async def monitor_ram():
         await asyncio.sleep(5)
         pcsx2.connect()
     
-    TFContext.pine_connected = True #tell client pine is connected
+    pine_is_connected = True #tell client pine is connected
     
     write_initial_values()
     

@@ -1,4 +1,4 @@
-import filedialpy
+#import filedialpy
 from .pine import pcsx2
 import os
 
@@ -96,14 +96,14 @@ def remove_mod_lines(start_address: int, end_address:int, amount: int):
 def apply_mod(file_name):
     #check if mod file exists in Data folder
     #iterate through mod sections, write data to RAM
-    if file_name == "":
-        file_path = filedialpy.openFile()
-    else:
-        #there's gotta be a better way to do this, right? Not super familiar with Python
-        script_dir = os.path.realpath(__file__)
-        #there has to be. This line will need to change based on which file we have as the launch file
-        data_dir = "{}/../Data/".format(script_dir)
-        file_path = os.path.join(data_dir, file_name)
+    # if file_name == "":
+        # file_path = filedialpy.openFile()
+    # else:
+    #there's gotta be a better way to do this, right? Not super familiar with Python
+    script_dir = os.path.realpath(__file__)
+    #there has to be. This line will need to change based on which file we have as the launch file
+    data_dir = "{}/../Data/".format(script_dir)
+    file_path = os.path.join(data_dir, file_name)
     if not os.path.exists(file_path):
         print("Invalid mod file provided. Target path: " + file_path)
         return
