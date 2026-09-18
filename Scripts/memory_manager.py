@@ -347,12 +347,14 @@ def execute_command(command):
 
 
 async def monitor_ram():
+    global pine_is_connected
+    
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
     pcsx2.connect() #if PCSX2 is not open, this will throw an error. TODO: handle this error in a way that's less disruptive
     
     #Created a loop to try to connect to the game
-    while not (pcsx2.is_connected and pcsx2.get_game_id() in game_codes):
+    while not (pcsx2.is_connected() and pcsx2.get_game_id() in game_codes):
         print("PCSX2 Failed to connect, trying again in 5 seconds")
         await asyncio.sleep(5)
         pcsx2.connect()
@@ -361,7 +363,7 @@ async def monitor_ram():
     
     write_initial_values()
     
-    checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
+    #checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
     while True:
         mode = 'Auto' #'Manual' #
         if mode == 'Manual':
@@ -451,4 +453,4 @@ def get_user_command() -> tuple[PineCommand, ...]:
         return(PineCommand.comm_apply_mod, args,)
 
 
-asyncio.run(monitor_ram()) #used for testing
+#asyncio.run(monitor_ram()) #used for testing

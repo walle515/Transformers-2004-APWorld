@@ -8,7 +8,7 @@ from CommonClient import get_base_parser, handle_url_arg
 
 
 def launch_tf04_client(*args: Sequence[str]) -> None:
-    from .client import main
+    from .tf04_client import main
     
     parser = get_base_parser()
     parser.add_argument("--name", default=None, help="Slot Name to connect as")

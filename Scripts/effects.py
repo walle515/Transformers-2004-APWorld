@@ -1,4 +1,4 @@
-import Scripts.memory_manager as memman
+from . import memory_manager as memman
 from asyncio import sleep
 from enum import IntEnum
 

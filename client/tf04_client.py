@@ -18,6 +18,8 @@ from ..scripts import effects as Effects
 # there is a save issue and data is lost, it will try to unlock all items that were previously unlocked.
 item_index = 0
 
+pine_previous_connection = False
+
 
 #Enum for what type of item is received
 class ItemType(IntEnum):
@@ -76,6 +78,10 @@ async def game_loop(context: Transformers04Context):
     item_type = ItemType.minicon
 
     while not context.exit_event.is_set():
+        
+        if memory_manager.pine_is_connected and not pine_previous_connection:
+            memory_manager.checked_locations.extend(context.checked_locations)
+            pine_previous_connection = True
 
         # make sure Pine is connected and the game is not complete
         if memory_manager.pine_is_connected and not context.game_completion:
