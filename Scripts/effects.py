@@ -52,6 +52,8 @@ def __init__():
                                   , memman.CheatIndex.cheat_tractor, -1))
     effect_list.append(GameEffect("BuffBigHead", False, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_bighead, 120))
+    effect_list.append(GameEffect("StasisLock", True, EffectStyle.style_mission_status
+                                  , memman.MissionStatus.status_stasis_lock, 0))
 
 def get_effect(effect_name: str) -> GameEffect:
     for effect in effect_list:

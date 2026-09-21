@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle
+from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle, Deathlink
 
 # In this file, we define the options the player can pick.
 # The most common types of options are Toggle, Range and Choice.
@@ -125,12 +125,13 @@ class Transformers04Options(PerGameCommonOptions):
     visible_progression_items: VisibleProgressionItems
     balance_minicon_levels: BalanceMiniconLevels
     balance_minicon_colors: BalanceMiniconColors
+    death_link: Deathlink
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
     OptionGroup(
         "Goal Options",
-        [GoalOption, MiniconCount],
+        [GoalOption, MiniconCount, Deathlink],
     ),
     OptionGroup(
         "Gameplay Options",
@@ -161,6 +162,7 @@ option_presets = {
         "randomize_mini_color": False,
         "balance_minicon_colors": False,
         "visible_progression_items": True,
+        "death_link": False,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -174,6 +176,7 @@ option_presets = {
         "randomize_mini_color": True,
         "balance_minicon_colors": False,
         "visible_progression_items": False,
+        "death_link": False,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -187,6 +190,7 @@ option_presets = {
         "randomize_mini_color": False,
         "balance_minicon_colors": False,
         "visible_progression_items": False,
+        "death_link": True,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -200,6 +204,7 @@ option_presets = {
         "randomize_mini_color": False,
         "balance_minicon_colors": False,
         "visible_progression_items": True,
+        "death_link": False,
     },
     
 }

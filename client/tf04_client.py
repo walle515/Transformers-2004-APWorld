@@ -47,6 +47,11 @@ class Transformers04Context(CommonContext):
         self.game_completion = False
         
         #self.item_last_index = 0
+        
+        self.deathlink_pending = False
+        self.last_health = 1.0
+        self.sent_death = False
+        self.deathlink_enabled = False
     
     def make_gui(self):
         from kvui import GameManager
@@ -55,6 +60,20 @@ class Transformers04Context(CommonContext):
             base_title = "Transformers (2004) Client"
         
         return Transformers04Manager
+        
+    
+    def on_deathlink(self, data):
+        self.deathlink_pending = True
+        super().on_deathlink(data)
+    
+    def on_package(self, cmd, args):
+        if cmd == "Connected":
+            slot_data = args.get("slot_data", {})
+            death_link_status = slot_data.get("death_link", False)
+            
+            self.deathlink_enabled = death_link_status
+            asyncio.create_task(self.update_death_link(death_link_status))
+    
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
 # handle. It also changes the ID if it was a linked location to the location's original ID
@@ -84,6 +103,7 @@ async def game_loop(context: Transformers04Context):
     #item = ""
     item_id = 0
     item_type = ItemType.minicon
+    current_health = 1.0
 
     while not context.exit_event.is_set():
         
@@ -153,7 +173,31 @@ async def game_loop(context: Transformers04Context):
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze")))
                         elif item_id == 4:   #warp trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ")))
-
+            
+            
+            #Deathlink Handling
+            if context.deathlink_enabled:
+                #If we have received a deathlink, kill the player, and set variables as needed.
+                if context.deathlink_pending:
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock")))
+                    context.deathlink_pending = False
+                    context.sent_death = True
+                
+                #Get the current player health
+                current_health = memory_manager.execute_command((PineCommand.comm_get_health,))
+                
+                #If current health is 0 or less, and a death is not currently being sent_death
+                #   (deathlink isnt triggering and it doesnt sent infinite while waiting on player
+                #   to hit continue or something), then send the death
+                if current_health <= 0 and not context.sent_death:
+                    await context.send_death("Autobot has Stasis Locked")   #Death message can be changed later
+                    context.sent_death = True
+                    
+                #Check to see if player is back above 0 health to reset the death state
+                if context.sent_death and current_health > 0:
+                    context.sent_death = False
+            
+            
         await asyncio.sleep(0.1)
     
     
