@@ -128,6 +128,11 @@ def read_pickup_location(target_address: int):
     read_values.append(pcsx2.read_int32(target_address + 0x50))
     read_values.append(pcsx2.read_int32(target_address + 0x54))
     read_values.append(pcsx2.read_int32(target_address + 0x58))
+    pcsx2.write_int32(target_address+0x5C, 0)
+    pcsx2.write_int32(target_address+0x50, 0x3F800000)
+    pcsx2.write_int32(target_address+0x54, 0)
+    pcsx2.write_int32(target_address+0x58, 0)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code - 0x8, 0x1) #write process complete
     location = get_location_id(read_values)
     checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
@@ -168,9 +173,12 @@ def write_initial_values():
     pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB) #lui v0,0x01FB
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x4, 0x2442ECD0) #addiu v0,v0,-0x1330
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC440000) #sw a0,0x0(v0)
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0xC, 0x03E00008) #jr ra
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x10, 0x0080882D) #daddu s1,a0,zero
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC440000) #sw a0,0x0(v0) <- loop to here
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0xC, 0x8C510008) #lw s1,0x8(v0)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x10, 0x1220FFFD) # beqz s1 
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x14, 0) # NOP 
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x18, 0x03E00008) #jr ra
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x1C, 0x0080882D) #daddu s1,a0,zero
 
     #This line stops the SetEpisodeCompleted function from unlocking the next episode
     #all of the code from 0x351B10 to 0x351B9C is free to use, since the code in this range is ignored by us.
@@ -195,8 +203,10 @@ def write_initial_values():
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement, 0x02031024) # and v0,s0,v1
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x4, 0x1440000A) # bnez v0 EOF #we can keep the existing check, since Endgame's collection bit gets reset
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x8, 0x0) # NOP
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0x32021000) # andi v0, s0, 0x1000 #check if this is endgame. if not, carry on
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0x10400007) # bez v0 EOF
+    #pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0x32021000) # andi v0, s0, 0x1000 #check if this is endgame. if not, carry on
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0x0) # NOP #since we check every location, this was causing every non-endgame spawn to spawn forever
+    #pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0x10400007) # bez v0 EOF
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0x14400007) # bne v0 EOF #inverting to account for the endgame check removal
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x14, 0x0000802D) # daddu s0, zero, zero #at this point, s0 is safe. we can use it to load the current location
     #this means we need the data for the current pickup
     #the orientation appears to be at 0xB0 from the value in s2
@@ -372,7 +382,7 @@ async def monitor_ram():
             command = read_target_addresses()
         if command[0] != PineCommand.comm_nothing:
             execute_command(command)
-        await asyncio.sleep(0.1)
+        await asyncio.sleep(0.02)
 
 
 def read_target_addresses() -> tuple[PineCommand, ...]:
