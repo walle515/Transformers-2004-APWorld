@@ -49,7 +49,6 @@ class Transformers04Context(CommonContext):
         #self.item_last_index = 0
         
         self.deathlink_pending = False
-        self.last_health = 1.0
         self.sent_death = False
         self.deathlink_enabled = False
     
