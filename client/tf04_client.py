@@ -145,7 +145,10 @@ async def game_loop(context: Transformers04Context):
             
             #check if new location was checked and if so, send the ID to Archipelago
             if len(memory_manager.unhandled_locations) > 0:
-                context.check_location({memory_manager.unhandled_locations[0]})
+                if memory_manager.unhandled_locations[0] == 9008:
+                    asyncio.create_task(Archipelago_Completed(context))
+                else:
+                    context.check_location({memory_manager.unhandled_locations[0]})
                 del memory_manager.unhandled_locations[0]
                 
                 
