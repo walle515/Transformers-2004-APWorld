@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle, Deathlink
+from Options import Choice, OptionGroup, PerGameCommonOptions, Range, Toggle, DeathLink
 
 # In this file, we define the options the player can pick.
 # The most common types of options are Toggle, Range and Choice.
@@ -125,13 +125,13 @@ class Transformers04Options(PerGameCommonOptions):
     visible_progression_items: VisibleProgressionItems
     balance_minicon_levels: BalanceMiniconLevels
     balance_minicon_colors: BalanceMiniconColors
-    death_link: Deathlink
+    death_link: DeathLink
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
     OptionGroup(
         "Goal Options",
-        [GoalOption, MiniconCount, Deathlink],
+        [GoalOption, MiniconCount, DeathLink],
     ),
     OptionGroup(
         "Gameplay Options",
