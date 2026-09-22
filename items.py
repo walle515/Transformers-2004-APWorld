@@ -163,7 +163,7 @@ class Transformers04Item(Item):
     
 def get_random_filler_item_name(world: Transformers04World) -> str:
     if world.random.randint(0,99) < world.options.trap_chance:
-        num = world.randint(0,2)
+        num = world.random.randint(0,2)
         if num == 0:
             world.create_item("Stealth Trap")
             return "Stealth Trap"
