@@ -169,6 +169,9 @@ def write_initial_values():
     #increase PickupPlaced limit to 20 (0x14)
     pcsx2.write_int32(0x379534,0x2A230014)
 
+    #Fix Slipstream pickup (remove check for special camera script)
+    pcsx2.write_int32(0x37BC3C, 0x10000014) 
+
     #write pickup redirection code
     pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB) #lui v0,0x01FB
