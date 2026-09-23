@@ -2,5 +2,7 @@
 	"game": "Transformers (2004)",
 	"minimum_ap_version": "0.6.7",
 	"world_version": "1.0.0",
-	"authors": ["Eclipse", "Typhoon", "Wirebot"]
+	"authors": ["Eclipse", "Typhoon", "Wirebot"],
+	"version": 7,
+	"compatible_version": 7
 }
