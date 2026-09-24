@@ -5,7 +5,7 @@ from ..data.tf_data import minicon_ids
 from enum import IntEnum
 from .mips_mods import MipsMod
 import asyncio
-#from ..client import client as TFClient
+#from ..client.tf04_client import Transformers04Context as TFContext
 from ..database import game_codes
 from .. import database
 
@@ -118,7 +118,7 @@ def get_location_id(read_values: list[int]) -> int:
     return location_value
 
 
-def read_pickup_location(target_address: int):
+def read_pickup_location(target_address: int, context):
     # Using the modified code from write_initial_values, the game will write the pickup's unique ID to the
     # clean region in RAM. This then reads that data, processes it, and returns the location
     # ID as an int value
@@ -136,6 +136,7 @@ def read_pickup_location(target_address: int):
     location = get_location_id(read_values)
     checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
+    context.output("Location ID read as: " + str(location) + ". Send to Archipelago.")
     send_location(location)
     return location
 
@@ -299,7 +300,7 @@ def check_valid_spawn(target_address: int):
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x8, 1)
 
 
-def execute_command(command):
+def execute_command(command, context):
     #This function handles all the commands listed in the PineCommand enum. Commands are taken as a tuple
     #of values. The first value is the PineCommand option, while any following values are parameters/arguments passed
     #to the command itself.
@@ -344,7 +345,7 @@ def execute_command(command):
         unlock_episode(command[1])
 
     if command[0] == PineCommand.comm_read_location:
-        return read_pickup_location(command[1])
+        return read_pickup_location(command[1], context)
 
     if command[0] == PineCommand.comm_check_spawn:
         check_valid_spawn(command[1])
@@ -359,8 +360,10 @@ def execute_command(command):
         print(f'Set health to {max_health} (Max)')
 
 
-async def monitor_ram():
+async def monitor_ram(context):
     global pine_is_connected
+    global checked_locations
+    global unhandled_locations
     
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
@@ -382,22 +385,24 @@ async def monitor_ram():
         if mode == 'Manual':
             command = get_user_command()
         else:
-            command = read_target_addresses()
+            command = read_target_addresses(context)
         if command[0] != PineCommand.comm_nothing:
-            execute_command(command)
+            execute_command(command,context)
         await asyncio.sleep(0.02)
 
 
-def read_target_addresses() -> tuple[PineCommand, ...]:
+def read_target_addresses(context) -> tuple[PineCommand, ...]:
     #Checks specific RAM addresses to see if PINE intervention is required
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code - 0x10)
     if pickup_check != 0:
         print("Item pickup detected")
+        context.output("Item pickup detected")
         pickup_instance = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code-0x10)
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_code-0x10, 0)
         minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
         if minicon_unlocks & 0x1000: #0x1000 is Endgame
             print("Archipelago item pickup detected.")
+            context.output("Archipelago item pickup detected.")
             #TODO: decrease the minicon collection count for the current level
             pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
         return (PineCommand.comm_read_location, pickup_instance,)
@@ -414,7 +419,8 @@ def read_target_addresses() -> tuple[PineCommand, ...]:
     if level_unlocks != 0:
         current_episode_index = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked+4)
         print("Episode " + str(current_episode_index) + " completed. Sending to Archipelago.")
-        TFContext.send_location(9000+current_episode_index)
+        context.output("Episode " + str(current_episode_index) + " completed. Sending to Archipelago.")
+        send_location(9000+current_episode_index)
         #for now, just unlocking the next episode and reset the bit
         #unlock_episode(level_unlocks + 1)
         pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)

@@ -17,9 +17,9 @@ from Utils import gui_enabled
 
 # int to store the index of the list of received items. Same as list, leaving out of context incase
 # there is a save issue and data is lost, it will try to unlock all items that were previously unlocked.
-item_index = 0
 
-pine_previous_connection = False
+
+
 
 
 #Enum for what type of item is received
@@ -57,6 +57,8 @@ class Transformers04Context(CommonContext):
         self.bosses_mode = False
         self.bosses_goal_done = False
         
+        self.logger = logging.getLogger(__name__)
+        
         
     def make_gui(self):
         from kvui import GameManager
@@ -84,6 +86,9 @@ class Transformers04Context(CommonContext):
             else:
                 self.bosses_mode = False
     
+    def output(self, text: str):
+        self.logger.info(text)
+    
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
 # handle. It also changes the ID if it was a linked location to the location's original ID
@@ -99,6 +104,7 @@ class Transformers04Context(CommonContext):
 # Function to tell Archipelago that the game has been completed upon goal completion (typically killing Unicron)
 async def Archipelago_Completed(context: Transformers04Context):
     if not context.game_completion:
+        context.output("Unicron Defeated")
         context.game_completion = True
         await context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
 
@@ -115,6 +121,10 @@ async def game_loop(context: Transformers04Context):
     item_type = ItemType.minicon
     current_health = 1.0
     num_bosses_killed = 0
+    
+    pine_previous_connection = False
+    item_index = 0
+    loc_id = 0
 
     while not context.exit_event.is_set():
         
@@ -145,10 +155,17 @@ async def game_loop(context: Transformers04Context):
             
             #check if new location was checked and if so, send the ID to Archipelago
             if len(memory_manager.unhandled_locations) > 0:
-                if memory_manager.unhandled_locations[0] == 9008:
+                context.output("Location Detected")
+                loc_id = memory_manager.unhandled_locations[0]
+                if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:
-                    context.check_location({memory_manager.unhandled_locations[0]})
+                    if loc_id == 0:
+                        loc_id = 42069
+                    context.output("Location ID: " + str(loc_id))
+                    result = await context.check_locations([loc_id])
+                    text = ", ".join(str(item) for item in result)
+                    context.output(f"check_locations returned: {text}")
                 del memory_manager.unhandled_locations[0]
                 
                 
@@ -264,7 +281,7 @@ async def main(args):
     
     #Setup the game loop to handle items and locations from the game
     asyncio.create_task(game_loop(context))
-    asyncio.create_task(memory_manager.monitor_ram())
+    asyncio.create_task(memory_manager.monitor_ram(context))
     
     # keep the client alive until the user closes it
     await context.exit_event.wait()

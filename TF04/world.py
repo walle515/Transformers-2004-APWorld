@@ -98,7 +98,10 @@ class Transformers04World(World):
                 continue
             if (loc_id >= 7000 and loc_id <10000):
                 continue
-                
+            if loc_id == 42069:
+                loc_id = 0
+
+            
             if visible_progression:
                 if item.name in database.ITEM_NAME_TO_ID:
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)

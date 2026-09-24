@@ -260,7 +260,7 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
     "Pacific Island-Bunker 9": 6124,
     "Pacific Island-Bunker 2": 6125,
     "Pacific Island-Bunker 3": 6126,
-    "Beginner Location": 0,
+    "Beginner Location": 42069,
     
     #Boss Defeats
     "Amazon Boss": 9001,
