@@ -223,7 +223,10 @@ def write_initial_values():
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x30, 0x8C430008) # lw v1 8(v0)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x34, 0x03E00008) # jr ra
     # NOP (don't need to write this, it's already there)
-
+    
+    #set amazon locked at start, Archipelago will unlock start level
+    pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
+    pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
 
 def unlock_episode(episode_id: int):
     #using the ID, set the level to Available and the first warpgate to Unlocked
@@ -375,9 +378,9 @@ async def monitor_ram(context):
         await asyncio.sleep(5)
         pcsx2.connect()
     
-    pine_is_connected = True #tell client pine is connected
-    
     write_initial_values()
+    
+    pine_is_connected = True #tell client pine is connected
     
     #checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
     while True:

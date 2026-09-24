@@ -224,6 +224,7 @@ async def game_loop(context: Transformers04Context):
                     case ItemType.level_unlock:
                         #if we have bosses mode and the level id is 7 (cybertron/unicron), then dont
                         #   unlock yet, just set the unlock bool to true. Unlock will be handled later
+                        context.output(f"Unlocking Level ID: {item_id}")
                         if item_id == 7 and context.bosses_mode:
                             context.cybertron_unlocked = True
                         else:
