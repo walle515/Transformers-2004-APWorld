@@ -35,6 +35,7 @@ class ItemType(IntEnum):
 #   games where it follows what level you currently are in.
 class Transformers04Context(CommonContext):
     game = "Transformers (2004)"
+    items_handling = 0b111
 
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
@@ -74,6 +75,7 @@ class Transformers04Context(CommonContext):
         super().on_deathlink(data)
     
     def on_package(self, cmd, args):
+        #self.output(f"on_package received: {cmd}")
         if cmd == "Connected":
             slot_data = args.get("slot_data", {})
             death_link_status = slot_data.get("death_link", False)
@@ -85,9 +87,18 @@ class Transformers04Context(CommonContext):
                 self.bosses_mode = True
             else:
                 self.bosses_mode = False
+            #self.output(f"Missing locations count: {len(self.missing_locations)}")
+            #self.output(f"Location 42069 in set: {42069 in self.missing_locations}")
+            #self.output(f"Location 42069 checked: {42069 in self.checked_locations}")
     
     def output(self, text: str):
         self.logger.info(text)
+        
+    async def server_auth(self, password_requested: bool = False):
+        if password_requested and not self.password:
+            await super().server_auth(password_requested)
+        await self.get_username()
+        await self.send_connect()
     
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
@@ -125,6 +136,8 @@ async def game_loop(context: Transformers04Context):
     pine_previous_connection = False
     item_index = 0
     loc_id = 0
+    
+    
 
     while not context.exit_event.is_set():
         
@@ -155,7 +168,7 @@ async def game_loop(context: Transformers04Context):
             
             #check if new location was checked and if so, send the ID to Archipelago
             if len(memory_manager.unhandled_locations) > 0:
-                context.output("Location Detected")
+                context.output("Unhandled Location Detected")
                 loc_id = memory_manager.unhandled_locations[0]
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
@@ -255,7 +268,7 @@ async def game_loop(context: Transformers04Context):
         await asyncio.sleep(0.1)
     
     
-    memory_manager.execute_command((PineCommand.comm_exit,))
+    memory_manager.execute_command((PineCommand.comm_exit,), context)
     
 
 
@@ -267,6 +280,8 @@ async def main(args):
         args.connect,
         args.password
     )
+    
+    context.auth = args.name
     
     # Start the Archipelago Server connection.
     # If no address was supplied, the GUI will allow us to connect.
