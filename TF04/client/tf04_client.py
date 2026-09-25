@@ -173,8 +173,8 @@ async def game_loop(context: Transformers04Context):
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:
-                    if loc_id == 0:
-                        loc_id = 42069
+                    # if loc_id == 0:
+                        # loc_id = 42069
                     context.output("Location ID: " + str(loc_id))
                     result = await context.check_locations([loc_id])
                     text = ", ".join(str(item) for item in result)
