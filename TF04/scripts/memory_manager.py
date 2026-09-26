@@ -87,7 +87,6 @@ def send_location(location_id: int):
     unhandled_locations.append(location_id)     # adds location ID to list
 
 
-
 def raw_bytes_to_float(read_output: int) -> float:
     #helper function for converting byte data from PCSX2's RAM to a float value
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
@@ -380,6 +379,7 @@ async def monitor_ram(context):
     
     write_initial_values()
     
+    await asyncio.sleep(1)
     pine_is_connected = True #tell client pine is connected
     
     #checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago

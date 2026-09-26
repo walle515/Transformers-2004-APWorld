@@ -162,7 +162,7 @@ async def game_loop(context: Transformers04Context):
                 #if we picked up the unicron level unlock (cybertron unlocked), killed all bosses, and have not
                 #   unlocked cybertron yet, then unlock cybertron
                 if context.bosses_killed and context.cybertron_unlocked and not context.bosses_goal_done:
-                    memory_manager.execute_command((PineCommand.comm_unlock_episode,7))
+                    memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
                     context.bosses_goal_done = True
             
             
@@ -215,7 +215,7 @@ async def game_loop(context: Transformers04Context):
                 match item_type:
                     
                     case ItemType.minicon:
-                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id))
+                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
                     
                     case ItemType.datacon:
                         memory_manager.unlock_datacon(item_id)
@@ -228,11 +228,11 @@ async def game_loop(context: Transformers04Context):
                         if item_id == 7 and context.bosses_mode:
                             context.cybertron_unlocked = True
                         else:
-                            memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id))
+                            memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
                     
                     case ItemType.special:
                         if item_id == 0:    #Health Drop
-                            memory_manager.execute_command((PineCommand.comm_set_max_health,))
+                            memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
                         elif item_id == 1:   #big head
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                         elif item_id == 2:   #Stealth Trap
@@ -252,7 +252,7 @@ async def game_loop(context: Transformers04Context):
                     context.sent_death = True
                 
                 #Get the current player health
-                current_health = memory_manager.execute_command((PineCommand.comm_get_health,))
+                current_health = memory_manager.execute_command((PineCommand.comm_get_health,), context)
                 
                 #If current health is 0 or less, and a death is not currently being sent_death
                 #   (deathlink isnt triggering and it doesnt sent infinite while waiting on player
