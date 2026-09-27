@@ -60,6 +60,8 @@ class Transformers04Context(CommonContext):
         
         self.logger = logging.getLogger(__name__)
         
+        self.in_HQ = False
+        
         
     def make_gui(self):
         from kvui import GameManager

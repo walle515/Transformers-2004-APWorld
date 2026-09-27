@@ -368,6 +368,7 @@ async def monitor_ram(context):
     global pine_is_connected
     global checked_locations
     global unhandled_locations
+    init_values_written = False
     
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
@@ -379,13 +380,19 @@ async def monitor_ram(context):
         await asyncio.sleep(5)
         pcsx2.connect()
     
-    write_initial_values()
+    #write_initial_values()
     
-    await asyncio.sleep(1)
-    pine_is_connected = True #tell client pine is connected
+    #await asyncio.sleep(1)
+    #pine_is_connected = True #tell client pine is connected
     
     #checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
     while True:
+        if context.in_HQ and not init_values_written:
+            write_initial_values()
+            init_values_written = True
+            await asyncio.sleep(1)
+            pine_is_connected = True #tell client pine is connected
+        
         mode = 'Auto' #'Manual' #
         if mode == 'Manual':
             command = get_user_command()
@@ -405,9 +412,13 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
         #run through a cycle
         if(player_in_HQ):
             #signal client that we're in HQ so it can update unlocks in-game
-            player_in_HQ = False
+            #player_in_HQ = False
+            context.in_HQ = True
         else:
             player_in_HQ = True
+    else:
+        player_in_HQ = False
+        context.in_HQ = False
 
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code - 0x10)
     if pickup_check != 0:
