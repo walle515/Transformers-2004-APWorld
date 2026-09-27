@@ -422,8 +422,8 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     if level_unlocks != 0:
         current_episode_index = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked+4)
         print("Episode " + str(current_episode_index) + " completed. Sending to Archipelago.")
-        context.output("Episode " + str(current_episode_index) + " completed. Sending to Archipelago.")
-        send_location(9000+current_episode_index)
+        context.output("Episode " + str(current_episode_index + 1) + " completed. Sending to Archipelago.")
+        send_location(9001+current_episode_index)
         #for now, just unlocking the next episode and reset the bit
         #unlock_episode(level_unlocks + 1)
         pcsx2.write_int32(CleanAddress.cleanadd_level_unlocked, 0)
