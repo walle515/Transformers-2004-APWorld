@@ -22,6 +22,7 @@ checked_locations: list[int] = []
 
 
 pine_is_connected = False
+player_in_HQ = False
 # list of unhandled locations. Kept out of context incase there is some issue when someone leaves
 # the game and returns later to a lost save or something.
 unhandled_locations: list[int] = []
@@ -41,6 +42,7 @@ class GameAddress(IntEnum):
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
     gameadd_player_max_health = 0x00716FB4 + 8
+    gameadd_HQ_check = 0x7160EC #technically a count of loaded music files. HQ only has one, all other areas have more
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -235,7 +237,7 @@ def unlock_episode(episode_id: int):
         return
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
-    print("Unlock byte read as " + str(unlock_byte))
+    print("Unlock byte read as " + str(unlock_byte) + " at address " + chr(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
     else:
@@ -396,6 +398,17 @@ async def monitor_ram(context):
 
 def read_target_addresses(context) -> tuple[PineCommand, ...]:
     #Checks specific RAM addresses to see if PINE intervention is required
+
+    hq_check = pcsx2.read_int32(GameAddress.gameadd_HQ_check)
+    if(hq_check == 1):
+        #while setting up levels and the main menu, this value increments by 1. So, we need to let it
+        #run through a cycle
+        if(player_in_HQ):
+            #signal client that we're in HQ so it can update unlocks in-game
+            player_in_HQ = False
+        else:
+            player_in_HQ = True
+
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code - 0x10)
     if pickup_check != 0:
         print("Item pickup detected")
