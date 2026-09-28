@@ -237,11 +237,11 @@ def unlock_episode(episode_id: int):
         return
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
-    print("Unlock byte read as " + str(unlock_byte) + " at address " + chr(GameAddress.gameadd_level_unlocks + episode_offset))
+    print("Unlock byte read as " + str(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
     else:
-        unlock_byte ^= 0x1
+        unlock_byte |= 0x1
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
@@ -413,7 +413,7 @@ async def monitor_ram(context):
 
 def read_target_addresses(context) -> tuple[PineCommand, ...]:
     #Checks specific RAM addresses to see if PINE intervention is required
-
+    global player_in_HQ
     hq_check = pcsx2.read_int32(GameAddress.gameadd_HQ_check)
     if(hq_check == 1):
         #while setting up levels and the main menu, this value increments by 1. So, we need to let it
