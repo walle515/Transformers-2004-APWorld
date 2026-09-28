@@ -180,12 +180,12 @@ async def game_loop(context: Transformers04Context):
                 if loc_id in database.Boss_Locations:
                     context.output("Boss Detected, unlocking all previously unlocked levels")
                     for x in context.items_received:
-                        if context.items_received[x].item >= 160:
-                            level = context.items_received[x].item - 160
-                            if item_id == 7 and context.bosses_mode:
+                        if x.item >= 160:
+                            level = x.item - 160
+                            if level == 7 and context.bosses_mode:
                                 context.cybertron_unlocked = True
                             else:
-                                memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
+                                memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:
