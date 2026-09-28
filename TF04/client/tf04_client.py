@@ -104,6 +104,10 @@ class Transformers04Context(CommonContext):
             await super().server_auth(password_requested)
         await self.get_username()
         await self.send_connect()
+        
+    async def connection_closed(self):
+        self.archi_connected.clear()
+        await super().connection_closed()
     
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
@@ -145,6 +149,11 @@ async def game_loop(context: Transformers04Context):
     
 
     while not context.exit_event.is_set():
+        
+        if not context.archi_connected.is_set():
+            await asyncio.sleep(0.1)
+            item_index = 0
+            continue
         
         if context.in_HQ and context.first_HQ_visit:
             context.first_HQ_visit = False
