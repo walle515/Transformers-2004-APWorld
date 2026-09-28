@@ -58,18 +58,17 @@ class Transformers04Context(CommonContext):
         self.bosses_mode = False
         self.bosses_goal_done = False
         
-        self.logger = logging.getLogger(__name__)
+        self.logger = logging.getLogger("Client")
         
         self.in_HQ = False
+        self.first_HQ_visit = True
         
         
     def make_gui(self):
-        from kvui import GameManager
+        ui = super().make_gui()
+        ui.base_title = "Transformers (2004) Client"
         
-        class Transformers04Manager(GameManager):
-            base_title = "Transformers (2004) Client"
-        
-        return Transformers04Manager
+        return ui
         
     
     def on_deathlink(self, data):
@@ -92,6 +91,7 @@ class Transformers04Context(CommonContext):
             #self.output(f"Missing locations count: {len(self.missing_locations)}")
             #self.output(f"Location 42069 in set: {42069 in self.missing_locations}")
             #self.output(f"Location 42069 checked: {42069 in self.checked_locations}")
+            self.output("Connected to Server, waiting for HQ")
     
     def output(self, text: str):
         self.logger.info(text)
@@ -143,6 +143,11 @@ async def game_loop(context: Transformers04Context):
 
     while not context.exit_event.is_set():
         
+        if context.in_HQ and context.first_HQ_visit:
+            context.first_HQ_visit = False
+            context.output("First HQ Visit")
+            
+        
         if memory_manager.pine_is_connected and not pine_previous_connection:
             memory_manager.checked_locations.extend(context.checked_locations)
             pine_previous_connection = True
@@ -172,6 +177,15 @@ async def game_loop(context: Transformers04Context):
             if len(memory_manager.unhandled_locations) > 0:
                 context.output("Unhandled Location Detected")
                 loc_id = memory_manager.unhandled_locations[0]
+                if loc_id in database.Boss_Locations:
+                    context.output("Boss Detected, unlocking all previously unlocked levels")
+                    for x in context.items_received:
+                        if context.items_received[x].item >= 160:
+                            level = context.items_received[x].item - 160
+                            if item_id == 7 and context.bosses_mode:
+                                context.cybertron_unlocked = True
+                            else:
+                                memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:

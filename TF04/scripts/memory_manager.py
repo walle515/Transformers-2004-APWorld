@@ -377,6 +377,7 @@ async def monitor_ram(context):
     #Created a loop to try to connect to the game
     while not (pcsx2.is_connected() and pcsx2.get_game_id() in game_codes):
         print("PCSX2 Failed to connect, trying again in 5 seconds")
+        context.output("PCSX2 Failed to connect, trying again in 5 seconds")
         await asyncio.sleep(5)
         pcsx2.connect()
     
@@ -400,6 +401,13 @@ async def monitor_ram(context):
             command = read_target_addresses(context)
         if command[0] != PineCommand.comm_nothing:
             execute_command(command,context)
+        
+        if not pcsx2.is_connected():
+            print("PINE Disconnected, attempting reconnect")
+            context.output("PINE Disconnected, attempting reconnect")
+            pcsx2.connect()
+            await asyncio.sleep(1)
+        
         await asyncio.sleep(0.02)
 
 
