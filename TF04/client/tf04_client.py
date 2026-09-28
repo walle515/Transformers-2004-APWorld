@@ -63,6 +63,8 @@ class Transformers04Context(CommonContext):
         self.in_HQ = False
         self.first_HQ_visit = True
         
+        self.archi_connected = asyncio.Event()
+        
         
     def make_gui(self):
         ui = super().make_gui()
@@ -91,6 +93,7 @@ class Transformers04Context(CommonContext):
             #self.output(f"Missing locations count: {len(self.missing_locations)}")
             #self.output(f"Location 42069 in set: {42069 in self.missing_locations}")
             #self.output(f"Location 42069 checked: {42069 in self.checked_locations}")
+            self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
     
     def output(self, text: str):
@@ -311,12 +314,16 @@ async def main(args):
     # Enable normal command-line input when available. Used by other Archipelago Processes.
     context.run_cli()
     
+    await context.archi_connected.wait()
+    
     #Setup the game loop to handle items and locations from the game
     asyncio.create_task(game_loop(context))
     asyncio.create_task(memory_manager.monitor_ram(context))
     
     # keep the client alive until the user closes it
     await context.exit_event.wait()
+    
+    context.archi_connected.clear()
     
     context.server_address = None
     await context.shutdown()
