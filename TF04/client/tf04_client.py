@@ -62,6 +62,7 @@ class Transformers04Context(CommonContext):
         
         self.in_HQ = False
         self.first_HQ_visit = True
+        self.previous_HQ = False
         self.level_unlock_detected = False
         
         self.archi_connected = asyncio.Event()
@@ -171,7 +172,7 @@ async def game_loop(context: Transformers04Context):
         # make sure Pine is connected and the game is not complete
         if memory_manager.pine_is_connected and not context.game_completion:
             
-            if context.in_HQ and context.level_unlock_detected:
+            if context.in_HQ and (context.level_unlock_detected or not context.previous_HQ):
                 context.output("Unlocking Levels")
                 for x in context.items_received:
                     if x.item >= 160:
@@ -182,6 +183,7 @@ async def game_loop(context: Transformers04Context):
                             context.output(f"Unlocking Level {str(level)}")
                             memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
                 context.level_unlock_detected = False
+            context.previous_HQ = context.in_HQ
             
             #if bosses mode is the goal
             if context.bosses_mode:
