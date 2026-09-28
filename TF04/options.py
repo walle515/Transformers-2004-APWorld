@@ -110,6 +110,13 @@ class VisibleProgressionItems(Toggle):
     display_name = "Visible Progression Items"
     
     
+class DebugMode(Toggle):
+    """
+    Toggles Debug print statements
+    """
+    display_name = "Debug Mode"
+    
+    
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -121,10 +128,11 @@ class Transformers04Options(PerGameCommonOptions):
     randomize_levels: RandomizeLevels
     randomize_stats: RandomizeStats
     randomize_mini_power: RandomizeMiniconLevels
-    randomize_mini_color: RandomizeMiniconColors
-    visible_progression_items: VisibleProgressionItems
     balance_minicon_levels: BalanceMiniconLevels
+    randomize_mini_color: RandomizeMiniconColors
     balance_minicon_colors: BalanceMiniconColors
+    visible_progression_items: VisibleProgressionItems
+    debug_mode: DebugMode
     death_link: DeathLink
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
@@ -137,15 +145,20 @@ option_groups = [
         "Gameplay Options",
         [   RandomizeLevels, 
             AddStartingLocation, 
-            TrapChance, 
-            RandomizeStats, 
+            TrapChance
+        ],
+    ),
+    OptionGroup(
+        "Extra Options",
+        [   RandomizeStats, 
             RandomizeMiniconLevels, 
             BalanceMiniconLevels,
             RandomizeMiniconColors,
             BalanceMiniconColors,
-            VisibleProgressionItems
+            VisibleProgressionItems,
+            DebugMode
         ],
-    ),
+     ),
 ]
 
 # Finally, we can define some option presets if we want the player to be able to quickly choose a specific "mode".
@@ -163,6 +176,7 @@ option_presets = {
         "balance_minicon_colors": False,
         "visible_progression_items": True,
         "death_link": False,
+        "debug_mode": False,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -177,6 +191,7 @@ option_presets = {
         "balance_minicon_colors": False,
         "visible_progression_items": False,
         "death_link": False,
+        "debug_mode": False,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -191,6 +206,7 @@ option_presets = {
         "balance_minicon_colors": False,
         "visible_progression_items": False,
         "death_link": True,
+        "debug_mode": False,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -205,6 +221,7 @@ option_presets = {
         "balance_minicon_colors": False,
         "visible_progression_items": True,
         "death_link": False,
+        "debug_mode": False,
     },
     
 }

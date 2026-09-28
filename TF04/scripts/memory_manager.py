@@ -431,13 +431,13 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code - 0x10)
     if pickup_check != 0:
         print("Item pickup detected")
-        context.output("Item pickup detected")
+        #context.output("Item pickup detected")
         pickup_instance = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code-0x10)
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_code-0x10, 0)
         minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
         if minicon_unlocks & 0x1000: #0x1000 is Endgame
             print("Archipelago item pickup detected.")
-            context.output("Archipelago item pickup detected.")
+            #context.output("Archipelago item pickup detected.")
             #TODO: decrease the minicon collection count for the current level
             pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
         return (PineCommand.comm_read_location, pickup_instance,)

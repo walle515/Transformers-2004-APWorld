@@ -62,8 +62,11 @@ class Transformers04Context(CommonContext):
         
         self.in_HQ = False
         self.first_HQ_visit = True
+        self.level_unlock_detected = False
         
         self.archi_connected = asyncio.Event()
+        
+        self.debug_mode = False
         
         
     def make_gui(self):
@@ -90,14 +93,15 @@ class Transformers04Context(CommonContext):
                 self.bosses_mode = True
             else:
                 self.bosses_mode = False
-            #self.output(f"Missing locations count: {len(self.missing_locations)}")
-            #self.output(f"Location 42069 in set: {42069 in self.missing_locations}")
-            #self.output(f"Location 42069 checked: {42069 in self.checked_locations}")
+            
+            self.debug_mode = slot_data.get("debug_mode", False)
+            
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
     
     def output(self, text: str):
-        self.logger.info(text)
+        if self.debug_mode:
+            self.logger.info(text)
         
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
@@ -167,6 +171,18 @@ async def game_loop(context: Transformers04Context):
         # make sure Pine is connected and the game is not complete
         if memory_manager.pine_is_connected and not context.game_completion:
             
+            if context.in_HQ and context.level_unlock_detected:
+                context.output("Unlocking Levels")
+                for x in context.items_received:
+                    if x.item >= 160:
+                        level = x.item - 160
+                        if level == 7 and context.bosses_mode:
+                            context.cybertron_unlocked = True
+                        else:
+                            context.output(f"Unlocking Level {str(level)}")
+                            memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
+                context.level_unlock_detected = False
+            
             #if bosses mode is the goal
             if context.bosses_mode:
                 
@@ -189,24 +205,15 @@ async def game_loop(context: Transformers04Context):
             if len(memory_manager.unhandled_locations) > 0:
                 context.output("Unhandled Location Detected")
                 loc_id = memory_manager.unhandled_locations[0]
-                if loc_id in database.Boss_Locations:
-                    context.output("Boss Detected, unlocking all previously unlocked levels")
-                    for x in context.items_received:
-                        if x.item >= 160:
-                            level = x.item - 160
-                            if level == 7 and context.bosses_mode:
-                                context.cybertron_unlocked = True
-                            else:
-                                memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:
                     # if loc_id == 0:
                         # loc_id = 42069
-                    context.output("Location ID: " + str(loc_id))
+                    #context.output("Location ID: " + str(loc_id))
                     result = await context.check_locations([loc_id])
                     text = ", ".join(str(item) for item in result)
-                    context.output(f"check_locations returned: {text}")
+                    context.output(f"check_locations returned: {text}, Should be {str(loc_id)}")
                 del memory_manager.unhandled_locations[0]
                 
                 
@@ -250,13 +257,7 @@ async def game_loop(context: Transformers04Context):
                         continue
                     
                     case ItemType.level_unlock:
-                        #if we have bosses mode and the level id is 7 (cybertron/unicron), then dont
-                        #   unlock yet, just set the unlock bool to true. Unlock will be handled later
-                        context.output(f"Unlocking Level ID: {item_id}")
-                        if item_id == 7 and context.bosses_mode:
-                            context.cybertron_unlocked = True
-                        else:
-                            memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
+                        context.level_unlock_detected = True
                     
                     case ItemType.special:
                         if item_id == 0:    #Health Drop

@@ -64,7 +64,8 @@ class Transformers04World(World):
             "randomize_mini_color",
             "balance_minicon_colors",
             "visible_progression_items",
-            "death_link"
+            "death_link",
+            "debug_mode",
         )
     
     def generate_output(self, output_directory: str) -> None:
