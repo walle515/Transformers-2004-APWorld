@@ -40,14 +40,11 @@ class Transformers04Context(CommonContext):
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
         
-        self.pine = None    #will change from none to pine client once we have it setup
-
-        # Variable for setting if the pcsx2 is connected. Set in MemMan
-        #self.pine_connected = False
-        
         self.game_completion = False
         
-        #self.item_last_index = 0
+        self.logger = logging.getLogger("Client")
+        self.archi_connected = asyncio.Event()
+        self.debug_mode = False
         
         self.deathlink_pending = False
         self.sent_death = False
@@ -58,16 +55,15 @@ class Transformers04Context(CommonContext):
         self.bosses_mode = False
         self.bosses_goal_done = False
         
-        self.logger = logging.getLogger("Client")
-        
         self.in_HQ = False
         self.first_HQ_visit = True
         self.previous_HQ = False
-        #self.level_unlock_detected = False
         
-        self.archi_connected = asyncio.Event()
+        self.big_head = False
+        self.big_head_status = False
         
-        self.debug_mode = False
+        self.random_level_enabled = False
+        self.powerlink_enabled = False
         
         
     def make_gui(self):
@@ -96,6 +92,7 @@ class Transformers04Context(CommonContext):
                 self.bosses_mode = False
             
             self.debug_mode = slot_data.get("debug_mode", False)
+            self.random_level_enabled = slot_data.get("randomize_levels", False)
             
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
@@ -150,28 +147,52 @@ async def game_loop(context: Transformers04Context):
     pine_previous_connection = False
     item_index = 0
     loc_id = 0
+    num_unlocked_levels = 0
+    amazon_first = False
     
     
-
+    #Game Loop
     while not context.exit_event.is_set():
         
+        #if server disconnects, wait till reconnect
         if not context.archi_connected.is_set():
             await asyncio.sleep(0.1)
             item_index = 0
             continue
         
+        #if we are in the HQ and its the first visit, output it for Debug purposes
         if context.in_HQ and context.first_HQ_visit:
             context.first_HQ_visit = False
             context.output("First HQ Visit")
             
         
+        #the first time pine connects to the game, make sure the checked locations list matches the archipelago
+        # list. This should only happen the first time and not if the game disconnects and reconnects.
         if memory_manager.pine_is_connected and not pine_previous_connection:
             memory_manager.checked_locations.extend(context.checked_locations)
             pine_previous_connection = True
 
-        # make sure Pine is connected and the game is not complete
+
+
+
+
+        # make sure Pine is connected and the game is not complete. If that is true, do the rest of the client code
         if memory_manager.pine_is_connected and not context.game_completion:
             
+            #Unlock power link if the levels are randomized and you dont start on amazon, otherwise when 2 levels
+            # have been unlocked.
+            num_unlocked_levels = 0
+            for x in context.items_received:
+                if x.item >= 160:
+                    num_unlocked_levels += 1
+                    if num_unlocked_levels == 1 and x.item == database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
+                        amazon_first = True
+                    else if num_unlocked_levels == 1 and x.item != database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
+                        amazon_first = False
+            if (context.random_level_enabled and not amazon_first) or num_unlocked_levels >= 2:
+                #Unlock Power Link
+            
+            #If in HQ and were not previously, unlock all available levels, then handle Big Head Mode if needed
             if context.in_HQ and not context.previous_HQ:
                 context.output("Unlocking Levels")
                 for x in context.items_received:
@@ -182,11 +203,20 @@ async def game_loop(context: Transformers04Context):
                         else:
                             context.output(f"Unlocking Level {str(level)}")
                             memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
+                if context.big_head_status:
+                    context.output("Disabling Big Head")
+                    context.big_head_status = False
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                if context.big_head:
+                    context.output("Enabling Big Head")
+                    context.big_head = False
+                    context.big_head_status = True
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
             context.previous_HQ = context.in_HQ
+            
             
             #if bosses mode is the goal
             if context.bosses_mode:
-                
                 #count how many bosses have been killed (or alaska completed)
                 num_bosses_killed = 0
                 for id in context.checked_locations:
@@ -264,7 +294,8 @@ async def game_loop(context: Transformers04Context):
                         if item_id == 0:    #Health Drop
                             memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
                         elif item_id == 1:   #big head
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                            #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                            context.big_head = True
                         elif item_id == 2:   #Stealth Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth")))
                         elif item_id == 3:   #Freeze Trap

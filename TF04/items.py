@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 
 
 DEFAULT_ITEM_CLASSIFICATIONS = {
-    "Blaster": ItemClassification.useful,
+    #"Blaster": ItemClassification.useful,
     "Skirmish": ItemClassification.progression,
     "Firefight": ItemClassification.progression,
     "Aftershock": ItemClassification.progression,
@@ -141,10 +141,10 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     
     #per requirement in world.py
     "Health Drop": ItemClassification.filler,
-    "Big Head (2min)": ItemClassification.filler,
+    "Big Head (Next Level)": ItemClassification.filler,
     "Stealth Trap": ItemClassification.trap,
     "Freeze Trap" : ItemClassification.trap,
-    "Warp Trap": ItemClassification.trap,
+    #"Warp Trap": ItemClassification.trap,
     
     #Level Unlocks
     "Amazon Level Unlock": ItemClassification.progression,
@@ -163,21 +163,21 @@ class Transformers04Item(Item):
     
 def get_random_filler_item_name(world: Transformers04World) -> str:
     if world.random.randint(0,99) < world.options.trap_chance:
-        num = world.random.randint(0,2)
+        num = world.random.randint(0,1)
         if num == 0:
             world.create_item("Stealth Trap")
             return "Stealth Trap"
-        elif num == 1:
+        else:
             world.create_item("Freeze Trap")
             return "Freeze Trap"
-        else:
-            world.create_item ("Warp Trap")
-            return "Warp Trap"
+        # else:
+            # world.create_item ("Warp Trap")
+            # return "Warp Trap"
     if world.random.randint(0,1) == 1:
         world.create_item("Health Drop")
         return "Health Drop"
-    world.create_item("Big Head (2min)")
-    return "Big Head (2min)"
+    world.create_item("Big Head (Next Level)")
+    return "Big Head (Next Level)"
     
 def create_item_with_correct_classification(world: Transformers04World, name: str) -> Transformers04Item:
     # Our world class must have a create_item() function that can create any of our items by name at any time.
