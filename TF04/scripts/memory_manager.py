@@ -35,7 +35,7 @@ refer to values directly
 class GameAddress(IntEnum):
     gameadd_minicon_unlocks = 0x7173C0 #64-bit integer
     gameadd_datacon_unlocks = 0x7170E0 #64-bit integer
-    gameadd_level_unlocks = 0x717114 #episode length = 0x4C
+    gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
     gameadd_cheats = 0x8F0480
@@ -62,6 +62,8 @@ class PineCommand(IntEnum):
     comm_check_spawn = 9 #one arg, int, address of taPickupPlaced instance
     comm_unlock_episode = 10 #one arg, int, episode ID
     comm_set_max_health = 11
+    comm_unlock_sidekick = 12
+    comm_complete_episode = 13
 
 class CheatIndex(IntEnum):
     cheat_reset = 0
@@ -175,7 +177,7 @@ def write_initial_values():
     pcsx2.write_int32(0x37BC3C, 0x10000014) 
 
     #write pickup redirection code
-    pcsx2.write_int32(0x37BBA4, 0x0C7EBB38)
+    pcsx2.write_int32(0x37DCC0, 0x0C7EBB38)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB) #lui v0,0x01FB
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x4, 0x2442ECD0) #addiu v0,v0,-0x1330
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC440000) #sw a0,0x0(v0) <- loop to here
@@ -197,54 +199,76 @@ def write_initial_values():
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x14, 0xAC830034) #sw v1,0x34(a0)
 
     #During the taPickupPlaced::Spawn function, there is a check to see if the pickup has already been unlocked
-    #since we use the same minicon for multiple pickups, we need to adjust this function to also check if
-    #the minicon has been collected for Archipelago. This means the game will have to wait on a response from Archi
-    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check, 0x0C7EBB80) #jal 0x1FAEE00
-    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0x4, 0xDE2302E0) # ld v1,0x2E0(s1)
-    # v1 = unlocked minicons
-    # s0 = minicon being checked
-    # v0 is safe
+    #OLD CODE: (since we use the same minicon for multiple pickups, we need to adjust this function to also check if
+    #the minicon was an Archipelago pickup. This means the game will have to wait on a response from Archi)
+    #NEW CODE: Since Archipelago should be our sole arbiter of what has and hasn't been collected, we remove this check
+    #entirely and replace it with our own. The game will still need to wait on a response from Archi.
 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement, 0x02031024) # and v0,s0,v1
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x4, 0x1440000A) # bnez v0 EOF #we can keep the existing check, since Endgame's collection bit gets reset
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x8, 0x0) # NOP
-    #pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0x32021000) # andi v0, s0, 0x1000 #check if this is endgame. if not, carry on
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0x0) # NOP #since we check every location, this was causing every non-endgame spawn to spawn forever
-    #pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0x10400007) # bez v0 EOF
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0x14400007) # bne v0 EOF #inverting to account for the endgame check removal
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x14, 0x0000802D) # daddu s0, zero, zero #at this point, s0 is safe. we can use it to load the current location
-    #this means we need the data for the current pickup
-    #the orientation appears to be at 0xB0 from the value in s2
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x18, 0x3C0201FB) # lui v0, 1FB 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x1C, 0x2442EDF4) # addiu v0, EDF4
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x20, 0xAC400004) # sw zero, 8(v0) 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x24, 0xAC520000) # sw s2, 0(v0) <- loop to here
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x28, 0x8C500004) # lw s0 4(v0) #when the client processes the s2 value, write the pass/fail at v0+8 and the process complete at v0+4
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x2C, 0x1200FFFD) # beqz s0 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x30, 0x8C430008) # lw v1 8(v0)
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x34, 0x03E00008) # jr ra
+    #These replace the check for Minicon locations
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check, 0x0C7EBB80) #jal 0x1FAEE00
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0x4, 0x0) 
+
+    #These replace the check for Datacon locations
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0xB0, 0x0C7EBB80) #jal 0x1FAEE00
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0xB4, 0x0)
+    # s2 = pointer to current pickupplaced object
+    # v0 is safe
+    # s0 = current minicon ID, or current datacon
+
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement, 0x0000802D) # daddu s0, zero, zero #at this point, s0 is safe. we can use it to load the current location
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x4, 0x3C0201FB) # lui v0, 1FB 
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x8, 0x2442EDF4) # addiu v0, EDF4 #Set target read location to 1FAEDE0
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0xAC400004) # sw zero, 4(v0) #reset the process complete
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0xAC520000) # sw s2, 0(v0) <- loop to here #store the current pickup pointer for Archi to grab
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x14, 0x8C500004) # lw s0 4(v0) #when the client processes the s2 value, write the pass/fail at v0+8 and the process complete at v0+4
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x18, 0x1200FFFD) # beqz s0 <- loop from here
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x1C, 0x8C430008) # lw v1 8(v0) #read the result into v1
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x20, 0x03E00008) # jr ra
     # NOP (don't need to write this, it's already there)
     
     #set amazon locked at start, Archipelago will unlock start level
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
 
-def unlock_episode(episode_id: int):
+def unlock_episode(episode_id: int, context):
     #using the ID, set the level to Available and the first warpgate to Unlocked
     if episode_id > 7 or episode_id < 0:
         #invalid episode ID. No can do
         print("Invalid episode ID " + str(episode_id) + " provided.")
+        context.output("Invalid episode ID " + str(episode_id) + " provided.")
         return
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
-    print("Unlock byte read as " + str(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    print("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.output("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
+        context.output("Level " + str(episode_id) + " is already unlocked.")
     else:
         unlock_byte |= 0x1
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x2) #unlock the first warpgate
 
+def complete_episode(episode_id: int, context):
+    #using the episode's ID, mark it as completed. At time of writing, we only mark episodes as unlocked, but not complete
+    if episode_id > 7 or episode_id < 0:
+        #invalid episode ID. No can do
+        print("Invalid episode ID " + str(episode_id) + " provided.")
+        context.output("Invalid episode ID " + str(episode_id) + " provided.")
+        return
+    episode_offset = episode_id * 0x4C
+    unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
+    print("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.output("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    if unlock_byte & 0x2:
+        print("Level " + str(episode_id) + " is already completed.")
+        context.output("Level " + str(episode_id) + " is already completed.")
+    else:
+        if episode_id != 3 and episode_id != 5:
+            unlock_byte |= 0b1000010
+        else:
+            unlock_byte |= 0b1001010
+        pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
 
 def unlock_minicon(minicon_id: int):
     # try:
@@ -295,7 +319,9 @@ def check_valid_spawn(target_address: int):
     print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
 
     # write the check value for the game to read
-    if location in checked_locations:
+    #if the location's value is 0, that means it's been wiped before during a pickup activation
+    #this will prevent double-collections caused by cached reloads
+    if location in checked_locations or location == 0:
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 1)
     else:
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement - 0x4, 0)
@@ -329,6 +355,11 @@ def execute_command(command, context):
         pine_is_connected = False    #Tell client pine was disconnected
         return
 
+    if command[0] == PineCommand.comm_unlock_sidekick:
+        radio_value = pcsx2.read_int32(GameAddress.gameadd_level_unlocks-4)
+        unlocked_sidekick = radio_value | 0x1
+        pcsx2.write_int32(GameAddress.gameadd_level_unlocks-4, unlocked_sidekick)
+
     '''The following commands take arguements, we should probably have verification checks on them that the tuple is as long as we expect.
     '''
     if command[0] == PineCommand.comm_set_health:
@@ -346,7 +377,10 @@ def execute_command(command, context):
         unlock_minicon(command[1])
 
     if command[0] == PineCommand.comm_unlock_episode:
-        unlock_episode(command[1])
+        unlock_episode(command[1], context)
+
+    if command[0] == PineCommand.comm_complete_episode:
+        complete_episode(command[1], context)
 
     if command[0] == PineCommand.comm_read_location:
         return read_pickup_location(command[1], context)
@@ -432,14 +466,19 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     if pickup_check != 0:
         print("Item pickup detected")
         #context.output("Item pickup detected")
-        pickup_instance = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code-0x10)
+        interaction_instance = pcsx2.read_int32(CleanAddress.cleanadd_pickup_code-0x10)
+        pickup_instance = pcsx2.read_int32(interaction_instance+0x4)
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_code-0x10, 0)
-        minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)
-        if minicon_unlocks & 0x1000: #0x1000 is Endgame
-            print("Archipelago item pickup detected.")
+        pickup_id = pcsx2.read_int32(pickup_instance+0x4)
+        if pickup_id == 0x10: #0x10 is Endgame
+            print("Archipelago Minicon pickup detected.")
             #context.output("Archipelago item pickup detected.")
             #TODO: decrease the minicon collection count for the current level
-            pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000)
+            #pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000) #we no longer overwrite the minicon unlocks, since minicons aren't unlocked until HQ
+        elif pickup_id == 0x3: #is a datacon
+            datacon_pickup = pcsx2.read_int64(pickup_instance + 0x240)
+            if datacon_pickup == 0x4000: #not 100% sure that this is the right one. May be 0x8000 instead. Needs to be verified.:
+                print("Archipelago Datacon pickup detected")
         return (PineCommand.comm_read_location, pickup_instance,)
 
     # minicon_unlocks = pcsx2.read_int32(GameAddress.gameadd_minicon_unlocks)

@@ -187,10 +187,11 @@ async def game_loop(context: Transformers04Context):
                     num_unlocked_levels += 1
                     if num_unlocked_levels == 1 and x.item == database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
                         amazon_first = True
-                    else if num_unlocked_levels == 1 and x.item != database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
+                    elif num_unlocked_levels == 1 and x.item != database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
                         amazon_first = False
             if (context.random_level_enabled and not amazon_first) or num_unlocked_levels >= 2:
                 #Unlock Power Link
+                memory_manager.execute_command((PineCommand.comm_unlock_sidekick,), context)
             
             #If in HQ and were not previously, unlock all available levels, then handle Big Head Mode if needed
             if context.in_HQ and not context.previous_HQ:
@@ -203,6 +204,11 @@ async def game_loop(context: Transformers04Context):
                         else:
                             context.output(f"Unlocking Level {str(level)}")
                             memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
+                context.output("Marking Levels Complete")
+                for x in context.checked_locations:
+                    if x in database.Boss_Locations:
+                        level = x - 9001
+                        memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
                 if context.big_head_status:
                     context.output("Disabling Big Head")
                     context.big_head_status = False
