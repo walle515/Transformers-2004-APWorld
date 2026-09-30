@@ -206,7 +206,7 @@ async def game_loop(context: Transformers04Context):
                             memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
                 context.output("Marking Levels Complete")
                 for x in context.checked_locations:
-                    if x in database.Boss_Locations:
+                    if x in database.Boss_Locations or x == 9008:
                         level = x - 9001
                         memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
                 if context.big_head_status:
