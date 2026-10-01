@@ -195,24 +195,24 @@ async def game_loop(context: Transformers04Context):
             
             #If in HQ and were not previously, unlock all available levels, then handle Big Head Mode if needed
             if context.in_HQ and not context.previous_HQ:
-                context.output("Unlocking Levels")
+                context.output("In HQ")
                 for x in context.items_received:
                     if x.item >= 160:
                         level = x.item - 160
                         if level == 7 and context.bosses_mode:
                             context.cybertron_unlocked = True
                         else:
-                            context.output(f"Unlocking Level {str(level)}")
+                            context.output(f"Unlocking Level {database.Level_Name[level]}")
                             memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
-                context.output("Marking Levels Complete")
                 for x in context.checked_locations:
                     if x in database.Boss_Locations or x == 9008:
                         level = x - 9001
+                        context.output(f"Marking Level {database.Level_Name[level]} Complete")
                         memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
                 if context.big_head_status:
                     context.output("Disabling Big Head")
                     context.big_head_status = False
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("CheatReset")))
                 if context.big_head:
                     context.output("Enabling Big Head")
                     context.big_head = False

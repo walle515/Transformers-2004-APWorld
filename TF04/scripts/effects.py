@@ -39,7 +39,7 @@ def __init__():
     effect_list.append(GameEffect("StatusReset", False, EffectStyle.style_mission_status
                                   , memman.MissionStatus.status_normal, -1))
     effect_list.append(GameEffect("TrapEnemyStealth", True, EffectStyle.style_cheat
-                                  , memman.CheatIndex.cheat_enemystealth, 30))
+                                  , memman.CheatIndex.cheat_enemystealth, 90))
     effect_list.append(GameEffect("TrapTrubo", True, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_turbo, 60))
     effect_list.append(GameEffect("TrapFreeze", True, EffectStyle.style_mission_status
@@ -51,7 +51,7 @@ def __init__():
     effect_list.append(GameEffect("BuffTractor", False, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_tractor, -1))
     effect_list.append(GameEffect("BuffBigHead", False, EffectStyle.style_cheat
-                                  , memman.CheatIndex.cheat_bighead, 120))
+                                  , memman.CheatIndex.cheat_bighead, -1))
     effect_list.append(GameEffect("StasisLock", True, EffectStyle.style_mission_status
                                   , memman.MissionStatus.status_stasis_lock, 0))
 

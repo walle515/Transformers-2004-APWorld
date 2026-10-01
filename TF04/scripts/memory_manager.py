@@ -243,7 +243,7 @@ def unlock_episode(episode_id: int, context):
     context.output("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
-        context.output("Level " + str(episode_id) + " is already unlocked.")
+        context.output("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already unlocked.")
     else:
         unlock_byte |= 0x1
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
@@ -262,7 +262,7 @@ def complete_episode(episode_id: int, context):
     context.output("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x2:
         print("Level " + str(episode_id) + " is already completed.")
-        context.output("Level " + str(episode_id) + " is already completed.")
+        context.output("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already completed.")
     else:
         if episode_id != 3 and episode_id != 5:
             unlock_byte |= 0b1000010

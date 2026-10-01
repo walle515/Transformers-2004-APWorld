@@ -290,6 +290,19 @@ Linked_Locations = {
 
 
 
+Level_Name = {
+    0 : "Amazon",
+    1 : "Antarctica",
+    2 : "Deep Amazon",
+    3 : "Mid Atlantic",
+    4 : "Alaska",
+    5 : "Starship",
+    6 : "Pacific Island",
+    7 : "Cybertron"
+}
+
+
+
 Boss_Locations = [
     9001,
     9002,
