@@ -195,7 +195,7 @@ def write_initial_values():
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x4, 0x2442ED00) #addiu v0,v0,-0x1300
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0xC, 0xAC420000) #sw v0,0x0(v0)
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x8, 0xAC450004) #sw a1,0x4(v0)
-    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x10, 0x10000021) #beq zero,zero,0x00351BA0
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x10, 0x10000020) #beq zero,zero,0x00351BA0
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x14, 0xAC830034) #sw v1,0x34(a0)
 
     #During the taPickupPlaced::Spawn function, there is a check to see if the pickup has already been unlocked
