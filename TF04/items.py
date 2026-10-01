@@ -140,7 +140,7 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
     #"Melee Damage Enhance": ItemClassification.useful,
     
     #per requirement in world.py
-    "Health Drop": ItemClassification.filler,
+    "Health Refill": ItemClassification.filler,
     "Big Head (Next Level)": ItemClassification.filler,
     "Stealth Trap": ItemClassification.trap,
     "Freeze Trap" : ItemClassification.trap,
@@ -174,8 +174,8 @@ def get_random_filler_item_name(world: Transformers04World) -> str:
             # world.create_item ("Warp Trap")
             # return "Warp Trap"
     if world.random.randint(0,1) == 1:
-        world.create_item("Health Drop")
-        return "Health Drop"
+        world.create_item("Health Refill")
+        return "Health Refill"
     world.create_item("Big Head (Next Level)")
     return "Big Head (Next Level)"
     

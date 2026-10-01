@@ -114,7 +114,7 @@ ITEM_NAME_TO_ID: dict[str,int] = {
     #"Melee Damage Enhance": 150,
     
     #adding this per a requirement in the world.py
-    "Health Drop": 151,
+    "Health Refill": 151,
     "Big Head (Next Level)": 152,
     "Stealth Trap": 153,
     "Freeze Trap": 154,
