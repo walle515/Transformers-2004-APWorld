@@ -106,13 +106,15 @@ class Transformers04World(World):
             if visible_progression:
                 if item.name in database.ITEM_NAME_TO_ID:
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)
-                    if item_id >= 150:
-                        item_id = database.Archipelago_Minicon_ID
                     if (item_id >= 50 and item_id < 150):
                         item_id -= 50
                     if ((item.classification & ItemClassification.progression) or (item.classification & ItemClassification.trap)):
+                        if item_id >= 150:
+                            item_id = database.Archipelago_Minicon_ID
                         minicon_bool = 1
                     else:
+                        if item_id >= 150:
+                            item_id = database.Archipelago_Datacon_ID
                         minicon_bool = 0
                 else:
                     if ((item.classification & ItemClassification.progression) or (item.classification & ItemClassification.trap)):
