@@ -70,7 +70,6 @@ class Transformers04Context(CommonContext):
         self.Optimus_Stats = [0,0,0,0]
         self.Hot_Shot_Stats = [0,0,0,0]
         self.Red_Alert_Stats = [0,0,0,0]
-        self.stats_written = False
         
         
     def make_gui(self):
@@ -168,7 +167,7 @@ async def game_loop(context: Transformers04Context):
             continue
         
         #if we are in the HQ and its the first visit, output it for Debug purposes
-        if context.in_HQ and context.first_HQ_visit and context.stats_written:
+        if context.in_HQ and context.first_HQ_visit and memory_manager.pine_is_connected:
             context.first_HQ_visit = False
             context.output("First HQ Visit")
             
