@@ -66,10 +66,10 @@ class Transformers04Context(CommonContext):
         self.powerlink_enabled = False
         
         # Variables to store stats of autobots to display in client
-        # Attack, Defense, Speed, Power
-        self.Optimus_Stats = [0,0,0,0]
-        self.Hot_Shot_Stats = [0,0,0,0]
-        self.Red_Alert_Stats = [0,0,0,0]
+        # Health, Height, Power Capacity, Dash Speed, Powerlinx Regen
+        self.Optimus_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.Hot_Shot_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.Red_Alert_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
         
         
     def make_gui(self):
@@ -172,21 +172,24 @@ async def game_loop(context: Transformers04Context):
             context.output("First HQ Visit")
             
             #print stats of Autobots for player
-            context.logger.info("Optimus Prime Stats:")
-            context.logger.info(f" Attack: {context.Optimus_Stats[0]}")
-            context.logger.info(f"Defense: {context.Optimus_Stats[1]}")
-            context.logger.info(f"  Speed: {context.Optimus_Stats[2]}")
-            context.logger.info(f"  Power: {context.Optimus_Stats[3]}")
-            context.logger.info("Hot Shot Stats:")
-            context.logger.info(f" Attack: {context.Hot_Shot_Stats[0]}")
-            context.logger.info(f"Defense: {context.Hot_Shot_Stats[1]}")
-            context.logger.info(f"  Speed: {context.Hot_Shot_Stats[2]}")
-            context.logger.info(f"  Power: {context.Hot_Shot_Stats[3]}")
-            context.logger.info("Red Alert Stats:")
-            context.logger.info(f" Attack: {context.Red_Alert_Stats[0]}")
-            context.logger.info(f"Defense: {context.Red_Alert_Stats[1]}")
-            context.logger.info(f"  Speed: {context.Red_Alert_Stats[2]}")
-            context.logger.info(f"  Power: {context.Red_Alert_Stats[3]}")
+            context.logger.info("    Optimus Prime Stats:")
+            context.logger.info(f"         Health: {context.Optimus_Stats[0]:.2f}")
+            context.logger.info(f"         Height: {context.Optimus_Stats[1]:.2f}")
+            context.logger.info(f" Power Capacity: {int(context.Optimus_Stats[2])}")
+            context.logger.info(f"     Dash Speed: {context.Optimus_Stats[3]:.2f}")
+            context.logger.info(f"Powerlinx Regen: {context.Optimus_Stats[4]:.2f}")
+            context.logger.info("       Hot Shot Stats:")
+            context.logger.info(f"         Health: {context.Hot_Shot_Stats[0]:.2f}")
+            context.logger.info(f"         Height: {context.Hot_Shot_Stats[1]:.2f}")
+            context.logger.info(f" Power Capacity: {int(context.Hot_Shot_Stats[2])}")
+            context.logger.info(f"     Dash Speed: {context.Hot_Shot_Stats[3]:.2f}")
+            context.logger.info(f"Powerlinx Regen: {context.Hot_Shot_Stats[4]:.2f}")
+            context.logger.info("       Red Alert Stats:")
+            context.logger.info(f"         Health: {context.Red_Alert_Stats[0]:.2f}")
+            context.logger.info(f"         Height: {context.Red_Alert_Stats[1]:.2f}")
+            context.logger.info(f" Power Capacity: {int(context.Red_Alert_Stats[2])}")
+            context.logger.info(f"     Dash Speed: {context.Red_Alert_Stats[3]:.2f}")
+            context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
             
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago

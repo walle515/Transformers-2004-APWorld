@@ -39,7 +39,7 @@ def __init__():
     effect_list.append(GameEffect("StatusReset", False, EffectStyle.style_mission_status
                                   , memman.MissionStatus.status_normal, -1))
     effect_list.append(GameEffect("TrapEnemyStealth", True, EffectStyle.style_cheat
-                                  , memman.CheatIndex.cheat_enemystealth, 150))
+                                  , memman.CheatIndex.cheat_enemystealth, 30))
     effect_list.append(GameEffect("TrapTrubo", True, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_turbo, 60))
     effect_list.append(GameEffect("TrapFreeze", True, EffectStyle.style_mission_status
@@ -68,6 +68,7 @@ async def apply_effect(effect: GameEffect):
         memman.set_mission_status(effect.value)
 
     if effect.duration > 0:
+        await sleep(18)
         await sleep(effect.duration)
     elif effect.duration < 0:
         return
