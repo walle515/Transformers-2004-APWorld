@@ -43,6 +43,9 @@ class GameAddress(IntEnum):
     gameadd_player_health = 0x00716FB4
     gameadd_player_max_health = 0x00716FB4 + 8
     gameadd_HQ_check = 0x7160EC #technically a count of loaded music files. HQ only has one, all other areas have more
+    gameadd_Optimus_Stats = 0x717490
+    gameadd_HotShot_Stats = 0x7176D0
+    gameadd_RedAlert_Stats = 0x717910
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
@@ -165,7 +168,7 @@ def set_mission_status(status_index: int):
     pcsx2.write_int32(GameAddress.gameadd_mission_status, status_index)
 
 
-def write_initial_values():
+def write_initial_values(context):
     '''Sets values in RAM and single-line ELF codes to allow Archipelago randomizers to work
     this can be replaced with mod files once their functionality is verified. For now I haven't done that,
     since this is already reliable'''
@@ -229,6 +232,25 @@ def write_initial_values():
     #set amazon locked at start, Archipelago will unlock start level
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
+    
+    #save stats
+    context.Optimus_stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
+    context.Optimus_stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x20))
+    context.Optimus_stats[2] = pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x8)
+    context.Optimus_stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x108))
+    context.Optimus_stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x1E0))
+    
+    context.Hot_Shot_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats))
+    context.Hot_Shot_Stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats + 0x20))
+    context.Hot_Shot_Stats[2] = pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats + 0x8)
+    context.Hot_Shot_Stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats + 0x108))
+    context.Hot_Shot_Stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats + 0x1E0))
+    
+    context.Red_Alert_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats))
+    context.Red_Alert_Stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x20))
+    context.Red_Alert_Stats[2] = pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x8)
+    context.Red_Alert_Stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x108))
+    context.Red_Alert_Stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x1E0))
 
 def unlock_episode(episode_id: int, context):
     #using the ID, set the level to Available and the first warpgate to Unlocked
@@ -423,7 +445,7 @@ async def monitor_ram(context):
     #checked_locations.extend(TFContext.checked_locations) #fill list of checked locations from Archipelago
     while True:
         if context.in_HQ and not init_values_written:
-            write_initial_values()
+            write_initial_values(context)
             init_values_written = True
             await asyncio.sleep(1)
             pine_is_connected = True #tell client pine is connected
