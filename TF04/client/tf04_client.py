@@ -65,6 +65,13 @@ class Transformers04Context(CommonContext):
         self.random_level_enabled = False
         self.powerlink_enabled = False
         
+        # Variables to store stats of autobots to display in client
+        # Attack, Defense, Speed, Power
+        self.Optimus_Stats = [0,0,0,0]
+        self.Hot_Shot_Stats = [0,0,0,0]
+        self.Red_Alert_Stats = [0,0,0,0]
+        self.stats_written = False
+        
         
     def make_gui(self):
         ui = super().make_gui()
@@ -161,9 +168,26 @@ async def game_loop(context: Transformers04Context):
             continue
         
         #if we are in the HQ and its the first visit, output it for Debug purposes
-        if context.in_HQ and context.first_HQ_visit:
+        if context.in_HQ and context.first_HQ_visit and context.stats_written:
             context.first_HQ_visit = False
             context.output("First HQ Visit")
+            
+            #print stats of Autobots for player
+            context.logger.info("Optimus Prime Stats:")
+            context.logger.info(f" Attack: {context.Optimus_Stats[0]}")
+            context.logger.info(f"Defense: {context.Optimus_Stats[1]}")
+            context.logger.info(f"  Speed: {context.Optimus_Stats[2]}")
+            context.logger.info(f"  Power: {context.Optimus_Stats[3]}")
+            context.logger.info("Hot Shot Stats:")
+            context.logger.info(f" Attack: {context.Hot_Shot_Stats[0]}")
+            context.logger.info(f"Defense: {context.Hot_Shot_Stats[1]}")
+            context.logger.info(f"  Speed: {context.Hot_Shot_Stats[2]}")
+            context.logger.info(f"  Power: {context.Hot_Shot_Stats[3]}")
+            context.logger.info("Red Alert Stats:")
+            context.logger.info(f" Attack: {context.Red_Alert_Stats[0]}")
+            context.logger.info(f"Defense: {context.Red_Alert_Stats[1]}")
+            context.logger.info(f"  Speed: {context.Red_Alert_Stats[2]}")
+            context.logger.info(f"  Power: {context.Red_Alert_Stats[3]}")
             
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago
