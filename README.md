@@ -13,6 +13,8 @@ Powerlinx will unlock based on the following criteria:
 - Levels are Randomized and you do not start on Amazon, to make starting on a harder level more fair
 - Completing Amazon, random levels or not
 
+*Note*: For Archipelago Items, the item received <ins>wont</ins> be displayed in game. You will need to look at the client to see what was received.
+
 ## Goal
 You have the option to decide between two goal options, Unicron and Bosses. Unicron just means beat Unicron as normal. Bosses means you must beat all level bosses before you can fight Unicron (Unicron will be locked behind minicons and bosses). Bosses is really only necessary if you randomize levels.
 
