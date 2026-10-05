@@ -1,5 +1,6 @@
 # Transformers 2004 AP World
 `Version 1.0`
+
 This is the AP Client for integrating Transformers 2004 for PS2 into [Archipelago](https://archipelago.gg).
 
 This must be used with the rebuilt game, as explained in the installation instructions below.
