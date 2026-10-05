@@ -106,14 +106,14 @@ class Transformers04World(World):
                 minicon_bool = 0
                 if item.name in database.ITEM_NAME_TO_ID:
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)
-                    if (item_id >= 50 and item_id < 150):
+                    if (item.player == self.player) and (item_id >= 50) and (item_id < 150):
                         item_id -= 50
                     else:
                         item_id = database.Archipelago_Datacon_ID
                 else:
                     item_id = database.Archipelago_Datacon_ID
             elif visible_progression:
-                if item.name in database.ITEM_NAME_TO_ID:
+                if (item.name in database.ITEM_NAME_TO_ID) and (item.player == self.player):
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)
                     if (item_id >= 50 and item_id < 150):
                         item_id -= 50
@@ -133,7 +133,7 @@ class Transformers04World(World):
                         item_id = database.Archipelago_Datacon_ID
                         minicon_bool = 0
             else:
-                if item.name in database.ITEM_NAME_TO_ID:
+                if (item.player == self.player) and (item.name in database.ITEM_NAME_TO_ID):
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)
                 else:
                     item_id = database.Archipelago_Datacon_ID
