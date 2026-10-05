@@ -1,5 +1,5 @@
 # Transformers 2004 AP World
-'Version 1.0'
+`Version 1.0`
 This is the AP Client for integrating Transformers 2004 for PS2 into [Archipelago](https://archipelago.gg).
 
 This must be used with the rebuilt game, as explained in the installation instructions below.
@@ -52,30 +52,30 @@ You will need the following to use the AP World:
 ## Setting Up PCSX2 (PINE)
 This client uses PINE, a built in communication method in PCSX2. To enable it, follow the instructions below:
 1. Go to **Tools** and turn on **Show Advances Settings** if it is not already on
-2. Go to '**System** -> **Settings**'
+2. Go to `System -> Settings`
 3. Go to the **Advanced** tab and scroll all the way down till you find the **PINE Settings**
 4. Enable PINE and make sure the port is 28011 (Default)
 
-It is also recommended that you right click 'Title' at the top of the game list, then check 'File Title' so you can tell the rebuilt game and original apart
+It is also recommended that you right click `Title` at the top of the game list, then check `File Title` so you can tell the rebuilt game and original apart
 
 ## Setting Up Exodus
 When you download Exodus, it will download in a .7z archive, so extract all of the contents into a folder of your choosing.
 
-The first time you open Exodus, you will need to make a folder somewhere for it to extract all the files from the original ISO. This folder should not be where the normal ISO is stored. Then, at the top of the screen, go to '**Build**->**Unpack ISO**' and set the output to the folder you made. It should also ask for you to find where 7-Zip is installed. When this happens, go to 'C:\Program Files\7-Zip' and select the 7z.exe file. This will read the original ISO and copy all the files from it into a folder called 'Extract_Transformers (USA)' (name may be different based on the game version you use) inside the folder you created. **<ins>This only needs to happen once</ins>**
+The first time you open Exodus, you will need to make a folder somewhere for it to extract all the files from the original ISO. This folder should not be where the normal ISO is stored. Then, at the top of the screen, go to `Build->Unpack ISO` and set the output to the folder you made. It should also ask for you to find where 7-Zip is installed. When this happens, go to `C:\Program Files\7-Zip` and select the 7z.exe file. This will read the original ISO and copy all the files from it into a folder called `Extract_Transformers (USA)` (name may be different based on the game version you use) inside the folder you created. **<ins>This only needs to happen once</ins>**
 
 # How to Play
 ## Creating the Rebuilt ISO
-1. Download the patch file (file extension '.aptf') from your Archipelago Room
-2. Open Exodus and go to the '**Randomizer**' tab. If you get an error, its likely because you did not unpack the game first. You will know you did the setup right if you see a few files load on the left.
-3. Select '**Import Placements**' and '**Automatically Build**', then if you have 'Add Starting Location' on, select '**Beginner Weapon**'
-4. Press the '**Randomize**' Button. The first time, it will ask for an output Folder, and you can set it to the same folder as the one you made in setup.
+1. Download the patch file (file extension `.aptf`) from your Archipelago Room
+2. Open Exodus and go to the `Randomizer` tab. If you get an error, its likely because you did not unpack the game first. You will know you did the setup right if you see a few files load on the left.
+3. Select `Import Placements` and `Automatically Build`, then if you have 'Add Starting Location' on, select `Beginner Weapon`
+4. Press the `Randomize` Button. The first time, it will ask for an output Folder, and you can set it to the same folder as the one you made in setup.
 5. You should be prompted to select the patch file you downloaded. This will unzip it into a folder as it imports it, so if you see the file and a folder with the same name, its normal.
 6. You should then be prompted to select the original game ISO again. This allows Exodus to copy the files, then edit them based on the imported settings and any other adjustments made by Exodus.
-7. The new ISO you need to run will be put into the same folder as the original ISO named '**Transformers (USA)_Rebuild.iso**' (name may be different based on the game version you use).
+7. The new ISO you need to run will be put into the same folder as the original ISO named `Transformers (USA)_Rebuild.iso` (name may be different based on the game version you use).
 
 ## Client
 1. Run the rebuilt game in PCSX2. There will be a short delay of black screen before the transformers title appears, this is normal and part of running the rebuilt game.
-2. Once you reach the main title, you can open the '**Transformers (2004) Client**' from the archipelago launcher. You can also wait till you are in HQ if you wish.
+2. Once you reach the main title, you can open the `Transformers (2004) Client` from the archipelago launcher. You can also wait till you are in HQ if you wish.
 3. Connect to the Archipelago Server and input your slot name (and password if needed).
 4. The client will then try connecting to PCSX2 through PINE. Once connected, and you are in HQ, the client will start writing the necessary memory adjustments and unlock your first level. If you have random stats on, it will also print the stats for each Autobot.
 5. You can now play as normal.
