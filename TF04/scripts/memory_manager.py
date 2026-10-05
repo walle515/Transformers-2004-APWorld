@@ -326,7 +326,7 @@ def unlock_datacon(datacon_id: int):
     return 0
 
 
-def check_valid_spawn(target_address: int):
+def check_valid_spawn(target_address: int, context):
     # When loading a level, the game will check if a minicon/datacon is unlocked or not to see if it needs to be placed.
     # Using the modified code from write_initial_values, read the location ID of the currently checked location
     # and compare it to the locations in checked_locations. If it's present in our list, it doesn't need to be
@@ -343,8 +343,10 @@ def check_valid_spawn(target_address: int):
     experimental_id = pcsx2.read_int32(target_address + 0xD0)
     if experimental_id > 65535 or experimental_id == 0:
         print("Potential location ID invalid. Checking secondary observation.")
+        context.output("Potential location ID invalid. Checking secondary observation.")
         experimental_id = pcsx2.read_int32(target_address + 0x130)
     print("Experimental location ID read as: " + str(experimental_id))
+    context.output("Experimental location ID read as: " + str(experimental_id))
 
     # write the check value for the game to read
     #if the location's value is 0, that means it's been wiped before during a pickup activation
@@ -414,7 +416,7 @@ def execute_command(command, context):
         return read_pickup_location(command[1], context)
 
     if command[0] == PineCommand.comm_check_spawn:
-        check_valid_spawn(command[1])
+        check_valid_spawn(command[1], context)
     
     if command[0] == PineCommand.comm_set_max_health:
         #Sets player health to the maximum for the character
