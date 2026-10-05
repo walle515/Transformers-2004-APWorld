@@ -20,25 +20,25 @@ You also have the choice to set how many minicons you need to unlock Unicron. Yo
 
 ## Added Items
 There are a couple items added to the game to make archipelago work. 
-- **Archipelago Minicon and Datacon**: Added as a placeholder for anything that isnt a minicon or datacon.
-- **Health Refill**: Filler item that sets your health to full when collected
-- **Big Head Mode**: Filler item that will toggle on the next time you go to HQ, and will turn off the next time you go to HQ after that.
-- **Stealth Trap**: Trap item that will turn the enemies invisible for 30 seconds.
-- **Freeze Trap**: Trap Item that will freeze the player for 10 seconds.
-- **Level Unlocks**: Used mainly for level randomization, but preset to level completes when not randomized
+- <ins>**Archipelago Minicon and Datacon**:</ins> Added as a placeholder for anything that isnt a minicon or datacon.
+- <ins>**Health Refill**:</ins> Filler item that sets your health to full when collected
+- <ins>**Big Head Mode**:</ins> Filler item that will toggle on the next time you go to HQ, and will turn off the next time you go to HQ after that.
+- <ins>**Stealth Trap**:</ins> Trap item that will turn the enemies invisible for 30 seconds.
+- <ins>**Freeze Trap**:</ins> Trap Item that will freeze the player for 10 seconds.
+- <ins>**Level Unlocks**:</ins> Used mainly for level randomization, but preset to level completes when not randomized
 
 ## Randomization Options
 There are a few options for randomization.
-- **Trap Chance**: The percentage chance that a filler item is a trap item. Set to 0 for no traps
-- **Add Starting Location**: Adds a starting location for the first level. Necessary if you want to randomize levels and start on starship, otherwise just adds an extra location.
-- **Randomize Levels**: Randomizes the level you start on and adds level unlock items into the item pool, which can be anywhere, even in another players game. Also turns Boss Fights/Level completions into checks.
-- **Randomize Stats**: Will randomize the Max Health, Height, Power Capacity, Dash Speed, and Powerlinx Regen of all 3 autobots within limits. These stats will be displayed in the client once you reach HQ for the first time. The names of the autobots will also change (for fun).
-- **Randomize Minicon Levels**: Randomizes the power level each minicon uses.
-- **Balance Minicon Levels**: Balances the random power levels so not all are super high or super low
-- **Randomize Minicon Team Colors**: Randomizes the team color of each minicon. Minicons will still use their normal 3D model, but the icon in the hud and HQ will be colored to show the team color.
-- **Balance Minicon Team Colors**: Balances the random team colors so not all or most are in one team color.
-- **Visible Progression Items**: Makes Progression and Trap items for any game into Minicon Locations, while Useful and Filler items will be Datacon Locations. If off, items from other games will be Datacon locations, while any added items for this game will be Minicon Locations
-- **Debug Mode**: Enables extra information to be printed to the Client to help track down bugs.
+- <ins>**Trap Chance**:</ins> The percentage chance that a filler item is a trap item. Set to 0 for no traps
+- <ins>**Add Starting Location**:</ins> Adds a starting location for the first level. Necessary if you want to randomize levels and start on starship, otherwise just adds an extra location.
+- <ins>**Randomize Levels**:</ins> Randomizes the level you start on and adds level unlock items into the item pool, which can be anywhere, even in another players game. Also turns Boss Fights/Level completions into checks.
+- <ins>**Randomize Stats**:</ins> Will randomize the Max Health, Height, Power Capacity, Dash Speed, and Powerlinx Regen of all 3 autobots within limits. These stats will be displayed in the client once you reach HQ for the first time. The names of the autobots will also change (for fun).
+- <ins>**Randomize Minicon Levels**:</ins> Randomizes the power level each minicon uses.
+- <ins>**Balance Minicon Levels**:</ins> Balances the random power levels so not all are super high or super low
+- <ins>**Randomize Minicon Team Colors**:</ins> Randomizes the team color of each minicon. Minicons will still use their normal 3D model, but the icon in the hud and HQ will be colored to show the team color.
+- <ins>**Balance Minicon Team Colors**:</ins> Balances the random team colors so not all or most are in one team color.
+- <ins>**Visible Progression Items**:</ins> Makes Progression and Trap items for any game into Minicon Locations, while Useful and Filler items will be Datacon Locations. If off, items from other games will be Datacon locations, while any added items for this game will be Minicon Locations
+- <ins>**Debug Mode**:</ins> Enables extra information to be printed to the Client to help track down bugs.
 
 # Installation
 You will need the following to use the AP World:
@@ -53,6 +53,7 @@ This client uses PINE, a built in communication method in PCSX2. To enable it, f
 2. Go to '**System** -> **Settings**'
 3. Go to the **Advanced** tab and scroll all the way down till you find the **PINE Settings**
 4. Enable PINE and make sure the port is 28011 (Default)
+
 It is also recommended that you right click 'Title' at the top of the game list, then check 'File Title' so you can tell the rebuilt game and original apart
 
 ## Setting Up Exodus
@@ -76,16 +77,17 @@ The first time you open Exodus, you will need to make a folder somewhere for it 
 3. Connect to the Archipelago Server and input your slot name (and password if needed).
 4. The client will then try connecting to PCSX2 through PINE. Once connected, and you are in HQ, the client will start writing the necessary memory adjustments and unlock your first level. If you have random stats on, it will also print the stats for each Autobot.
 5. You can now play as normal.
+
 If you need to quit and come back later, follow the same process as above. It will remember what minicons, datacons, and levels you had unlocked and unlock them, even if you start a new save or your save gets corrupted (shouldnt happen, but you never know with these things)
 
 # Acknowledgements
-Thanks to TheGreenTyphoon for getting us started, Eclipse for all the game modding and memory adjustment code, and Wirebot for the Archipelago code
+
 **APWorld**
 - **TheGreenTyphoon**: Getting PINE started and the Minicon Unlock Code
 - **Eclipse**: PINE Memory Manager
 - **Wirebot**: Logic and Client Code
 
-**Game Mod**
+**Game Mod/Rebuild**
 - **Eclipse**: Created Exodus and All game modification
 - **Wirebot**: Created Archipelago Minicon Model/Animation and Datacon Icon
 - **bbats**: Created Blender VBIN Addon to import/export models and animations for the game
