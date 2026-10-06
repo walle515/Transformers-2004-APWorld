@@ -144,6 +144,7 @@ class Transformers04World(World):
                         item_id = database.Archipelago_Minicon_ID
                 else:
                     item_id = database.Archipelago_Datacon_ID
+                    minicon_bool = 0
                 
                 
             if (item_id < 50 and minicon_bool==1):
