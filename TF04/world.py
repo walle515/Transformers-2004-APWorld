@@ -135,15 +135,16 @@ class Transformers04World(World):
             else:
                 if (item.player == self.player) and (item.name in database.ITEM_NAME_TO_ID):
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)
+                    
+                    minicon_bool = 1
+                    if (item_id >= 50 and item_id < 150):
+                        item_id -= 50
+                        minicon_bool = 0
+                    if item_id >= 150:
+                        item_id = database.Archipelago_Minicon_ID
                 else:
                     item_id = database.Archipelago_Datacon_ID
-                minicon_bool = 1
                 
-                if (item_id >= 50 and item_id < 150):
-                    item_id -= 50
-                    minicon_bool = 0
-                if item_id >= 150:
-                    item_id = database.Archipelago_Minicon_ID
                 
             if (item_id < 50 and minicon_bool==1):
                 item_id += 3
