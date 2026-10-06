@@ -61,14 +61,15 @@ def get_effect(effect_name: str) -> GameEffect:
             return effect
     return GameEffect("NULL", False, EffectStyle.style_invalid, 0, 0)
 
-async def apply_effect(effect: GameEffect):
+async def apply_effect(effect: GameEffect, self_pickup: bool):
     if effect.effect_style == EffectStyle.style_cheat:
         memman.cheat_toggle(effect.value, True)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(effect.value)
 
     if effect.duration > 0:
-        await sleep(18)
+        if self_pickup:
+            await sleep(18)
         await sleep(effect.duration)
     elif effect.duration < 0:
         return

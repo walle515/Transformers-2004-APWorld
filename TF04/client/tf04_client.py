@@ -157,6 +157,7 @@ async def game_loop(context: Transformers04Context):
     loc_id = 0
     num_unlocked_levels = 0
     amazon_first = False
+    self_pickup = False
     
     
     #Game Loop
@@ -241,12 +242,12 @@ async def game_loop(context: Transformers04Context):
                 if context.big_head_status:
                     context.output("Disabling Big Head")
                     context.big_head_status = False
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("CheatReset")))
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("CheatReset"),False))
                 if context.big_head:
                     context.output("Enabling Big Head")
                     context.big_head = False
                     context.big_head_status = True
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead"), False))
             context.previous_HQ = context.in_HQ
             
             
@@ -291,6 +292,10 @@ async def game_loop(context: Transformers04Context):
             # check if the length of received items is bigger than the index, meaning there is an item to receive
             if len(context.items_received) > item_index:
                 item_id = context.items_received[item_index].item   # get the item ID
+                if context.items_received[item_index].player == context.slot:
+                    self_pickup = True
+                else:
+                    self_pickup = False
                 item_index += 1     #increase the index
                 
                 #if the ID is less than 50, then the item is a minicon
@@ -332,18 +337,18 @@ async def game_loop(context: Transformers04Context):
                             #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                             context.big_head = True
                         elif item_id == 2:   #Stealth Trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth")))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),self_pickup))
                         elif item_id == 3:   #Freeze Trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze")))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),self_pickup))
                         elif item_id == 4:   #warp trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ")))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),self_pickup))
             
             
             #Deathlink Handling
             if context.deathlink_enabled:
                 #If we have received a deathlink, kill the player, and set variables as needed.
                 if context.deathlink_pending:
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock")))
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock"), False))
                     context.deathlink_pending = False
                     context.sent_death = True
                 
