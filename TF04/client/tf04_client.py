@@ -350,7 +350,7 @@ async def game_loop(context: Transformers04Context):
             if context.deathlink_enabled:
                 #If we have received a deathlink, kill the player, and set variables as needed.
                 if context.deathlink_pending:
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock"), False))
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock"), context))
                     context.deathlink_pending = False
                     context.sent_death = True
                 
