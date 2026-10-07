@@ -59,6 +59,7 @@ class Transformers04Context(CommonContext):
         self.first_HQ_visit = True
         self.previous_HQ = False
         
+        self.last_item_index = 0
         self.big_head = False
         self.big_head_status = False
         
@@ -331,17 +332,18 @@ async def game_loop(context: Transformers04Context):
                         # context.level_unlock_detected = True
                     
                     case ItemType.special:
-                        if item_id == 0:    #Health Drop
+                        if item_id == 1:    #Health Drop
                             memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
-                        elif item_id == 1:   #big head
+                        elif item_id == 2 and item_index > context.last_item_index:   #big head
                             #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                             context.big_head = True
-                        elif item_id == 2:   #Stealth Trap
+                        elif item_id == 3 and item_index > context.last_item_index:   #Stealth Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),context))
-                        elif item_id == 3:   #Freeze Trap
+                        elif item_id == 4 and item_index > context.last_item_index:   #Freeze Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),context))
-                        elif item_id == 4:   #warp trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),context))
+                        # elif item_id == 5 and item_index > context.last_item_index:   #warp trap
+                            # asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),context))
+                context.last_item_index = item_index
             
             
             #Deathlink Handling
