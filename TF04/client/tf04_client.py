@@ -242,12 +242,12 @@ async def game_loop(context: Transformers04Context):
                 if context.big_head_status:
                     context.output("Disabling Big Head")
                     context.big_head_status = False
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("CheatReset"),False))
+                    memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, False)
                 if context.big_head:
                     context.output("Enabling Big Head")
                     context.big_head = False
                     context.big_head_status = True
-                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead"), False))
+                    memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
             context.previous_HQ = context.in_HQ
             
             
@@ -337,11 +337,11 @@ async def game_loop(context: Transformers04Context):
                             #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                             context.big_head = True
                         elif item_id == 2:   #Stealth Trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),self_pickup))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),context))
                         elif item_id == 3:   #Freeze Trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),self_pickup))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),context))
                         elif item_id == 4:   #warp trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),self_pickup))
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),context))
             
             
             #Deathlink Handling
