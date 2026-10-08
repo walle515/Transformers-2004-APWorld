@@ -343,10 +343,10 @@ def check_valid_spawn(target_address: int, context):
     experimental_id = pcsx2.read_int32(target_address + 0xD0)
     if experimental_id > 65535 or experimental_id == 0:
         print("Potential location ID invalid. Checking secondary observation.")
-        context.output("Potential location ID invalid. Checking secondary observation.")
+        #context.output("Potential location ID invalid. Checking secondary observation.")
         experimental_id = pcsx2.read_int32(target_address + 0x130)
     print("Experimental location ID read as: " + str(experimental_id))
-    context.output("Experimental location ID read as: " + str(experimental_id))
+    #context.output("Experimental location ID read as: " + str(experimental_id))
 
     # write the check value for the game to read
     #if the location's value is 0, that means it's been wiped before during a pickup activation
