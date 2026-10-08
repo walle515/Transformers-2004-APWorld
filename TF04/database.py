@@ -289,6 +289,15 @@ Linked_Locations = {
 }
 
 
+Reverse_Linked_Locations = {
+    3061 : 3065,
+    3062 : 3066,
+    3063 : 3068,
+    3064 : 3067,
+    5094 : 5095,
+}
+
+
 
 Level_Name = {
     0 : "Amazon",

@@ -140,7 +140,7 @@ def read_pickup_location(target_address: int, context):
     pcsx2.write_int32(target_address+0x58, 0)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code - 0x8, 0x1) #write process complete
     location = get_location_id(read_values)
-    checked_locations.append(location)
+    #checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
     context.output("Location ID read as: " + str(location) + ". Send to Archipelago.")
     send_location(location)

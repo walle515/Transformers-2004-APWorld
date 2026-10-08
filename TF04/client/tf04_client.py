@@ -210,6 +210,16 @@ async def game_loop(context: Transformers04Context):
         # list. This should only happen the first time and not if the game disconnects and reconnects.
         if memory_manager.pine_is_connected and not pine_previous_connection:
             memory_manager.checked_locations.extend(context.checked_locations)
+            for loc in context.checked_locations:
+                if loc == 999:
+                    memory_manager.checked_locations.append(1999)
+                    memory_manager.checked_locations.append(2999)
+                    memory_manager.checked_locations.append(3999)
+                    memory_manager.checked_locations.append(4999)
+                    memory_manager.checked_locations.append(5999)
+                    memory_manager.checked_locations.append(6999)
+                if loc in database.Reverse_Linked_Locations:
+                    memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc])
             pine_previous_connection = True
 
 
@@ -297,6 +307,17 @@ async def game_loop(context: Transformers04Context):
                     result = await context.check_locations([loc_id])
                     text = ", ".join(str(item) for item in result)
                     context.output(f"check_locations returned: {text}, Should be {str(loc_id)}")
+                    if loc_id < 9000 or loc_id > 10000:
+                        memory_manager.checked_locations.append(loc_id)
+                        if loc_id == 999:
+                            memory_manager.checked_locations.append(1999)
+                            memory_manager.checked_locations.append(2999)
+                            memory_manager.checked_locations.append(3999)
+                            memory_manager.checked_locations.append(4999)
+                            memory_manager.checked_locations.append(5999)
+                            memory_manager.checked_locations.append(6999)
+                        if loc_id in database.Reverse_Linked_Locations:
+                            memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc_id])
                 del memory_manager.unhandled_locations[0]
                 
                 
