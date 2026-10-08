@@ -41,10 +41,7 @@ class Transformers04Context(CommonContext):
         super().__init__(server_address, password)
         
         self.game_completion = False
-        self.unicron_requirements_met = False
-        self.minicons_done = False
         self.minicons_required = 0
-        self.minicons_collected = 0
         
         self.logger = logging.getLogger("Client")
         self.archi_connected = asyncio.Event()
@@ -165,7 +162,6 @@ async def game_loop(context: Transformers04Context):
     num_unlocked_levels = 0
     amazon_first = False
     self_pickup = False
-    context.minicons_collected = 0
     
     
     #Game Loop
@@ -249,8 +245,8 @@ async def game_loop(context: Transformers04Context):
                 for x in context.items_received:
                     if x.item >= 160:
                         level = x.item - 160
-                        #if level == 7 and context.bosses_mode:
-                        if level == 7 and not context.unicron_requirements_met:
+                        if level == 7 and context.bosses_mode:
+                        #if level == 7 and not context.unicron_requirements_met:
                             context.cybertron_unlocked = True
                         else:
                             context.output(f"Unlocking Level {database.Level_Name[level]}")
@@ -285,13 +281,13 @@ async def game_loop(context: Transformers04Context):
                 #if we picked up the unicron level unlock (cybertron unlocked), killed all bosses, and have not
                 #   unlocked cybertron yet, then unlock cybertron
                 if context.bosses_killed and context.cybertron_unlocked and not context.bosses_goal_done:
-                    #memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
+                    memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
                     context.bosses_goal_done = True
-                if context.minicons_done and context.bosses_goal_done and not context.unicron_requirements_met:
-                    context.unicron_requirements_met = True
-            else:
-                if context.minicons_done and not context.unicron_requirements_met:
-                    context.unicron_requirements_met = True
+                # if context.minicons_done and context.bosses_goal_done and not context.unicron_requirements_met:
+                    # context.unicron_requirements_met = True
+            # else:
+                # if context.minicons_done and not context.unicron_requirements_met:
+                    # context.unicron_requirements_met = True
             
             
             #check if new location was checked and if so, send the ID to Archipelago
@@ -359,9 +355,9 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
-                        context.minicons_collected += 1
-                        if context.minicons_collected >= context.minicons_required:
-                            context.minicons_done = True
+                        # context.minicons_collected += 1
+                        # if context.minicons_collected >= context.minicons_required:
+                            # context.minicons_done = True
                     
                     case ItemType.datacon:
                         memory_manager.unlock_datacon(item_id)
