@@ -38,7 +38,8 @@ class GameAddress(IntEnum):
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
-    gameadd_cheats = 0x8F04B4
+    gameadd_cheat_instance = 0x6CFDF3
+    #gameadd_cheats = 0x8F04B4
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
     gameadd_player_max_health = 0x00716FB4 + 8
@@ -49,8 +50,8 @@ class GameAddress(IntEnum):
 
 class CleanAddress(IntEnum):
     cleanadd_pickup_code = 0x1FAECE0
-    cleanadd_level_unlocked = 0x1FAED00
-    cleanadd_pickup_spawn_replacement = 0x1FAEE00 #leaving plenty of space for the previous section
+    cleanadd_level_unlocked = 0x1FAEE00
+    cleanadd_pickup_spawn_replacement = 0x1FAEF00 #leaving plenty of space for the previous section
 
 class PineCommand(IntEnum):
     comm_nothing = 0
@@ -149,18 +150,19 @@ def read_pickup_location(target_address: int, context):
 
 def cheat_toggle(cheat_index: int, cheat_state: bool):
     #Used by effects.py to directly toggle a cheat's bit value to active or inactive
+    cheat_address = pcsx2.read_int32(GameAddress.gameadd_cheat_instance) + 0x34
     if cheat_index == 0:
         #reset all valid cheat indecies. Since I have this set up as an enum, there's not a clean way to do this (that I know of)
         #an arguement could be made that a dict would be better here.
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_tractor, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_powerlink, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_immortal, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_oneshot, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_enemystealth, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_bighead, 0)
-        pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_turbo, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_tractor, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_powerlink, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_immortal, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_oneshot, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_enemystealth, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_bighead, 0)
+        pcsx2.write_int8(cheat_address + CheatIndex.cheat_turbo, 0)
     else:
-        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index, cheat_state)
+        pcsx2.write_int8(cheat_address + cheat_index, cheat_state)
 
 
 def set_mission_status(status_index: int):
@@ -183,19 +185,20 @@ def write_initial_values(context):
     pcsx2.write_int32(0x37DCC0, 0x0C7EBB38)
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code, 0x3C0201FB) #lui v0,0x01FB
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x4, 0x2442ECD0) #addiu v0,v0,-0x1330
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC440000) #sw a0,0x0(v0) <- loop to here
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0xC, 0x8C510008) #lw s1,0x8(v0)
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x10, 0x1220FFFD) # beqz s1 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x14, 0) # NOP 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x18, 0x03E00008) #jr ra
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x1C, 0x0080882D) #daddu s1,a0,zero
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x8, 0xAC400008) #sw zero,0x8(v0)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0xC, 0xAC440000) #sw a0,0x0(v0) <- loop to here
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x10, 0x8C510008) #lw s1,0x8(v0)
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x14, 0x1220FFFD) # beqz s1 
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x18, 0) # NOP 
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x1C, 0x03E00008) #jr ra
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_code+0x20, 0x0080882D) #daddu s1,a0,zero
 
     #This line stops the SetEpisodeCompleted function from unlocking the next episode
     #all of the code from 0x351B10 to 0x351B9C is free to use, since the code in this range is ignored by us.
     #pcsx2.write_int32(0x00351B0C, 0x10000024) #single-line mod to just skip the unlock of the next episode
-    #write the index of the current episode to 0x0x1FAED00, then skip to the next part of the function
+    #write the index of the current episode to 0x0x1FAEE00, then skip to the next part of the function
     pcsx2.write_int32(GameAddress.gameadd_episode_function, 0x3C0201FB) #lui v0,0x01FB
-    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x4, 0x2442ED00) #addiu v0,v0,-0x1300
+    pcsx2.write_int32(GameAddress.gameadd_episode_function+0x4, 0x2442EE00) #addiu v0,v0,-0x1300
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0xC, 0xAC420000) #sw v0,0x0(v0)
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x8, 0xAC450004) #sw a1,0x4(v0)
     pcsx2.write_int32(GameAddress.gameadd_episode_function+0x10, 0x10000020) #beq zero,zero,0x00351BA0
@@ -208,11 +211,11 @@ def write_initial_values(context):
     #entirely and replace it with our own. The game will still need to wait on a response from Archi.
 
     #These replace the check for Minicon locations
-    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check, 0x0C7EBB80) #jal 0x1FAEE00
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check, 0x0C7EBBC0) #jal 0x1FAEF00
     pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0x4, 0x0) 
 
     #These replace the check for Datacon locations
-    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0xB0, 0x0C7EBB80) #jal 0x1FAEE00
+    pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0xB0, 0x0C7EBBC0) #jal 0x1FAEF00
     pcsx2.write_int32(GameAddress.gameadd_pickup_spawn_check+0xB4, 0x0)
     # s2 = pointer to current pickupplaced object
     # v0 is safe
@@ -234,11 +237,11 @@ def write_initial_values(context):
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
     
     #save stats
-    context.Optimus_stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
-    context.Optimus_stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x20))
-    context.Optimus_stats[2] = pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x8)
-    context.Optimus_stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x108))
-    context.Optimus_stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x1E0))
+    context.Optimus_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
+    context.Optimus_Stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x20))
+    context.Optimus_Stats[2] = pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x8)
+    context.Optimus_Stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x108))
+    context.Optimus_Stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x1E0))
     
     context.Hot_Shot_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats))
     context.Hot_Shot_Stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_HotShot_Stats + 0x20))
@@ -535,10 +538,11 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement-0xC, 0)
         return (PineCommand.comm_check_spawn, checking_spawn,)
 
-    check_cheats = pcsx2.read_int32(GameAddress.gameadd_cheats)
+    cheat_address = pcsx2.read_int32(GameAddress.gameadd_cheat_instance)
+    check_cheats = pcsx2.read_int32(cheat_address)
     if check_cheats != 0xFFFFFFFF:
         #the game has put us on a valid cheat screen, we need to invalidate that
-        pcsx2.write_int32(GameAddress.gameadd_cheats, 0xFFFFFFFF)
+        pcsx2.write_int32(cheat_address, 0xFFFFFFFF)
     return (PineCommand.comm_nothing,)
 
 
