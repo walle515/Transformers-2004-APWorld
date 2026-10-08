@@ -38,7 +38,7 @@ class GameAddress(IntEnum):
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
-    gameadd_cheats = 0x8F0480
+    gameadd_cheats = 0x8F04B4
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
     gameadd_player_max_health = 0x00716FB4 + 8
