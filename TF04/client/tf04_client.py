@@ -41,6 +41,10 @@ class Transformers04Context(CommonContext):
         super().__init__(server_address, password)
         
         self.game_completion = False
+        self.unicron_requirements_met = False
+        self.minicons_done = False
+        self.minicons_required = 0
+        self.minicons_collected = 0
         
         self.logger = logging.getLogger("Client")
         self.archi_connected = asyncio.Event()
@@ -103,6 +107,8 @@ class Transformers04Context(CommonContext):
             self.random_level_enabled = slot_data.get("randomize_levels", False)
             self.random_stats = slot_data.get("randomize_stats", False)
             
+            self.minicons_required = slot_data.get("minicon_count", 0)
+            
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
     
@@ -159,6 +165,7 @@ async def game_loop(context: Transformers04Context):
     num_unlocked_levels = 0
     amazon_first = False
     self_pickup = False
+    context.minicons_collected = 0
     
     
     #Game Loop
@@ -177,24 +184,26 @@ async def game_loop(context: Transformers04Context):
             
             if context.random_stats:
                 #print stats of Autobots for player
-                context.logger.info("    Optimus Prime Stats:")
-                context.logger.info(f"         Health: {context.Optimus_Stats[0]:.2f}")
-                context.logger.info(f"         Height: {context.Optimus_Stats[1]:.2f}")
-                context.logger.info(f" Power Capacity: {int(context.Optimus_Stats[2]/10)}")
-                context.logger.info(f"     Dash Speed: {context.Optimus_Stats[3]:.2f}")
+                context.logger.info("")
+                context.logger.info( "----Optimus Prime Stats-----")
+                context.logger.info(f"Health: {context.Optimus_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Optimus_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Optimus_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Optimus_Stats[3]:.2f}")
                 context.logger.info(f"Powerlinx Regen: {context.Optimus_Stats[4]:.2f}")
-                context.logger.info("       Hot Shot Stats:")
-                context.logger.info(f"         Health: {context.Hot_Shot_Stats[0]:.2f}")
-                context.logger.info(f"         Height: {context.Hot_Shot_Stats[1]:.2f}")
-                context.logger.info(f" Power Capacity: {int(context.Hot_Shot_Stats[2]/10)}")
-                context.logger.info(f"     Dash Speed: {context.Hot_Shot_Stats[3]:.2f}")
+                context.logger.info( "-------Hot Shot Stats-------")
+                context.logger.info(f"Health: {context.Hot_Shot_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Hot_Shot_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Hot_Shot_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Hot_Shot_Stats[3]:.2f}")
                 context.logger.info(f"Powerlinx Regen: {context.Hot_Shot_Stats[4]:.2f}")
-                context.logger.info("       Red Alert Stats:")
-                context.logger.info(f"         Health: {context.Red_Alert_Stats[0]:.2f}")
-                context.logger.info(f"         Height: {context.Red_Alert_Stats[1]:.2f}")
-                context.logger.info(f" Power Capacity: {int(context.Red_Alert_Stats[2]/10)}")
-                context.logger.info(f"     Dash Speed: {context.Red_Alert_Stats[3]:.2f}")
+                context.logger.info( "------Red Alert Stats-------")
+                context.logger.info(f"Health: {context.Red_Alert_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Red_Alert_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Red_Alert_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Red_Alert_Stats[3]:.2f}")
                 context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
+                context.logger.info("")
             
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago
@@ -230,7 +239,8 @@ async def game_loop(context: Transformers04Context):
                 for x in context.items_received:
                     if x.item >= 160:
                         level = x.item - 160
-                        if level == 7 and context.bosses_mode:
+                        #if level == 7 and context.bosses_mode:
+                        if level == 7 and not context.unicron_requirements_met:
                             context.cybertron_unlocked = True
                         else:
                             context.output(f"Unlocking Level {database.Level_Name[level]}")
@@ -265,8 +275,13 @@ async def game_loop(context: Transformers04Context):
                 #if we picked up the unicron level unlock (cybertron unlocked), killed all bosses, and have not
                 #   unlocked cybertron yet, then unlock cybertron
                 if context.bosses_killed and context.cybertron_unlocked and not context.bosses_goal_done:
-                    memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
+                    #memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
                     context.bosses_goal_done = True
+                if context.minicons_done and context.bosses_goal_done and not context.unicron_requirements_met:
+                    context.unicron_requirements_met = True
+            else:
+                if context.minicons_done and not context.unicron_requirements_met:
+                    context.unicron_requirements_met = True
             
             
             #check if new location was checked and if so, send the ID to Archipelago
@@ -323,10 +338,12 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
+                        context.minicons_collected += 1
+                        if context.minicons_collected >= context.minicons_required:
+                            context.minicons_done = True
                     
                     case ItemType.datacon:
                         memory_manager.unlock_datacon(item_id)
-                        continue
                     
                     # case ItemType.level_unlock:
                         # context.level_unlock_detected = True

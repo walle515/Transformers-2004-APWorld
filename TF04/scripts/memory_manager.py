@@ -70,13 +70,13 @@ class PineCommand(IntEnum):
 
 class CheatIndex(IntEnum):
     cheat_reset = 0
-    cheat_tractor = 0x15
-    cheat_powerlink = 0x16
-    cheat_immortal = 0x19
-    cheat_oneshot = 0x1A
-    cheat_enemystealth = 0x1B
-    cheat_bighead = 0x1C
-    cheat_turbo = 0x1D
+    cheat_tractor = 0x14
+    cheat_powerlink = 0x15
+    cheat_immortal = 0x18
+    cheat_oneshot = 0x19
+    cheat_enemystealth = 0x1A
+    cheat_bighead = 0x1B
+    cheat_turbo = 0x1C
 
 class MissionStatus(IntEnum):
     status_normal = 0
@@ -160,7 +160,7 @@ def cheat_toggle(cheat_index: int, cheat_state: bool):
         pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_bighead, 0)
         pcsx2.write_int8(GameAddress.gameadd_cheats + CheatIndex.cheat_turbo, 0)
     else:
-        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index + 0x34, cheat_state)
+        pcsx2.write_int8(GameAddress.gameadd_cheats + cheat_index, cheat_state)
 
 
 def set_mission_status(status_index: int):
