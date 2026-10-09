@@ -68,7 +68,7 @@ The first time you open Exodus, you will need to make a folder somewhere for it 
 ## Creating the Rebuilt ISO
 1. Download the patch file (file extension `.aptf`) from your Archipelago Room
 2. Open Exodus and go to the `Randomizer` tab. If you get an error, its likely because you did not unpack the game first. You will know you did the setup right if you see a few files load on the left.
-3. Select `Import Placements` and `Automatically Build`, then if you have 'Add Starting Location' on, select `Beginner Weapon`
+3. Select `Import Placements`, `Automatically Build`, and `Beginner Weapon`
 4. Press the `Randomize` Button. The first time, it will ask for an output Folder, and you can set it to the same folder as the one you made in setup.
 5. You should be prompted to select the patch file you downloaded. This will unzip it into a folder as it imports it, so if you see the file and a folder with the same name, its normal.
 6. You should then be prompted to select the original game ISO again. This allows Exodus to copy the files, then edit them based on the imported settings and any other adjustments made by Exodus.
