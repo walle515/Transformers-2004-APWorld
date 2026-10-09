@@ -75,7 +75,6 @@ class Transformers04World(World):
         random_num = self.random.randint(0,65535)
         data = {
             location.name: location.item
-            if location.item.player == self.player else "Remote"
             for location in self.multiworld.get_filled_locations(self.player)
         }
         
