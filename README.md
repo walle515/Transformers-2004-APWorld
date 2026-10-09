@@ -94,3 +94,11 @@ If you need to quit and come back later, follow the same process as above. It wi
 - **Eclipse**: Created Exodus and All game modification
 - **Wirebot**: Created Archipelago Minicon Model/Animation and Datacon Icon
 - **bbats**: Created Blender VBIN Addon to import/export models and animations for the game
+
+**Initial Testers**
+- CokeMilk
+- Eclipse
+- Meches
+- SkullAdult
+- TheGreenTyphoon
+- Wirebot
