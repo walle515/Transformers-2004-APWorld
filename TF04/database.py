@@ -472,6 +472,7 @@ Slipstream_Locations = [
     "Deep Amazon-Patrolling Dropship",
     "Mid Atlantic-Distant Island",
     "Alaska-Along the Canyon",
+    "Alaska-Dropship Island",
     "Pacific Island-Moai",
     "Pacific Island-Back of the Volcano",
     "Pacific Island-Volcano Path",

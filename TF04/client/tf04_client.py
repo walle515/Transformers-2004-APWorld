@@ -42,6 +42,7 @@ class Transformers04Context(CommonContext):
         
         self.game_completion = False
         self.minicons_required = 0
+        self.minicons_collected = 0
         
         self.logger = logging.getLogger("Client")
         self.archi_connected = asyncio.Event()
@@ -63,6 +64,7 @@ class Transformers04Context(CommonContext):
         self.last_item_index = 0
         self.big_head = False
         self.big_head_status = False
+        self.big_head_count = 0
         
         self.random_level_enabled = False
         self.powerlink_enabled = False
@@ -162,6 +164,7 @@ async def game_loop(context: Transformers04Context):
     num_unlocked_levels = 0
     amazon_first = False
     self_pickup = False
+    context.minicons_collected = 0
     
     
     #Game Loop
@@ -257,9 +260,12 @@ async def game_loop(context: Transformers04Context):
                         context.output(f"Marking Level {database.Level_Name[level]} Complete")
                         memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
                 if context.big_head_status:
-                    context.output("Disabling Big Head")
-                    context.big_head_status = False
-                    memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, False)
+                    if context.big_head_count > 0:
+                        context.big_head_count -= 1
+                    if context.big_head_count == 0:
+                        context.output("Disabling Big Head")
+                        context.big_head_status = False
+                        memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, False)
                 if context.big_head:
                     context.output("Enabling Big Head")
                     context.big_head = False
@@ -355,7 +361,7 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
-                        # context.minicons_collected += 1
+                        context.minicons_collected += 1
                         # if context.minicons_collected >= context.minicons_required:
                             # context.minicons_done = True
                     
@@ -371,6 +377,7 @@ async def game_loop(context: Transformers04Context):
                         elif item_id == 2 and item_index > context.last_item_index:   #big head
                             #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                             context.big_head = True
+                            context.big_head_count += 1
                         elif item_id == 3 and item_index > context.last_item_index:   #Stealth Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),context))
                         elif item_id == 4 and item_index > context.last_item_index:   #Freeze Trap
