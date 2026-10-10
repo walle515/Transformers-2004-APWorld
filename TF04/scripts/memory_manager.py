@@ -223,7 +223,7 @@ def write_initial_values(context):
 
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement, 0x0000802D) # daddu s0, zero, zero #at this point, s0 is safe. we can use it to load the current location
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x4, 0x3C0201FB) # lui v0, 1FB 
-    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x8, 0x2442EDF4) # addiu v0, EDF4 #Set target read location to 1FAEDE0
+    pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x8, 0x2442EEF4) # addiu v0, EEF4 #Set target read location to 1FAEEF4
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0xC, 0xAC400004) # sw zero, 4(v0) #reset the process complete
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x10, 0xAC520000) # sw s2, 0(v0) <- loop to here #store the current pickup pointer for Archi to grab
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_replacement+0x14, 0x8C500004) # lw s0 4(v0) #when the client processes the s2 value, write the pass/fail at v0+8 and the process complete at v0+4
