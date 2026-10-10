@@ -80,7 +80,7 @@ async def apply_effect(effect: GameEffect, context):
     elif effect.duration < 0:
         return
     #skip over exactly 0, since that's handled below as an instant effect
-    await asyncio.sleep(0.05) #we wait a fraction of a second so the game will have a chance to read the value we wrote
+    await asyncio.sleep(0.1) #we wait a fraction of a second so the game will have a chance to read the value we wrote
 
     if effect.effect_style == EffectStyle.style_cheat:
         memman.cheat_toggle(effect.value, False)

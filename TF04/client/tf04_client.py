@@ -165,6 +165,7 @@ async def game_loop(context: Transformers04Context):
     amazon_first = False
     self_pickup = False
     context.minicons_collected = 0
+    context.powerlink_enabled = False
     
     
     #Game Loop
@@ -238,9 +239,10 @@ async def game_loop(context: Transformers04Context):
                         amazon_first = True
                     elif num_unlocked_levels == 1 and x.item != database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
                         amazon_first = False
-            if (context.random_level_enabled and not amazon_first) or num_unlocked_levels >= 2:
+            if ((context.random_level_enabled and not amazon_first) or num_unlocked_levels >= 2) and not context.powerlink_enabled:
                 #Unlock Power Link
                 memory_manager.execute_command((PineCommand.comm_unlock_sidekick,), context)
+                context.powerlink_enabled = True
             
             #If in HQ and were not previously, unlock all available levels, then handle Big Head Mode if needed
             if context.in_HQ and not context.previous_HQ:
