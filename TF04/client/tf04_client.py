@@ -308,7 +308,7 @@ async def game_loop(context: Transformers04Context):
                     location_info = context.locations_info.get(loc_id)
                     if location_info.player != context.slot:
                         context.cybertron_minicons -= 1
-                    else if location_info.item >= 150:
+                    else if location_info.item >= 153 && loc_id < 9000:
                         context.cybertron_minicons -= 1
                     result = await context.check_locations([loc_id])
                     text = ", ".join(str(item) for item in result)
