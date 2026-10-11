@@ -312,8 +312,12 @@ def unlock_minicon(minicon_id: int):
     pcsx2.write_int64(GameAddress.gameadd_minicon_unlocks, new_inventory)
     return 0
 
-def adjust_cybertron_count(num : int):
-    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, num)
+def adjust_cybertron_count(minicon_count : int):
+    total_collected = 0
+    for i in range(7):
+        episode_collected = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + (i * 0x4C) + 0x44)
+        total_collected += episode_collected
+    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, minicon_count - total_collected)
 
 
 def unlock_datacon(datacon_id: int):
