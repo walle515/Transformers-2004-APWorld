@@ -36,6 +36,7 @@ class GameAddress(IntEnum):
     gameadd_minicon_unlocks = 0x7173C0 #64-bit integer
     gameadd_datacon_unlocks = 0x7170E0 #64-bit integer
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
+    gameadd_cybertron_mini_count = gameadd_level_unlocks + (0x4C*7) + 0x44
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
     gameadd_cheat_instance = 0x6CFDF3
@@ -310,6 +311,14 @@ def unlock_minicon(minicon_id: int):
     new_inventory = old_inventory | bit
     pcsx2.write_int64(GameAddress.gameadd_minicon_unlocks, new_inventory)
     return 0
+
+def adjust_cybertron_count(increase: bool):
+    current_count = pcsx2.read_int32(GameAddress.gameadd_cybertron_mini_count)
+    if increase:
+        current_count += 1
+    else:
+        current_count -= 1
+    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, current_count)
 
 
 def unlock_datacon(datacon_id: int):

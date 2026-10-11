@@ -363,6 +363,7 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
+                        memory_manager.adjust_cybertron_count(True)
                         context.minicons_collected += 1
                         # if context.minicons_collected >= context.minicons_required:
                             # context.minicons_done = True
