@@ -42,7 +42,7 @@ class Transformers04Context(CommonContext):
         
         self.game_completion = False
         self.minicons_required = 0
-        self.cybertron_minicons = 0
+        self.minicons_collected = 0
         
         self.logger = logging.getLogger("Client")
         self.archi_connected = asyncio.Event()
@@ -165,7 +165,8 @@ async def game_loop(context: Transformers04Context):
     amazon_first = False
     self_pickup = False
     context.powerlink_enabled = False
-    last_cybertron_minicons = 0
+    last_minicons = 0
+    context.minicons_collected = 0
     
     
     #Game Loop
@@ -305,11 +306,6 @@ async def game_loop(context: Transformers04Context):
                 if loc_id == 9008:
                     asyncio.create_task(Archipelago_Completed(context))
                 else:
-                    location_info = context.locations_info.get(loc_id)
-                    if location_info.player != context.slot:
-                        context.cybertron_minicons -= 1
-                    elif location_info.item >= 153 and loc_id < 9000:
-                        context.cybertron_minicons -= 1
                     result = await context.check_locations([loc_id])
                     text = ", ".join(str(item) for item in result)
                     context.output(f"check_locations returned: {text}, Should be {str(loc_id)}")
@@ -365,8 +361,7 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
-                        if not self_pickup:
-                            context.cybertron_minicons += 1
+                        context.minicons_collected += 1
                         # if context.minicons_collected >= context.minicons_required:
                             # context.minicons_done = True
                     
@@ -414,9 +409,9 @@ async def game_loop(context: Transformers04Context):
                 if context.sent_death and current_health > 0:
                     context.sent_death = False
             
-            if context.cybertron_minicons != last_cybertron_minicons:
-                memory_manager.adjust_cybertron_count(context.cybertron_minicons)
-                last_cybertron_minicons = context.cybertron_minicons
+            if context.minicons_collected != last_minicons:
+                memory_manager.adjust_cybertron_count(context.minicons_collected)
+                last_minicons = context.minicons_collected
             
         await asyncio.sleep(0.1)
     
