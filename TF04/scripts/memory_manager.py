@@ -312,13 +312,8 @@ def unlock_minicon(minicon_id: int):
     pcsx2.write_int64(GameAddress.gameadd_minicon_unlocks, new_inventory)
     return 0
 
-def adjust_cybertron_count(increase: bool):
-    current_count = pcsx2.read_int32(GameAddress.gameadd_cybertron_mini_count)
-    if increase:
-        current_count += 1
-    else:
-        current_count -= 1
-    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, current_count)
+def adjust_cybertron_count(num : int):
+    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, num)
 
 
 def unlock_datacon(datacon_id: int):
