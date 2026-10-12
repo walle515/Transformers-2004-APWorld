@@ -410,7 +410,7 @@ async def game_loop(context: Transformers04Context):
                     context.sent_death = False
             
             if context.minicons_collected != last_minicons:
-                memory_manager.adjust_cybertron_count(context.minicons_collected)
+                memory_manager.adjust_cybertron_count(context)
                 last_minicons = context.minicons_collected
             
         await asyncio.sleep(0.1)
