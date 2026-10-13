@@ -57,8 +57,10 @@ def __init__():
                                   , memman.MissionStatus.status_stasis_lock, 0))
 
 def get_effect(effect_name: str) -> GameEffect:
+    print("Searching for effect from list of " + str(len(effect_list)) + " effects")
     for effect in effect_list:
         if effect.name == effect_name:
+            print("Effect found")
             return effect
     return GameEffect("NULL", False, EffectStyle.style_invalid, 0, 0)
 

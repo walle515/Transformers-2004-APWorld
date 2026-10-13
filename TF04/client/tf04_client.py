@@ -358,8 +358,8 @@ async def game_loop(context: Transformers04Context):
                     item_id -= 160
                 
                 #give the item based on the type of item
+                print("Item type: " + str(ItemType))
                 match item_type:
-                    
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
                         context.minicons_collected += 1
@@ -375,6 +375,7 @@ async def game_loop(context: Transformers04Context):
                         # context.level_unlock_detected = True
                     
                     case ItemType.special:
+                        print("Special item found. ID: " + str(item_id))
                         if item_id == 1:    #Health Drop
                             memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
                         elif item_id == 2 and item_index > context.last_item_index:   #big head
