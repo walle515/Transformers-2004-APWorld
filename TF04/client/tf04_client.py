@@ -320,6 +320,7 @@ async def game_loop(context: Transformers04Context):
                             memory_manager.checked_locations.append(6999)
                         if loc_id in database.Reverse_Linked_Locations:
                             memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc_id])
+                memory_manager.adjust_cybertron_count(context)
                 del memory_manager.unhandled_locations[0]
                 
                 
@@ -362,6 +363,8 @@ async def game_loop(context: Transformers04Context):
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
                         context.minicons_collected += 1
+                        if not self_pickup:
+                            memory_manager.adjust_cybertron_count(context)
                         # if context.minicons_collected >= context.minicons_required:
                             # context.minicons_done = True
                     
@@ -409,9 +412,9 @@ async def game_loop(context: Transformers04Context):
                 if context.sent_death and current_health > 0:
                     context.sent_death = False
             
-            if context.minicons_collected != last_minicons:
-                memory_manager.adjust_cybertron_count(context)
-                last_minicons = context.minicons_collected
+            # if context.minicons_collected != last_minicons:
+                # memory_manager.adjust_cybertron_count(context)
+                # last_minicons = context.minicons_collected
             
         await asyncio.sleep(0.1)
     

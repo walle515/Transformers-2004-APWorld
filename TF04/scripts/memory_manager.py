@@ -318,7 +318,9 @@ def adjust_cybertron_count(context):
         episode_collected = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + (i * 0x4C) + 0x44)
         context.output(f"{database.Level_Name[i]}: {episode_collected}")
         total_collected += episode_collected
-    pcsx2.write_int32(GameAddress.gameadd_cybertron_mini_count, context.minicons_collected - total_collected)
+    context.output(f"Actual Minicons Collected: {context.minicons_collected}")
+    context.output(f"Cybertron: {context.minicons_collected - total_collected}")    
+    pcsx2.write_signed_int32(GameAddress.gameadd_cybertron_mini_count, context.minicons_collected - total_collected)
 
 
 def unlock_datacon(datacon_id: int):

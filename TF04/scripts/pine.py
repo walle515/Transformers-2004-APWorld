@@ -156,6 +156,11 @@ class Pine:
         request = Pine._create_request(Pine.IPCCommand.WRITE32, address, 9 + Pine.DataSize.INT32)
         request += value.to_bytes(length=4, byteorder="little")
         self._send_request(request)
+        
+    def write_signed_int32(self, address: int, value: int) -> None:
+        request = Pine._create_request(Pine.IPCCommand.WRITE32, address, 9 + Pine.DataSize.INT32)
+        request += value.to_bytes(length=4, byteorder="little", signed=True)
+        self._send_request(request)
 
     def write_int64(self, address: int, value: int) -> None:
         request = Pine._create_request(Pine.IPCCommand.WRITE64, address, 9 + Pine.DataSize.INT64)
