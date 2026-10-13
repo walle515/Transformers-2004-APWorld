@@ -255,6 +255,17 @@ def write_initial_values(context):
     context.Red_Alert_Stats[2] = pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x8)
     context.Red_Alert_Stats[3] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x108))
     context.Red_Alert_Stats[4] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_RedAlert_Stats + 0x1E0))
+    
+    
+    #check if any minicon locations have been checked if the checked_locations list is not empty
+    if len(checked_locations) > 0:
+        total_collected = 0
+        for i in range(7):
+            episode_collected = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + (i * 0x4C) + 0x44)
+            total_collected += episode_collected
+        if total_collected <= 0:
+            checked_locations.clear()
+    
 
 def unlock_episode(episode_id: int, context):
     #using the ID, set the level to Available and the first warpgate to Unlocked
