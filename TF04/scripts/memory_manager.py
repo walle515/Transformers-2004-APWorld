@@ -39,7 +39,7 @@ class GameAddress(IntEnum):
     gameadd_cybertron_mini_count = gameadd_level_unlocks + (0x4C*7) + 0x44
     gameadd_episode_function = 0x351B0C
     gameadd_pickup_spawn_check = 0x379EF8
-    gameadd_cheat_instance = 0x6CFDF3
+    gameadd_cheat_instance = 0x6CFDF0
     #gameadd_cheats = 0x8F04B4
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
