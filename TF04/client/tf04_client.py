@@ -114,6 +114,8 @@ class Transformers04Context(CommonContext):
     def output(self, text: str):
         if self.debug_mode:
             self.logger.info(text)
+        else:
+            print(text)
         
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
@@ -358,7 +360,7 @@ async def game_loop(context: Transformers04Context):
                     item_id -= 160
                 
                 #give the item based on the type of item
-                print("Item type: " + str(ItemType))
+                print("Item type: " + str(item_type))
                 match item_type:
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
