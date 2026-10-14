@@ -360,7 +360,6 @@ async def game_loop(context: Transformers04Context):
                     item_id -= 160
                 
                 #give the item based on the type of item
-                print("Item type: " + str(item_type))
                 match item_type:
                     case ItemType.minicon:
                         memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
@@ -376,7 +375,6 @@ async def game_loop(context: Transformers04Context):
                         # context.level_unlock_detected = True
                     
                     case ItemType.special:
-                        print("Special item found. ID: " + str(item_id))
                         if item_id == 1:    #Health Drop
                             memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
                         elif item_id == 2 and item_index > context.last_item_index:   #big head
@@ -384,7 +382,8 @@ async def game_loop(context: Transformers04Context):
                             context.big_head = True
                             context.big_head_count += 1
                         elif item_id == 3 and item_index > context.last_item_index:   #Stealth Trap
-                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapEnemyStealth"),context))
+                            stealth_trap = Effects.get_effect("TrapEnemyStealth")
+                            asyncio.create_task(Effects.apply_effect(stealth_trap,context))
                         elif item_id == 4 and item_index > context.last_item_index:   #Freeze Trap
                             asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),context))
                         # elif item_id == 5 and item_index > context.last_item_index:   #warp trap

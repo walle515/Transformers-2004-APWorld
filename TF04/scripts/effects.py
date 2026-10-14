@@ -31,7 +31,7 @@ class GameEffect:
 
 effect_list: list[GameEffect] = []
 
-def __init__():
+def initialize_effects():
     #Create all effects here
     # These first two serve as resets, in case we ever need to ensure that no effects are active
     # The other effects should automatically reset themselves once their timers wear off
@@ -57,10 +57,8 @@ def __init__():
                                   , memman.MissionStatus.status_stasis_lock, 0))
 
 def get_effect(effect_name: str) -> GameEffect:
-    print("Searching for effect from list of " + str(len(effect_list)) + " effects")
     for effect in effect_list:
         if effect.name == effect_name:
-            print("Effect found")
             return effect
     return GameEffect("NULL", False, EffectStyle.style_invalid, 0, 0)
 
@@ -70,13 +68,13 @@ async def apply_effect(effect: GameEffect, context):
         memman.cheat_toggle(effect.value, True)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(effect.value)
-
     if effect.duration > 0:
         time_remaining = effect.duration
         #await sleep(18)
         #await sleep(effect.duration)
         while (time_remaining > 0):
-            if (not (pcsx2.read_int32(0x006CFB94) & 0x1)) and (not context.inHQ):
+            is_in_cutscene = pcsx2.read_int32(memman.GameAddress.gameadd_cutscene_active) & 0x1
+            if (not is_in_cutscene) and (not context.in_HQ):
                 time_remaining -= 0.1
             await sleep(0.1)
     elif effect.duration < 0:
@@ -88,3 +86,5 @@ async def apply_effect(effect: GameEffect, context):
         memman.cheat_toggle(effect.value, False)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(memman.MissionStatus.status_normal)
+
+initialize_effects()
