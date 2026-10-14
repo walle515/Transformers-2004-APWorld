@@ -39,6 +39,7 @@ class GameAddress(IntEnum):
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
     gameadd_cybertron_mini_count = gameadd_level_unlocks + (0x4C*7) + 0x44
     gameadd_cheat_instance = 0x6CFDF0
+    gameadd_cutscene_active = 0x6CFB94
     #gameadd_cheats = 0x8F04B4
     gameadd_mission_status = 0x0716FA8
     gameadd_player_health = 0x00716FB4
@@ -50,8 +51,8 @@ class GameAddress(IntEnum):
 
 class CleanAddress(IntEnum):
     cleanadd_level_unlocked = 0x1FAEE00
-    cleanadd_pickup_spawn_complete = CodeAddress.codeadd_pickup_spawn_check - 0x8
-    cleanadd_pickup_spawn_pointer = CodeAddress.codeadd_pickup_spawn_check - 0xC
+    cleanadd_pickup_spawn_complete = CodeAddress.cleanadd_pickup_spawn_custom - 0x8
+    cleanadd_pickup_spawn_pointer = CodeAddress.cleanadd_pickup_spawn_custom - 0xC
     cleanadd_pickup_collect_pointer = CodeAddress.codeadd_pickup_collected - 0x10
     cleanadd_pickup_collect_complete = CodeAddress.codeadd_pickup_collected - 0x8
     cleanadd_pickup_collect_dospawn = CodeAddress.codeadd_pickup_collected - 0x4
@@ -401,6 +402,7 @@ async def monitor_ram(context):
     global checked_locations
     global unhandled_locations
     init_values_written = False
+    code_written = False
     
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
@@ -417,6 +419,7 @@ async def monitor_ram(context):
 
     write_code_mods() #writing the mods so the player doesn't get softlocked and can return to HQ
     #had this happen to me during testing
+    code_written = True
     
     #await asyncio.sleep(1)
     #pine_is_connected = True #tell client pine is connected
@@ -425,11 +428,14 @@ async def monitor_ram(context):
     while True:
         if context.in_HQ and not init_values_written:
             handle_initial_values(context)
-            write_code_mods()
             init_values_written = True
             await asyncio.sleep(1)
             pine_is_connected = True #tell client pine is connected
         
+        if not code_written:
+            write_code_mods()
+            code_written = True
+
         mode = 'Auto' #'Manual' #
         if mode == 'Manual':
             command = get_user_command()
@@ -442,6 +448,7 @@ async def monitor_ram(context):
             print("PINE Disconnected, attempting reconnect")
             context.output("PINE Disconnected, attempting reconnect")
             pcsx2.connect()
+            code_written = False
             await asyncio.sleep(1)
         
         await asyncio.sleep(0.02)
