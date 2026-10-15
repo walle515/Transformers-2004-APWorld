@@ -115,7 +115,7 @@ class Transformers04Context(CommonContext):
         if self.debug_mode:
             self.logger.info(text)
         else:
-            print(text)
+            slef.logger.debug(f"Debug (Not in client?): {text}")
         
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
