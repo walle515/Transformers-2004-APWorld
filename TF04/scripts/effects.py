@@ -63,6 +63,7 @@ def get_effect(effect_name: str) -> GameEffect:
     return GameEffect("NULL", False, EffectStyle.style_invalid, 0, 0)
 
 async def apply_effect(effect: GameEffect, context):
+    context.output(f"Attempting Effect: {effect.name}")
     time_remaining = 0.0
     if effect.effect_style == EffectStyle.style_cheat:
         memman.cheat_toggle(effect.value, True)
@@ -86,5 +87,6 @@ async def apply_effect(effect: GameEffect, context):
         memman.cheat_toggle(effect.value, False)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(memman.MissionStatus.status_normal)
+    context.output(f"Effect Complete: {effect.name}")
 
 initialize_effects()
