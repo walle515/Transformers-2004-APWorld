@@ -203,12 +203,7 @@ def handle_initial_values(context):
     
     #check if any minicon locations have been checked if the checked_locations list is not empty
     if len(checked_locations) > 0:
-        total_collected = 0
-        for i in range(7):
-            episode_collected = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + (i * 0x4C) + 0x44)
-            total_collected += episode_collected
-        if total_collected <= 0:
-            checked_locations.clear()
+        checked_locations.clear()
     
 
 def unlock_episode(episode_id: int, context):
