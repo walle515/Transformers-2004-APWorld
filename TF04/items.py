@@ -338,6 +338,7 @@ def create_all_items(world: Transformers04World) -> None:
                 itempool.append(world.create_item("Alaska Level Unlock"))
             if rand_num_2 != 5:
                 itempool.append(world.create_item("Pacific Island Level Unlock"))
+            itempool.append(world.create_item("Starship Level Unlock"))
             itempool.append(world.create_item("Unicron Level Unlock"))
     else:
         amazon_boss = world.get_location("Amazon Boss")
