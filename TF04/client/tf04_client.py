@@ -381,8 +381,8 @@ async def game_loop(context: Transformers04Context):
                     
                     case ItemType.level_unlock:
                         if context.in_HQ:
-                            context.output(f"Unlocking Level {database.Level_Name[level]}")
-                            memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
+                            context.output(f"Unlocking Level {database.Level_Name[item_id]}")
+                            memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
                     
                     case ItemType.special:
                         if item_id == 1:    #Health Drop
