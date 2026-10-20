@@ -8,8 +8,8 @@ class CodeAddress(IntEnum):
     cleanadd_pickup_spawn_custom = 0x1FAEF00
 
 def remove_pickup_limit():
-    # increase PickupPlaced limit from 13 to 20 (0x14)
-    pcsx2.write_int32(0x379534, 0x2A230014)
+    # increase PickupPlaced limit from 13 to 32 (0x14)
+    pcsx2.write_int32(0x379534, 0x2A230020)
 
 def remove_slipstream_cutscene():
     # Fix Slipstream pickup (remove check for special camera script)
