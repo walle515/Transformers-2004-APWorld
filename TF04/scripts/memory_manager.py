@@ -51,11 +51,11 @@ class GameAddress(IntEnum):
 
 class CleanAddress(IntEnum):
     cleanadd_level_unlocked = 0x1FAEE00
+    cleanadd_pickup_spawn_dospawn = CodeAddress.cleanadd_pickup_spawn_custom - 0x4
     cleanadd_pickup_spawn_complete = CodeAddress.cleanadd_pickup_spawn_custom - 0x8
     cleanadd_pickup_spawn_pointer = CodeAddress.cleanadd_pickup_spawn_custom - 0xC
     cleanadd_pickup_collect_pointer = CodeAddress.codeadd_pickup_collected - 0x10
     cleanadd_pickup_collect_complete = CodeAddress.codeadd_pickup_collected - 0x8
-    cleanadd_pickup_collect_dospawn = CodeAddress.codeadd_pickup_collected - 0x4
 
 class PineCommand(IntEnum):
     comm_nothing = 0
@@ -302,7 +302,7 @@ def check_valid_spawn(target_address: int, context):
     read_values.append(pcsx2.read_int32(target_address + 0xB4))
     read_values.append(pcsx2.read_int32(target_address + 0xB8))
     location = get_location_id(read_values)
-    print("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
+    #context.output("Location ID read as: " + str(location) + ". Check against Archipelago unlock list.")
 
     experimental_id = pcsx2.read_int32(target_address + 0xD0)
     if experimental_id > 65535 or experimental_id == 0:
@@ -316,9 +316,9 @@ def check_valid_spawn(target_address: int, context):
     #if the location's value is 0, that means it's been wiped before during a pickup activation
     #this will prevent double-collections caused by cached reloads
     if location in checked_locations or location == 0:
-        pcsx2.write_int32(CleanAddress.cleanadd_pickup_collect_dospawn, 1)
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_dospawn, 1)
     else:
-        pcsx2.write_int32(CleanAddress.cleanadd_pickup_collect_dospawn, 0)
+        pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_dospawn, 0)
     # write the process complete so the game breaks out of the loop
     # keep an eye on this, we may need the game to reset this value before entering the loop
     pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_complete, 1)
