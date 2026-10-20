@@ -45,6 +45,8 @@ class Transformers04Context(CommonContext):
         self.minicons_collected = 0
         
         self.logger = logging.getLogger("Client")
+        self.cli_log = logging.getLogger("tf04_client")
+        self.memman_log = logging.getLogger("memory_manager")
         self.archi_connected = asyncio.Event()
         self.debug_mode = False
         
@@ -115,7 +117,13 @@ class Transformers04Context(CommonContext):
         if self.debug_mode:
             self.logger.info(text)
         else:
-            slef.logger.debug(f"Debug (Not in client?): {text}")
+            self.cli_log.info(text)
+            
+    def memman_out(self, text: str):
+        if self.debug_mode:
+            self.logger.info(text)
+        else:
+            self.memman_log(text)
         
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
@@ -371,8 +379,10 @@ async def game_loop(context: Transformers04Context):
                     case ItemType.datacon:
                         memory_manager.unlock_datacon(item_id)
                     
-                    # case ItemType.level_unlock:
-                        # context.level_unlock_detected = True
+                    case ItemType.level_unlock:
+                        if context.in_HQ:
+                            context.output(f"Unlocking Level {database.Level_Name[level]}")
+                            memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
                     
                     case ItemType.special:
                         if item_id == 1:    #Health Drop
@@ -381,6 +391,11 @@ async def game_loop(context: Transformers04Context):
                             #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
                             context.big_head = True
                             context.big_head_count += 1
+                            if context.in_HQ:
+                                context.output("Enabling Big Head")
+                                context.big_head = False
+                                context.big_head_status = True
+                                memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
                         elif item_id == 3 and item_index > context.last_item_index:   #Stealth Trap
                             stealth_trap = Effects.get_effect("TrapEnemyStealth")
                             asyncio.create_task(Effects.apply_effect(stealth_trap,context))

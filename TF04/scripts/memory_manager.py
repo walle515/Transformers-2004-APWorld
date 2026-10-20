@@ -147,7 +147,7 @@ def read_pickup_location(target_address: int, context):
     location = get_location_id(read_values)
     #checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
-    context.output("Location ID read as: " + str(location) + ". Send to Archipelago.")
+    context.memman_out("Location ID read as: " + str(location) + ". Send to Archipelago.")
     send_location(location)
     return location
 
@@ -211,15 +211,15 @@ def unlock_episode(episode_id: int, context):
     if episode_id > 7 or episode_id < 0:
         #invalid episode ID. No can do
         print("Invalid episode ID " + str(episode_id) + " provided.")
-        context.output("Invalid episode ID " + str(episode_id) + " provided.")
+        context.memman_out("Invalid episode ID " + str(episode_id) + " provided.")
         return
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
     print("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
-    context.output("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.memman_out("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
-        context.output("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already unlocked.")
+        context.memman_out("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already unlocked.")
     else:
         unlock_byte |= 0x1
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
@@ -230,15 +230,15 @@ def complete_episode(episode_id: int, context):
     if episode_id > 7 or episode_id < 0:
         #invalid episode ID. No can do
         print("Invalid episode ID " + str(episode_id) + " provided.")
-        context.output("Invalid episode ID " + str(episode_id) + " provided.")
+        context.memman_out("Invalid episode ID " + str(episode_id) + " provided.")
         return
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
     print("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
-    context.output("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.memman_out("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x2:
         print("Level " + str(episode_id) + " is already completed.")
-        context.output("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already completed.")
+        context.memman_out("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already completed.")
     else:
         if episode_id != 3 and episode_id != 5:
             unlock_byte |= 0b1000010
@@ -266,10 +266,10 @@ def adjust_cybertron_count(context):
     total_collected = 0
     for i in range(7):
         episode_collected = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + (i * 0x4C) + 0x44)
-        context.output(f"{database.Level_Name[i]}: {episode_collected}")
+        context.memman_out(f"{database.Level_Name[i]}: {episode_collected}")
         total_collected += episode_collected
-    context.output(f"Actual Minicons Collected: {context.minicons_collected}")
-    context.output(f"Cybertron: {context.minicons_collected - total_collected}")    
+    context.memman_out(f"Actual Minicons Collected: {context.minicons_collected}")
+    context.memman_out(f"Cybertron: {context.minicons_collected - total_collected}")    
     pcsx2.write_signed_int32(GameAddress.gameadd_cybertron_mini_count, context.minicons_collected - total_collected)
 
 
@@ -406,7 +406,7 @@ async def monitor_ram(context):
     #Created a loop to try to connect to the game
     while not (pcsx2.is_connected() and pcsx2.get_game_id() in game_codes):
         print("PCSX2 Failed to connect, trying again in 5 seconds")
-        context.output("PCSX2 Failed to connect, trying again in 5 seconds")
+        context.memman_out("PCSX2 Failed to connect, trying again in 5 seconds")
         await asyncio.sleep(5)
         pcsx2.connect()
     
@@ -441,7 +441,7 @@ async def monitor_ram(context):
         
         if not pcsx2.is_connected():
             print("PINE Disconnected, attempting reconnect")
-            context.output("PINE Disconnected, attempting reconnect")
+            context.memman_out("PINE Disconnected, attempting reconnect")
             pcsx2.connect()
             code_written = False
             await asyncio.sleep(1)
@@ -489,7 +489,7 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     if level_unlocks != 0:
         current_episode_index = pcsx2.read_int32(CleanAddress.cleanadd_level_unlocked+4)
         print("Episode " + str(current_episode_index) + " completed. Sending to Archipelago.")
-        context.output("Episode " + str(current_episode_index + 1) + " completed. Sending to Archipelago.")
+        context.memman_out("Episode " + str(current_episode_index + 1) + " completed. Sending to Archipelago.")
         send_location(9001+current_episode_index)
         #for now, just unlocking the next episode and reset the bit
         #unlock_episode(level_unlocks + 1)
