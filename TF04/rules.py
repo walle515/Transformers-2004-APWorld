@@ -60,6 +60,7 @@ def set_all_location_rules(world: Transformers04World) -> None:
                         rule_slip_high)
     
     world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
+    world.set_rule(world.get_Location("Amazon-Spidertank Triplets", rule_slipstream | rule_highjump)
     
     for location in database.Explosive_Locations:
         world.set_rule(world.get_location(location), rule_explosive)

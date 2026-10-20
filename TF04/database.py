@@ -529,7 +529,6 @@ Highjump_Locations = [
 ]
 
 Slipstream_Highjump = [
-    "Amazon-Spidertank Triplets",
     "Starship-Rock 1",
     "Starship-Rock 2",
     "Starship-Rock 3",
