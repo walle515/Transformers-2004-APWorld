@@ -123,7 +123,7 @@ class Transformers04Context(CommonContext):
         if self.debug_mode:
             self.logger.info(text)
         else:
-            self.memman_log(text)
+            self.memman_log.info(text)
         
     async def server_auth(self, password_requested: bool = False):
         if password_requested and not self.password:
