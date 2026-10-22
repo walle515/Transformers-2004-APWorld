@@ -49,7 +49,7 @@ def set_all_location_rules(world: Transformers04World) -> None:
     rule_explosive = (Has("Claymore") | Has("Failsafe") | Has("Flashbang") | Has("Hailstorm")
                      | Has("Lock-on") | Has("Watchdog") | Has("Slapshot"))
     rule_slip_explosive = rule_slipstream & rule_explosive
-    mid_atlantic_boss_rule = Has("Rangefinder") & rule_slipstream
+    mid_atlantic_boss_rule = (Has("Rangefinder") | Has("Lookout"))& rule_slipstream
     rule_all_levels = (Has("Amazon Level Unlock") &
                         Has ("Antarctica Level Unlock") &
                         Has ("Deep Amazon Level Unlock") & 
@@ -60,7 +60,7 @@ def set_all_location_rules(world: Transformers04World) -> None:
                         rule_slip_high)
     
     world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
-    world.set_rule(world.get_Location("Amazon-Spidertank Triplets", rule_slipstream | rule_highjump)
+    world.set_rule(world.get_Location("Amazon-Spidertank Triplets", rule_slipstream | rule_highjump))
     
     for location in database.Explosive_Locations:
         world.set_rule(world.get_location(location), rule_explosive)
