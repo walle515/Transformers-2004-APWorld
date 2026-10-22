@@ -53,7 +53,8 @@ class RandomizeLevels(Toggle):
     
 class GoalOption(Choice):
     """
-    Can choose between Unicron Killed or All Bosses Killed
+    Can choose between Unicron Killed or All Bosses Killed.
+    (All Bosses includes completing Alaska)
     """
     display_name = "Goal Option"
     
