@@ -58,9 +58,10 @@ def set_all_location_rules(world: Transformers04World) -> None:
                         Has ("Starship Level Unlock") &
                         Has ("Pacific Island Level Unlock") &
                         rule_slip_high)
+    rule_spidertank = rule_slipstream | rule_highjump
     
     world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
-    world.set_rule(world.get_Location("Amazon-Spidertank Triplets", rule_slipstream | rule_highjump))
+    world.set_rule(world.get_location("Amazon-Spidertank Triplets"), rule_spidertank)
     
     for location in database.Explosive_Locations:
         world.set_rule(world.get_location(location), rule_explosive)
