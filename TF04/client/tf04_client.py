@@ -109,6 +109,7 @@ class Transformers04Context(CommonContext):
             self.random_stats = slot_data.get("randomize_stats", False)
             
             self.minicons_required = slot_data.get("minicon_count", 0)
+            self.minicons_collected = 0
             
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
@@ -175,8 +176,7 @@ async def game_loop(context: Transformers04Context):
     amazon_first = False
     self_pickup = False
     context.powerlink_enabled = False
-    last_minicons = 0
-    context.minicons_collected = 0
+    
     
     
     #Game Loop
