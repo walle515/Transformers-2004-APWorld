@@ -147,7 +147,7 @@ def read_pickup_location(target_address: int, context):
     location = get_location_id(read_values)
     #checked_locations.append(location)
     print("Location ID read as: " + str(location) + ". Send to Archipelago.")
-    context.memman_out("Location ID read as: " + str(location) + ". Send to Archipelago.")
+    context.memman_log.info("Location ID read as: " + str(location) + ". Send to Archipelago.")
     send_location(location)
     return location
 
@@ -216,10 +216,10 @@ def unlock_episode(episode_id: int, context):
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
     print("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
-    context.memman_out("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.memman_log.info("Unlock byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x1:
         print("Level " + str(episode_id) + " is already unlocked.")
-        context.memman_out("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already unlocked.")
+        context.memman_log.info("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already unlocked.")
     else:
         unlock_byte |= 0x1
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset, unlock_byte)
@@ -235,10 +235,10 @@ def complete_episode(episode_id: int, context):
     episode_offset = episode_id * 0x4C
     unlock_byte = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset)
     print("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
-    context.memman_out("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
+    context.memman_log.info("Complete byte read as " + hex(unlock_byte) + " at address " + hex(GameAddress.gameadd_level_unlocks + episode_offset))
     if unlock_byte & 0x2:
         print("Level " + str(episode_id) + " is already completed.")
-        context.memman_out("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already completed.")
+        context.memman_log.info("Level " + str(episode_id) + " (" + database.Level_Name[episode_id] + ") is already completed.")
     else:
         if episode_id != 3 and episode_id != 5:
             unlock_byte |= 0b1000010
@@ -254,6 +254,7 @@ def unlock_minicon(minicon_id: int):
         # return -1
     if not minicon_id < 50:
         print("Minicon ID out of bounds")
+        context.memman_out("Minicon ID out of bounds")
         return -1
 
     bit = 0x1 << (minicon_id - 1)
@@ -280,7 +281,8 @@ def unlock_datacon(datacon_id: int):
         # print("Couldn't find minicon")
         # return -1
     if not datacon_id < 64:
-        print("Minicon ID out of bounds")
+        print("Datacon ID out of bounds")
+        context.memman_out("Datacon ID out of bounds")
         return -1
 
     bit = 0x1 << (datacon_id - 1)
@@ -401,6 +403,7 @@ async def monitor_ram(context):
     
     #This should be called from the main client to begin tracking unlocks and other information from PCSX2
     print("Starting PCSX2 RAM monitor.")
+    context.memman_out("Starting PINE Connection")
     pcsx2.connect() #if PCSX2 is not open, this will throw an error. TODO: handle this error in a way that's less disruptive
     
     #Created a loop to try to connect to the game

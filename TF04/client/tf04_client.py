@@ -58,6 +58,9 @@ class Transformers04Context(CommonContext):
         self.cybertron_unlocked = False
         self.bosses_mode = False
         self.bosses_goal_done = False
+        #Amazon, Antarctica, Deep Amazon, Mid Atlantic, Alaska, Starship, Pacific Island, Unicron
+        self.bosses_array = [False, False, False, False, False, False, False, False]
+        self.boss_storage_keys = []
         
         self.in_HQ = False
         self.first_HQ_visit = True
@@ -91,7 +94,8 @@ class Transformers04Context(CommonContext):
         super().on_deathlink(data)
     
     def on_package(self, cmd, args):
-        #self.output(f"on_package received: {cmd}")
+        super().on_package(cmd,args)
+        
         if cmd == "Connected":
             slot_data = args.get("slot_data", {})
             death_link_status = slot_data.get("death_link", False)
@@ -111,8 +115,25 @@ class Transformers04Context(CommonContext):
             self.minicons_required = slot_data.get("minicon_count", 0)
             self.minicons_collected = 0
             
+            self.boss_storage_keys = [
+                self.get_storage_key(f"Boss_{x}")
+                for x in range(len(self.bosses_array))
+            ]
+            self.set_notify(*self.boss_storage_keys)
+            asyncio.create_task(self.set_server_bosses())
+            
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
+        
+        elif cmd == "SetReply":
+            key = args.get("key")
+
+            if key in self.boss_storage_keys:
+                x = self.boss_storage_keys.index(key)
+                value = args["value"]
+
+                if isinstance(value, bool):
+                    self.bosses_array[x] = value
     
     def output(self, text: str):
         if self.debug_mode:
@@ -135,6 +156,37 @@ class Transformers04Context(CommonContext):
     async def connection_closed(self):
         self.archi_connected.clear()
         await super().connection_closed()
+        
+    def get_storage_key(self, variable: str) -> str:
+        return f"tf04_{self.seed_name}_{self.team}_{self.slot}_{variable}"
+        
+    async def set_server_variable(self, variable: str, value: bool):
+        key = self.get_storage_key(variable)
+        
+        await self.send_msgs([{
+            "cmd": "Set",
+            "key": key,
+            "default": value,
+            "want_reply": True,
+            "operations": [{
+                "operation": "replace",
+                "value": value
+            }]
+        }])
+    
+    async def set_server_bosses(self):
+        for x in range(len(self.bosses_array)):
+            key = self.get_storage_key(f"Boss_{x}")
+            await self.send_msgs([{
+                "cmd": "Set",
+                "key": key,
+                "default": False,
+                "want_reply": True,
+                "operations": [{
+                    "operation": "default",
+                    "value": None
+                }]
+            }])
     
 
 # This function takes the location ID from Memory Manager and stores it in a list for the client to
@@ -270,8 +322,9 @@ async def game_loop(context: Transformers04Context):
                 for x in context.checked_locations:
                     if x in database.Boss_Locations or x == 9008:
                         level = x - 9001
-                        context.output(f"Marking Level {database.Level_Name[level]} Complete")
-                        memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
+                        if context.bosses_array[level]:
+                            context.output(f"Marking Level {database.Level_Name[level]} Complete")
+                            memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
                 if context.big_head_status:
                     if context.big_head_count > 0:
                         context.big_head_count -= 1
@@ -311,26 +364,29 @@ async def game_loop(context: Transformers04Context):
             
             #check if new location was checked and if so, send the ID to Archipelago
             if len(memory_manager.unhandled_locations) > 0:
-                context.output("Unhandled Location Detected")
-                loc_id = memory_manager.unhandled_locations[0]
-                if loc_id == 9008:
-                    asyncio.create_task(Archipelago_Completed(context))
-                else:
-                    result = await context.check_locations([loc_id])
-                    text = ", ".join(str(item) for item in result)
-                    context.output(f"check_locations returned: {text}, Should be {str(loc_id)}")
-                    if loc_id < 9000 or loc_id > 10000:
-                        memory_manager.checked_locations.append(loc_id)
-                        if loc_id == 999:
-                            memory_manager.checked_locations.append(1999)
-                            memory_manager.checked_locations.append(2999)
-                            memory_manager.checked_locations.append(3999)
-                            memory_manager.checked_locations.append(4999)
-                            memory_manager.checked_locations.append(5999)
-                            memory_manager.checked_locations.append(6999)
-                        if loc_id in database.Reverse_Linked_Locations:
-                            memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc_id])
-                memory_manager.adjust_cybertron_count(context)
+                if not (memory_manager.unhandled_locations[0] == 0):
+                    context.output("Unhandled Location Detected")
+                    loc_id = memory_manager.unhandled_locations[0]
+                    if loc_id == 9008:
+                        asyncio.create_task(Archipelago_Completed(context))
+                    else:
+                        if loc_id > 9000 and loc_id < 9009:
+                            context.bosses_array[loc_id - 9001] = True
+                            await context.set_server_variable(f"Boss_{loc_id - 9001]", True)
+                        result = await context.check_locations([loc_id])
+                        # text = ", ".join(str(item) for item in result)
+                        if loc_id < 9000 or loc_id > 10000:
+                            memory_manager.checked_locations.append(loc_id)
+                            if loc_id == 999:
+                                memory_manager.checked_locations.append(1999)
+                                memory_manager.checked_locations.append(2999)
+                                memory_manager.checked_locations.append(3999)
+                                memory_manager.checked_locations.append(4999)
+                                memory_manager.checked_locations.append(5999)
+                                memory_manager.checked_locations.append(6999)
+                            if loc_id in database.Reverse_Linked_Locations:
+                                memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc_id])
+                    memory_manager.adjust_cybertron_count(context)
                 del memory_manager.unhandled_locations[0]
                 
                 
@@ -421,7 +477,7 @@ async def game_loop(context: Transformers04Context):
                 #   (deathlink isnt triggering and it doesnt sent infinite while waiting on player
                 #   to hit continue or something), then send the death
                 if current_health <= 0 and not context.sent_death:
-                    await context.send_death("Autobot has Stasis Locked")   #Death message can be changed later
+                    await context.send_death(f"{context.player_names[context.slot]} has Stasis Locked")
                     context.sent_death = True
                     
                 #Check to see if player is back above 0 health to reset the death state
