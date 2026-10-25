@@ -344,8 +344,8 @@ async def game_loop(context: Transformers04Context):
             if context.bosses_mode:
                 #count how many bosses have been killed (or alaska completed)
                 num_bosses_killed = 0
-                for id in context.checked_locations:
-                    if id in database.Boss_Locations:
+                for x in range(len(context.bosses_array)):
+                    if context.bosses_array[x]:
                         num_bosses_killed += 1
                 #if we reached the amount, set the state true
                 if num_bosses_killed >= 7:
