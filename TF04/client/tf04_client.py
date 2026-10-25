@@ -372,7 +372,7 @@ async def game_loop(context: Transformers04Context):
                     else:
                         if loc_id > 9000 and loc_id < 9009:
                             context.bosses_array[loc_id - 9001] = True
-                            await context.set_server_variable(f"Boss_{loc_id - 9001]", True)
+                            await context.set_server_variable(f"Boss_{loc_id - 9001}", True)
                         result = await context.check_locations([loc_id])
                         # text = ", ".join(str(item) for item in result)
                         if loc_id < 9000 or loc_id > 10000:
