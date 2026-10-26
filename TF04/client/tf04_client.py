@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from CommonClient import CommonContext, server_loop, ClientStatus
+from CommonClient import CommonContext, server_loop, ClientStatus, ClientCommandProcessor
 from .. import database
 from ..scripts import memory_manager
 from ..scripts.memory_manager import PineCommand as PineCommand
@@ -29,6 +29,37 @@ class ItemType(IntEnum):
     level_unlock = 2
     special = 3
 
+
+class Transformers04CommandProcessor(ClientCommandProcessor):
+    def _cmd_boss(self, boss: str = "") -> bool:
+        """Mark a boss as defeated. Usage: /boss <level>"""
+
+        boss_ids = {
+            "amazon": 0,
+            "antarctica": 1,
+            "deep_amazon": 2,
+            "mid_atlantic": 3,
+            "alaska": 4,
+            "starship": 5,
+            "pacific_island": 6,
+        }
+
+        boss_index = boss_ids.get(boss.lower())
+
+        if boss_index is None:
+            self.logger.info(
+                "Unknown boss. Use amazon, antarctica, deep_amazon, "
+                "mid_atlantic, alaska, starship, or pacific_island."
+            )
+            return False
+        
+        asyncio.create_task(
+            self.ctx.set_server_variable(f"Boss_{boss_index}", True)
+        )
+        self.output(f"Marked {boss} as defeated.")
+        return True
+
+
 # Context is how Archipelago stores data for the game, like slot number, name, server connections, etc.
 # It also can hold variables we want persistant, so if we need to save some data and lose connection, we will still
 #   have it when we reconnect. Some other data might be data we need to make poptracker more interactive, like in some
@@ -36,6 +67,7 @@ class ItemType(IntEnum):
 class Transformers04Context(CommonContext):
     game = "Transformers (2004)"
     items_handling = 0b111
+    command_processor = Transformers04CommandProcessor
 
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
@@ -129,6 +161,7 @@ class Transformers04Context(CommonContext):
             key = args.get("key")
 
             if key in self.boss_storage_keys:
+                self.cli_log.info(f"[Boss Debug] SetReply: key={key}, value={args.get('value')!r}")
                 x = self.boss_storage_keys.index(key)
                 value = args["value"]
 
@@ -158,7 +191,7 @@ class Transformers04Context(CommonContext):
         await super().connection_closed()
         
     def get_storage_key(self, variable: str) -> str:
-        return f"tf04_{self.seed_name}_{self.team}_{self.slot}_{variable}"
+        return f"tf04_{self.team}_{self.slot}_{variable}"
         
     async def set_server_variable(self, variable: str, value: bool):
         key = self.get_storage_key(variable)
