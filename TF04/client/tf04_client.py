@@ -32,7 +32,7 @@ class ItemType(IntEnum):
 
 class Transformers04CommandProcessor(ClientCommandProcessor):
     def _cmd_boss(self, boss: str = "") -> bool:
-        """Mark a boss as defeated. Usage: /boss <level>"""
+        """Mark a boss as defeated. Does not complete the check. Usage: /boss <level>"""
 
         boss_ids = {
             "amazon": 0,
