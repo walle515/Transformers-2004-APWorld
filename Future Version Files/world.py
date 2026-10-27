@@ -102,7 +102,7 @@ class Transformers04World(World):
             # if loc_id == 42069:
                 # loc_id = 0
 
-            if(loc_id >= 6118 and loc_id <= 6126):
+            if location in database.Bunker_Locations:
                 minicon_bool = 0
                 if item.name in database.ITEM_NAME_TO_ID:
                     item_id = database.ITEM_NAME_TO_ID.get(item.name)

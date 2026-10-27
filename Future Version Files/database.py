@@ -483,15 +483,15 @@ Slipstream_Locations = [
     "Pacific Island-Hidden Ledge",
     "Pacific Island-Above the Waterfall",
     "Pacific Island-Small Island",
-    "Pacific Island-Bunker 1",
-    "Pacific Island-Bunker 4",
-    "Pacific Island-Bunker 5",
-    "Pacific Island-Bunker 6",
-    "Pacific Island-Bunker 7",
-    "Pacific Island-Bunker 8",
-    "Pacific Island-Bunker 9",
-    "Pacific Island-Bunker 2",
-    "Pacific Island-Bunker 3",
+    "Pacific Island-Bunker Plateau 2: Room",
+    "Pacific Island-Bunker Plateau 3: Tower",
+    "Pacific Island-Bunker Moai 2: Maze",
+    "Pacific Island-Bunker Plateau 1: Maze",
+    "Pacific Island-Bunker Lighthouse 3: Room",
+    "Pacific Island-Bunker Moai 1: Bridge",
+    "Pacific Island-Bunker Lighthouse 1: Bridge",
+    "Pacific Island-Bunker Moai 3: Room",
+    "Pacific Island-Bunker Lighthouse 2: Tower",
     "Pacific Island Boss"
 ]
 
@@ -524,16 +524,19 @@ Highjump_Locations = [
     "Starship-Risky Jump",
     "Starship-Middle Dropship",
     "Starship-Dropdown 2",
+    "Starship-Rock 3",
     "Starship Boss",
     "Alaska Complete"
 ]
 
 Slipstream_Highjump = [
+    "Alaska-Cave's Far Ledge"
+]
+
+Starship_Tall_Rocks = [
     "Starship-Rock 1",
     "Starship-Rock 2",
-    "Starship-Rock 3",
     "Starship-Rock 4",
-    "Alaska-Cave's Far Ledge"
 ]
 
 
@@ -544,13 +547,13 @@ game_codes = [
 
 
 Bunker_Locations = [
-    "Pacific Island-Bunker 1",
-    "Pacific Island-Bunker 4",
-    "Pacific Island-Bunker 5",
-    "Pacific Island-Bunker 6",
-    "Pacific Island-Bunker 7",
-    "Pacific Island-Bunker 8",
-    "Pacific Island-Bunker 9",
-    "Pacific Island-Bunker 2",
-    "Pacific Island-Bunker 3"
+    "Pacific Island-Bunker Plateau 2: Room",
+    "Pacific Island-Bunker Plateau 3: Tower",
+    "Pacific Island-Bunker Moai 2: Maze",
+    "Pacific Island-Bunker Plateau 1: Maze",
+    "Pacific Island-Bunker Lighthouse 3: Room",
+    "Pacific Island-Bunker Moai 1: Bridge",
+    "Pacific Island-Bunker Lighthouse 1: Bridge",
+    "Pacific Island-Bunker Moai 3: Room",
+    "Pacific Island-Bunker Lighthouse 2: Tower",
 ]
