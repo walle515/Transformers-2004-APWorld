@@ -9,6 +9,7 @@ from ..scripts.memory_manager import CheatIndex as CheatIndex
 from enum import IntEnum
 from ..scripts import effects as Effects
 from Utils import gui_enabled
+from contextlib import suppress
 
 
 # list of unhandled locations. Kept out of context incase there is some issue when someone leaves
@@ -80,6 +81,9 @@ class Transformers04Context(CommonContext):
         self.cli_log = logging.getLogger("tf04_client")
         self.memman_log = logging.getLogger("memory_manager")
         self.archi_connected = asyncio.Event()
+        self.memory_manager_task = None
+        self.disconnected = False
+        self.memory_manager_closed = False
         self.debug_mode = False
         
         self.deathlink_pending = False
@@ -269,9 +273,24 @@ async def game_loop(context: Transformers04Context):
         
         #if server disconnects, wait till reconnect
         if not context.archi_connected.is_set():
-            await asyncio.sleep(0.1)
             item_index = 0
+            context.minicons_collected = 0
+            context.disconnected = True
+            if not context.memory_manager_closed:
+                context.logger.info("Client Disconnected, Closing Memory Manager")
+                memory_manager.execute_command((PineCommand.comm_exit,), context)
+                context.memory_manager_closed = True
+                context.memory_manager_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await context.memory_manager_task
+            await asyncio.sleep(0.1)
             continue
+            
+        if context.disconnected and context.archi_connected.is_set():
+            context.logger.info("Client Reconnected, Restarting Memory Manager")
+            context.memory_manager_closed = False
+            context.disconnected = False
+            context.memory_manager_task = asyncio.create_task(memory_manager.monitor_ram(context))
         
         #if we are in the HQ and its the first visit, output it for Debug purposes
         if context.in_HQ and context.first_HQ_visit and memory_manager.pine_is_connected:
@@ -553,8 +572,10 @@ async def main(args):
     await context.archi_connected.wait()
     
     #Setup the game loop to handle items and locations from the game
+    context.logger.info("Starting Client Loop")
     asyncio.create_task(game_loop(context))
-    asyncio.create_task(memory_manager.monitor_ram(context))
+    context.logger.info("Starting Memory Manager")
+    context.memory_manager_task = asyncio.create_task(memory_manager.monitor_ram(context))
     
     # keep the client alive until the user closes it
     await context.exit_event.wait()
