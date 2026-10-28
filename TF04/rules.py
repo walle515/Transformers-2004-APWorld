@@ -12,8 +12,6 @@ from worlds.generic.Rules import add_item_rule
 if TYPE_CHECKING:
     from .world import Transformers04World
     
-HAS_SLIPSTREAM = Has("Slipstream")
-HAS_HIGHJUMP = Has("Highjump")
 
 #make numData and numMini
 # HAS_DATACONS = numData > world.options.datacon_count
@@ -46,6 +44,8 @@ def set_all_location_rules(world: Transformers04World) -> None:
     rule_slipstream = Has("Slipstream")
     rule_highjump = Has("Highjump")
     rule_slip_high = rule_slipstream & rule_highjump
+    rule_dash = Has("Highgear") | Has("Fullspeed")
+    rule_starship_tall_rock = rule_slip_high & rule_dash
     rule_explosive = (Has("Claymore") | Has("Failsafe") | Has("Flashbang") | Has("Hailstorm")
                      | Has("Lock-on") | Has("Watchdog") | Has("Slapshot"))
     rule_slip_explosive = rule_slipstream & rule_explosive
@@ -77,6 +77,9 @@ def set_all_location_rules(world: Transformers04World) -> None:
     
     for location in database.Slipstream_Highjump:
         world.set_rule(world.get_location(location), rule_slip_high)
+        
+    for location in database.Starship_Tall_Rocks:
+        world.set_rule(world.get_location(location), rule_starship_tall_rock)
     
     world.set_rule(world.get_location("Defeat All Bosses"), rule_all_levels)
     

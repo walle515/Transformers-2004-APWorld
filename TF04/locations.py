@@ -98,6 +98,14 @@ def create_regular_locations(world: Transformers04World) -> None:
     #if(world.options.randomize_levels):
     pacific_island.add_locations(get_location_names_with_ids(["Pacific Island Boss"]), Transformers04Location)
     
+    if world.options.bunkers_not_progressive:
+        for loc_name in database.Bunker_Locations:
+            loc = world.multiworld.get_location(loc_name, world.player)
+            loc.item_rule = lambda item: not(
+                item.classification & ItemClassification.progression
+                or item.classification & ItemClassification.trap
+            )
+    
     
     
 # events are for locations that are tied to an item, so we can check them for logic, but 

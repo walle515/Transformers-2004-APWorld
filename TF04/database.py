@@ -251,15 +251,15 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
     "Pacific Island-Above the Waterfall": 6115,
     "Pacific Island-Large Silo": 6116,
     "Pacific Island-Small Island": 6117,
-    "Pacific Island-Bunker 1": 6118,
-    "Pacific Island-Bunker 4": 6119,
-    "Pacific Island-Bunker 5": 6120,
-    "Pacific Island-Bunker 6": 6121,
-    "Pacific Island-Bunker 7": 6122,
-    "Pacific Island-Bunker 8": 6123,
-    "Pacific Island-Bunker 9": 6124,
-    "Pacific Island-Bunker 2": 6125,
-    "Pacific Island-Bunker 3": 6126,
+    "Pacific Island-Bunker Plateau 2: Room": 6118,
+    "Pacific Island-Bunker Plateau 3: Tower": 6119,
+    "Pacific Island-Bunker Moai 2: Maze": 6120,
+    "Pacific Island-Bunker Plateau 1: Maze": 6121,
+    "Pacific Island-Bunker Lighthouse 3: Room": 6122,
+    "Pacific Island-Bunker Moai 1: Bridge": 6123,
+    "Pacific Island-Bunker Lighthouse 1: Bridge": 6124,
+    "Pacific Island-Bunker Moai 3: Room": 6125,
+    "Pacific Island-Bunker Lighthouse 2: Tower": 6126,
     "Beginner Location": 999,
     
     #Boss Defeats
@@ -483,15 +483,15 @@ Slipstream_Locations = [
     "Pacific Island-Hidden Ledge",
     "Pacific Island-Above the Waterfall",
     "Pacific Island-Small Island",
-    "Pacific Island-Bunker 1",
-    "Pacific Island-Bunker 4",
-    "Pacific Island-Bunker 5",
-    "Pacific Island-Bunker 6",
-    "Pacific Island-Bunker 7",
-    "Pacific Island-Bunker 8",
-    "Pacific Island-Bunker 9",
-    "Pacific Island-Bunker 2",
-    "Pacific Island-Bunker 3",
+    "Pacific Island-Bunker Plateau 2: Room",
+    "Pacific Island-Bunker Plateau 3: Tower",
+    "Pacific Island-Bunker Moai 2: Maze",
+    "Pacific Island-Bunker Plateau 1: Maze",
+    "Pacific Island-Bunker Lighthouse 3: Room",
+    "Pacific Island-Bunker Moai 1: Bridge",
+    "Pacific Island-Bunker Lighthouse 1: Bridge",
+    "Pacific Island-Bunker Moai 3: Room",
+    "Pacific Island-Bunker Lighthouse 2: Tower",
     "Pacific Island Boss"
 ]
 
@@ -524,20 +524,36 @@ Highjump_Locations = [
     "Starship-Risky Jump",
     "Starship-Middle Dropship",
     "Starship-Dropdown 2",
+    "Starship-Rock 3",
     "Starship Boss",
     "Alaska Complete"
 ]
 
 Slipstream_Highjump = [
+    "Alaska-Cave's Far Ledge"
+]
+
+Starship_Tall_Rocks = [
     "Starship-Rock 1",
     "Starship-Rock 2",
-    "Starship-Rock 3",
     "Starship-Rock 4",
-    "Alaska-Cave's Far Ledge"
 ]
 
 
 game_codes = [
     "SLUS-20668",
     
+]
+
+
+Bunker_Locations = [
+    "Pacific Island-Bunker Plateau 2: Room",
+    "Pacific Island-Bunker Plateau 3: Tower",
+    "Pacific Island-Bunker Moai 2: Maze",
+    "Pacific Island-Bunker Plateau 1: Maze",
+    "Pacific Island-Bunker Lighthouse 3: Room",
+    "Pacific Island-Bunker Moai 1: Bridge",
+    "Pacific Island-Bunker Lighthouse 1: Bridge",
+    "Pacific Island-Bunker Moai 3: Room",
+    "Pacific Island-Bunker Lighthouse 2: Tower",
 ]

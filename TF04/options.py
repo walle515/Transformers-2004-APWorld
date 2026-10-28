@@ -117,6 +117,14 @@ class DebugMode(Toggle):
     """
     display_name = "Debug Mode"
     
+
+class BunkersNotProgressive(Toggle):
+    """
+    True: Bunkers wont have progression or trap items, just useful or filler items
+    False: Bunkers can have any kind of item
+    """
+    display_name = "Bunkers Not Progressive"
+    
     
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
@@ -135,6 +143,7 @@ class Transformers04Options(PerGameCommonOptions):
     visible_progression_items: VisibleProgressionItems
     debug_mode: DebugMode
     death_link: DeathLink
+    bunkers_not_progressive: BunkersNotProgressive
     
 # If we want to group our options by similar type, we can do so as well. This looks nice on the website.
 option_groups = [
@@ -146,7 +155,8 @@ option_groups = [
         "Gameplay Options",
         [   RandomizeLevels, 
             AddStartingLocation, 
-            TrapChance
+            TrapChance,
+            BunkersNotProgressive
         ],
     ),
     OptionGroup(
@@ -178,6 +188,7 @@ option_presets = {
         "visible_progression_items": True,
         "death_link": False,
         "debug_mode": False,
+        "bunkers_not_progressive": False,
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -193,6 +204,7 @@ option_presets = {
         "visible_progression_items": False,
         "death_link": False,
         "debug_mode": False,
+        "bunkers_not_progressive": True,
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -208,6 +220,7 @@ option_presets = {
         "visible_progression_items": False,
         "death_link": True,
         "debug_mode": False,
+        "bunkers_not_progressive": True,
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -223,6 +236,7 @@ option_presets = {
         "visible_progression_items": True,
         "death_link": False,
         "debug_mode": False,
+        "bunkers_not_progressive": True,
     },
     
 }
