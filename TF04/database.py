@@ -194,10 +194,10 @@ LOCATION_NAME_TO_ID: dict[str,int] = {
     "Deep Amazon-Jungle Village Warpgate": 2053,
     "Deep Amazon-Temple Dead End": 2054,
     "Deep Amazon-Temple Pool": 2055,
-    "Deep Amazon-Temple Side-Path": 2056,
+    "Deep Amazon-Antechamber Alcove": 2056,
     "Deep Amazon-Forest before the Bridge": 2057,
     "Deep Amazon-Antechamber": 2058,
-    "Deep Amazon-Antechamber Alcove": 2059,
+    "Deep Amazon-Temple Side-Path": 2059,
     "Deep Amazon-Behind the Temple": 2060,
     "Mid Atlantic-Vanilla Progression": 3061,
     "Mid Atlantic-Distant Island": 3062,
@@ -471,7 +471,6 @@ Slipstream_Locations = [
     "Deep Amazon-Waterfall Rock",
     "Deep Amazon-Patrolling Dropship",
     "Mid Atlantic-Distant Island",
-    "Alaska-Along the Canyon",
     "Alaska-Dropship Island",
     "Pacific Island-Moai",
     "Pacific Island-Back of the Volcano",
@@ -555,5 +554,163 @@ Bunker_Locations = [
     "Pacific Island-Bunker Moai 1: Bridge",
     "Pacific Island-Bunker Lighthouse 1: Bridge",
     "Pacific Island-Bunker Moai 3: Room",
-    "Pacific Island-Bunker Lighthouse 2: Tower",
+    "Pacific Island-Bunker Lighthouse 2: Tower"
+]
+
+
+
+
+
+
+
+
+Slipstream_Easy_Hailstorm_Skips = [
+    "Antarctica-Midfield Beacon",
+    "Deep Amazon-Island Altar",
+    
+]
+
+
+Slipstream_Easy_Dash_Skips = [
+    "Deep Amazon-Waterfall Rock"
+]
+
+
+Slipstream_Easy_Dash_or_Hailstorm_Skips = [
+    "Deep Amazon-Spawn Ledge"
+]
+
+
+Slipstream_Easy_Dash_and_Highjump_Skips = [
+    "Alaska-Cave's Far Ledge"
+]
+
+
+
+
+
+Slipstream_Easy_Skip = [
+    "Amazon-Spire",
+    "Antarctica-Lonely Island",
+    "Deep Amazon-Patrolling Dropship",
+    "Mid Atlantic-Distant Island",
+    "Pacific Island-Moai",
+    "Pacific Island-Back of the Volcano",
+    "Pacific Island-Volcano Path",
+    "Pacific Island-Stronghold Ledge",
+    "Pacific Island-High Volcano Ledge",
+    "Pacific Island-Above the Waterfall",
+    "Pacific Island-Small Island",
+    "Pacific Island-Bunker Moai 2: Maze",
+    "Pacific Island-Bunker Moai 1: Bridge",
+    "Pacific Island-Bunker Moai 3: Room",
+    "Pacific Island Boss"
+]
+
+
+Highjump_Easy_Skip = [
+    "Alaska-Mountaintop",
+    "Alaska-Cave's Right Fork",
+    "Alaska-Cave's Left Fork",
+    "Alaska-Cave's Pool",
+    "Alaska-Escape",
+    "Starship-Start of the Climb",
+    "Starship-First Steps",
+    "Starship-Main Elevator",
+    "Starship-Sideways Elevator",
+    "Starship-Lower Dropship",
+    "Starship-Bait",
+    "Starship-Free Space",
+    "Starship-Across the Gap",
+    "Starship-Early Gift",
+    "Starship-Bridge",
+    "Starship-Top of the Crashed Ship",
+    "Starship-Dropdown 1",
+    "Starship-Risky Jump",
+    "Starship-Middle Dropship",
+    "Starship-Dropdown 2",
+    "Starship-Rock 3",
+    "Starship Boss",
+    "Alaska Complete"
+]
+
+
+
+
+
+
+
+
+
+Slipstream_Hard_Dash_Skips = [
+    "Amazon-Spire",
+    "Alaska-Cave's Far Ledge",
+    "Pacific Island-Volcano Path",
+    "Pacific Island-High Volcano Ledge",
+    "Pacific Island-Stronghold Ledge",
+    "Pacific Island-Back of the Volcano",
+    "Pacific Island Boss"
+]
+
+
+Slipstream_Hard_Dash_or_Flashbang_Skips = [
+    "Antarctica-Midfield Beacon",
+    "Deep Amazon-Spawn Ledge"
+]
+
+
+Slipstream_Hard_Hailstorm_Skips = [
+    "Antarctica-Lonely Island"
+]
+
+
+Slipstream_Hard_Hailstorm_or_Dash_Skips = [
+    "Deep Amazon-Waterfall Rock"
+]
+
+
+Slipstream_Hard_Flashbang_Skips = [
+    "Deep Amazon-Island Altar"
+]
+
+
+Highjump_Hard_Slipstream_Skips = [
+    "Starship-Start of the Climb",
+    "Starship-First Steps",
+    "Starship-Main Elevator",
+    "Starship-Sideways Elevator",
+    "Starship-Lower Dropship",
+    "Starship-Bait",
+    "Starship-Free Space",
+    "Starship-Across the Gap",
+    "Starship-Early Gift",
+    "Starship-Bridge",
+    "Starship-Top of the Crashed Ship",
+    "Starship-Dropdown 1",
+    "Starship-Risky Jump",
+    "Starship-Middle Dropship",
+    "Starship-Dropdown 2",
+    "Starship-Rock 3",
+    "Starship Boss"
+]
+
+
+
+
+
+Slipstream_Hard_Skip = [
+    "Deep Amazon-Patrolling Dropship",
+    "Mid Atlantic-Distant Island"
+]
+
+
+Explosive_Hard_Skip = [
+    "Antarctica-Research Base Office 1",
+    "Antarctica-Research Base Containers 1",
+    "Antarctica-Research Base Containers 2",
+    "Antarctica-Research Base Office 3",
+    "Antarctica-Research Base Office 4",
+    "Antarctica-Research Base Office 2",
+    "Pacific Island-Small Silo",
+    "Pacific Island-Large Silo"
 ]

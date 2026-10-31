@@ -191,6 +191,7 @@ def create_item_with_correct_classification(world: Transformers04World, name: st
 def create_all_items(world: Transformers04World) -> None:
     rand_num = world.random.randint(0,6)
     rand_num_2 = world.random.randint(0,5)
+    num_players = world.multiworld.players
     
     itempool: list[Item] = [
         world.create_item("Skirmish"),
@@ -378,7 +379,7 @@ def create_all_items(world: Transformers04World) -> None:
     #world.push_precollected(starting_confetti_cannon)
     
     if world.options.randomize_levels:
-        if world.options.add_starting_location:
+        if world.options.add_starting_location and num_players < 4:
             if rand_num == 0:
                 world.push_precollected(world.create_item("Amazon Level Unlock"))
             if rand_num == 1:

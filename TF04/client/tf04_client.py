@@ -139,10 +139,12 @@ class Transformers04Context(CommonContext):
             self.deathlink_enabled = death_link_status
             asyncio.create_task(self.update_death_link(death_link_status))
             
+            self.output(f"Received Goal Option: {slot_data.get("goal_option", "Default")}")
             if slot_data.get("goal_option",0) == 1:
                 self.bosses_mode = True
             else:
                 self.bosses_mode = False
+            self.output(f"Bosses: {self.bosses_mode}")
             
             self.debug_mode = slot_data.get("debug_mode", False)
             self.random_level_enabled = slot_data.get("randomize_levels", False)
@@ -397,7 +399,7 @@ async def game_loop(context: Transformers04Context):
                 #count how many bosses have been killed (or alaska completed)
                 num_bosses_killed = 0
                 for x in range(len(context.bosses_array)):
-                    if context.bosses_array[x]:
+                    if context.bosses_array[x] and ((9001 + x) in context.checked_locations):
                         num_bosses_killed += 1
                 #if we reached the amount, set the state true
                 if num_bosses_killed >= 7:

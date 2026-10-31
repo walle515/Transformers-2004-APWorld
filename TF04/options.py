@@ -126,6 +126,21 @@ class BunkersNotProgressive(Toggle):
     display_name = "Bunkers Not Progressive"
     
     
+class LogicDifficulty(Choice):
+    """
+    Default: Vanilla Game Logic
+    Easy Skips: Easy Transform Skips, Dash Skips, and Damage Boosts are in Logic
+    Hard Skips: Hard Transform Skips, Dash Skips, Damage Boosts are in logic, as well as IGL, Starship Skip and some Pacific Island without Slipstream
+    """
+    display_name = "Logic Difficulty"
+    
+    option_Default = 0
+    option_Easy_Skips = 1
+    option_Hard_Skips = 2
+    
+    default = option_Default
+    
+
 # We must now define a dataclass inheriting from PerGameCommonOptions that we put all our options in.
 # This is in the format "option_name_in_snake_case: OptionClassName".
 @dataclass
@@ -134,6 +149,7 @@ class Transformers04Options(PerGameCommonOptions):
     minicon_count: MiniconCount
     add_starting_location: AddStartingLocation
     goal_option: GoalOption
+    logic_difficulty: LogicDifficulty
     randomize_levels: RandomizeLevels
     randomize_stats: RandomizeStats
     randomize_mini_power: RandomizeMiniconLevels
@@ -153,9 +169,11 @@ option_groups = [
     ),
     OptionGroup(
         "Gameplay Options",
-        [   RandomizeLevels, 
+        [   LogicDifficulty,
+            RandomizeLevels, 
             AddStartingLocation, 
             TrapChance,
+            VisibleProgressionItems,
             BunkersNotProgressive
         ],
     ),
@@ -166,7 +184,6 @@ option_groups = [
             BalanceMiniconLevels,
             RandomizeMiniconColors,
             BalanceMiniconColors,
-            VisibleProgressionItems,
             DebugMode
         ],
      ),
@@ -189,6 +206,7 @@ option_presets = {
         "death_link": False,
         "debug_mode": False,
         "bunkers_not_progressive": False,
+        "logic_difficulty": LogicDifficulty.option_Default
     },
     "Rando":{
         "goal_option": GoalOption.option_Unicron,
@@ -205,6 +223,7 @@ option_presets = {
         "death_link": False,
         "debug_mode": False,
         "bunkers_not_progressive": True,
+        "logic_difficulty": LogicDifficulty.option_Easy_Skips
     },
     "Hard Mode":{
         "goal_option": GoalOption.option_Bosses,
@@ -221,6 +240,7 @@ option_presets = {
         "death_link": True,
         "debug_mode": False,
         "bunkers_not_progressive": True,
+        "logic_difficulty": LogicDifficulty.option_Hard_Skips
     },
     "Boss Fighter":{
         "goal_option": GoalOption.option_Bosses,
@@ -237,6 +257,7 @@ option_presets = {
         "death_link": False,
         "debug_mode": False,
         "bunkers_not_progressive": True,
+        "logic_difficulty": LogicDifficulty.option_Default
     },
     
 }

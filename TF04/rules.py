@@ -58,35 +58,97 @@ def set_all_location_rules(world: Transformers04World) -> None:
                         Has ("Starship Level Unlock") &
                         Has ("Pacific Island Level Unlock") &
                         rule_slip_high)
-    rule_spidertank = rule_slipstream | rule_highjump
-    
-    world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
-    world.set_rule(world.get_location("Amazon-Spidertank Triplets"), rule_spidertank)
-    
-    for location in database.Explosive_Locations:
-        world.set_rule(world.get_location(location), rule_explosive)
-    
-    for location in database.Slipstream_Locations:
-        world.set_rule(world.get_location(location), rule_slipstream)
-    
-    for location in database.Slipstream_Explosive:
-        world.set_rule(world.get_location(location), rule_slip_explosive)
-    
-    for location in database.Highjump_Locations:
-        world.set_rule(world.get_location(location), rule_highjump)
-    
-    for location in database.Slipstream_Highjump:
-        world.set_rule(world.get_location(location), rule_slip_high)
-        
-    for location in database.Starship_Tall_Rocks:
-        world.set_rule(world.get_location(location), rule_starship_tall_rock)
+    rule_slip_or_high = rule_slipstream | rule_highjump
+    rule_damage_boost = Has("Flashbang") | Has("Hailstorm")
+    rule_dash_or_hail = rule_dash | Has("Hailstorm")
+    rule_dash_and_high = rule_dash & rule_highjump
+    rule_dash_or_damageboost = rule_dash | rule_damage_boost
     
     world.set_rule(world.get_location("Defeat All Bosses"), rule_all_levels)
     
-    # add_item_rule(
-        # world.get_location("Beginner Location"),
-        # lambda item: item.name in database.Start_Progressive_Items
-    # )
+    if world.options.logic_difficulty == options.LogicDifficulty.option_Default:
+        world.set_rule(world.get_location("Amazon-Spidertank Triplets"), rule_slip_or_high)
+        world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
+        
+        for location in database.Explosive_Locations:
+            world.set_rule(world.get_location(location), rule_explosive)
+        
+        for location in database.Slipstream_Locations:
+            world.set_rule(world.get_location(location), rule_slipstream)
+        
+        for location in database.Slipstream_Explosive:
+            world.set_rule(world.get_location(location), rule_slip_explosive)
+        
+        for location in database.Highjump_Locations:
+            world.set_rule(world.get_location(location), rule_highjump)
+        
+        for location in database.Slipstream_Highjump:
+            world.set_rule(world.get_location(location), rule_slip_high)
+            
+        for location in database.Starship_Tall_Rocks:
+            world.set_rule(world.get_location(location), rule_starship_tall_rock)
+    
+    
+    
+    elif world.options.logic_difficulty == options.LogicDifficulty.option_Easy_Skips:
+        world.set_rule(world.get_location("Mid Atlantic Boss"), mid_atlantic_boss_rule)
+        for location in database.Slipstream_Easy_Hailstorm_Skips:
+            world.set_rule(world.get_location(location), Has("Hailstorm") | rule_slipstream)
+        
+        for location in database.Slipstream_Easy_Dash_Skips:
+            world.set_rule(world.get_location(location), rule_dash | rule_slipstream)
+         
+        for location in database.Slipstream_Easy_Dash_or_Hailstorm_Skips:
+            world.set_rule(world.get_location(location), rule_dash_or_hail | rule_slipstream)
+        
+        for location in database.Slipstream_Easy_Dash_and_Highjump_Skips:
+            world.set_rule(world.get_location(location), rule_dash_and_high | rule_slipstream)
+        
+        for location in database.Slipstream_Easy_Skips:
+            world.set_rule(world.get_location(location), rule_slipstream)
+        
+        for location in database.Highjump_Easy_Skips:
+            world.set_rule(world.get_location(location), rule_highjump)
+        
+        for location in database.Starship_Tall_Rocks:
+            world.set_rule(world.get_location(location), rule_starship_tall_rock)
+        
+        for location in database.Explosive_Locations:
+            world.set_rule(world.get_location(location), rule_explosive)
+        
+        for location in database.Slipstream_Explosive:
+            world.set_rule(world.get_location(location), rule_slip_explosive)
+    
+    
+    
+    elif world.options.logic_difficulty == options.LogicDifficulty.option_Hard_Skips:
+        world.set_rule(world.get_location("Mid Atlantic Boss"), rule_slipstream)
+        for location in database.Slipstream_Hard_Dash_Skips:
+            world.set_rule(world.get_location(location), rule_dash | rule_slipstream)
+        
+        for location in database.Slipstream_Hard_Dash_or_Flashbang_Skips:
+            world.set_rule(world.get_location(location), rule_dash_or_damageboost | rule_slipstream)
+        
+        for location in database.Slipstream_Hard_Hailstorm_Skips:
+            world.set_rule(world.get_location(location), Has("Hailstorm") | rule_slipstream)
+        
+        for location in database.Slipstream_Hard_Hailstorm_or_Dash_Skips:
+            world.set_rule(world.get_location(location), rule_dash_or_hail | rule_slipstream)
+        
+        for location in database.Slipstream_Hard_Flashbang_Skips:
+            world.set_rule(world.get_location(location), rule_damage_boost | rule_slipstream)
+        
+        for location in database.Highjump_Hard_Slipstream_Skips:
+            world.set_rule(world.get_location(location), rule_slipstream | rule_highjump)
+        
+        for location in database.Starship_Tall_Rocks:
+            world.set_rule(world.get_location(location), rule_slipstream)
+        
+        for location in database.Slipstream_Hard_Skip:
+            world.set_rule(world.get_location(location), rule_slipstream)
+        
+        for location in database.Explosive_Hard_Skip:
+            world.set_rule(world.get_location(location), rule_explosive)
     
     
 def set_completion_condition(world: Transformers04World) -> None:
