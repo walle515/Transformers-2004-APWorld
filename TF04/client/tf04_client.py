@@ -73,6 +73,8 @@ class Transformers04Context(CommonContext):
     def __init__(self, server_address, password):
         super().__init__(server_address, password)
         
+        self.seed = None
+        
         self.game_completion = False
         self.minicons_required = 0
         self.minicons_collected = 0
@@ -131,6 +133,9 @@ class Transformers04Context(CommonContext):
     
     def on_package(self, cmd, args):
         super().on_package(cmd,args)
+        
+        if cmd = "RoomInfo":
+            self.seed = args["seed_name"]
         
         if cmd == "Connected":
             slot_data = args.get("slot_data", {})
