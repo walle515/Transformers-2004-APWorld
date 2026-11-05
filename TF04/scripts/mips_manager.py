@@ -6,6 +6,7 @@ class CodeAddress(IntEnum):
     codeadd_pickup_spawn_check = 0x379EF8
     codeadd_pickup_collected = 0x1FAECE0
     cleanadd_pickup_spawn_custom = 0x1FAEF00
+    codeadd_extras_unlock = 0x351CE0
 
 def remove_pickup_limit():
     # increase PickupPlaced limit from 13 to 32 (0x14)
@@ -69,6 +70,11 @@ def redirect_pickup_spawn():
     pcsx2.write_int32(CodeAddress.cleanadd_pickup_spawn_custom + 0x20, 0x03E00008)  # jr ra
     # NOP (don't need to write this, it's already there)
 
+
+def prevent_datacon_unlocks():
+    pcsx2.write_int32(CodeAddress.codeadd_extras_unlock + 0x4, 0) #NOP
+
+
 def write_code_mods():
     '''Writes single-line ELF codes to allow Archipelago randomizers to work'''
 
@@ -81,3 +87,5 @@ def write_code_mods():
     redirect_episode_unlock()
 
     redirect_pickup_spawn()
+    
+    prevent_datacon_unlocks()
