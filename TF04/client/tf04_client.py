@@ -134,7 +134,7 @@ class Transformers04Context(CommonContext):
     def on_package(self, cmd, args):
         super().on_package(cmd,args)
         
-        if cmd = "RoomInfo":
+        if cmd == "RoomInfo":
             self.seed = args["seed_name"]
         
         if cmd == "Connected":
@@ -342,7 +342,7 @@ async def game_loop(context: Transformers04Context):
                     memory_manager.checked_locations.append(6999)
                 if loc in database.Reverse_Linked_Locations:
                     memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc])
-            pine_previous_connection = True
+        pine_previous_connection = memory_manager.pine_is_connected
 
 
 

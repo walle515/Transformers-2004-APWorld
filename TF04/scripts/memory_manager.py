@@ -468,6 +468,12 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     else:
         player_in_HQ = False
         context.in_HQ = False
+    
+    datacon_unlocks = pcsx2.read_int64(GameAddress.gameadd_datacon_unlocks)
+    archi_datacon_bit = 0x1 << (database.Archipelago_Datacon_ID - 51)
+    if datacon_unlocks & archi_datacon_bit:
+        datacon_unlocks &= ~archi_datacon_bit
+        pcsx2.write_int64(GameAddress.gameadd_datacon_unlocks, datacon_unlocks)
 
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_collect_pointer)
     if pickup_check != 0:
