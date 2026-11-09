@@ -7,6 +7,7 @@ class CodeAddress(IntEnum):
     codeadd_pickup_collected = 0x1FAECE0
     cleanadd_pickup_spawn_custom = 0x1FAEF00
     codeadd_extras_unlock = 0x351CE0
+    codeadd_minicon_cutscene = 0x37BC18
 
 def remove_pickup_limit():
     # increase PickupPlaced limit from 13 to 32 (0x14)
@@ -15,6 +16,12 @@ def remove_pickup_limit():
 def remove_slipstream_cutscene():
     # Fix Slipstream pickup (remove check for special camera script)
     pcsx2.write_int32(0x37BC3C, 0x10000014)
+
+def remove_minicon_intro():
+    pcsx2.write_int32(CodeAddress.codeadd_minicon_cutscene, 0x10000006) #beq zero,zero,0x0037BC34
+
+def prevent_datacon_unlocks():
+    pcsx2.write_int32(CodeAddress.codeadd_extras_unlock + 0x4, 0) #NOP
 
 def redirect_pickup_collection():
     # write pickup redirection code
@@ -89,3 +96,5 @@ def write_code_mods():
     redirect_pickup_spawn()
     
     prevent_datacon_unlocks()
+
+    remove_minicon_intro()
