@@ -12,6 +12,7 @@ class EffectStyle(IntEnum):
     style_invalid = -1
     style_cheat = 0
     style_mission_status = 1
+    style_direct_value = 2
 
 class GameEffect:
     ID: int
@@ -39,8 +40,10 @@ def initialize_effects():
                                   , memman.CheatIndex.cheat_reset, 0))
     effect_list.append(GameEffect("StatusReset", False, EffectStyle.style_mission_status
                                   , memman.MissionStatus.status_normal, -1))
-    effect_list.append(GameEffect("TrapEnemyStealth", True, EffectStyle.style_cheat
-                                  , memman.CheatIndex.cheat_enemystealth, 30))
+    # effect_list.append(GameEffect("TrapEnemyStealth", True, EffectStyle.style_cheat
+    #                               , memman.CheatIndex.cheat_enemystealth, 30))
+    effect_list.append(GameEffect("TrapEnemyStealth", True, EffectStyle.style_direct_value
+                                  , memman.GameAddress.gameadd_enemy_stealth, 30))
     effect_list.append(GameEffect("TrapTrubo", True, EffectStyle.style_cheat
                                   , memman.CheatIndex.cheat_turbo, 60))
     effect_list.append(GameEffect("TrapFreeze", True, EffectStyle.style_mission_status
@@ -69,6 +72,8 @@ async def apply_effect(effect: GameEffect, context):
         memman.cheat_toggle(effect.value, True)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(effect.value)
+    elif effect.effect_style == EffectStyle.style_direct_value:
+        pcsx2.write_int8(effect.value, True)
     if effect.duration > 0:
         time_remaining = effect.duration
         #await sleep(18)
@@ -87,6 +92,8 @@ async def apply_effect(effect: GameEffect, context):
         memman.cheat_toggle(effect.value, False)
     elif effect.effect_style == EffectStyle.style_mission_status:
         memman.set_mission_status(memman.MissionStatus.status_normal)
+    elif effect.effect_style == EffectStyle.style_direct_value:
+        pcsx2.write_int8(effect.value, False)
     context.output(f"Effect Complete: {effect.name}")
 
 initialize_effects()

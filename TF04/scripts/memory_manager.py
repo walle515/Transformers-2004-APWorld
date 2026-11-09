@@ -38,6 +38,7 @@ class GameAddress(IntEnum):
     gameadd_datacon_unlocks = 0x7170E0 #64-bit integer
     gameadd_level_unlocks = 0x717114 #episode length = 0x4C #717110 is the radio transmission byte. bit 0 unlocks the sidekick
     gameadd_cybertron_mini_count = gameadd_level_unlocks + (0x4C*7) + 0x44
+    gameadd_enemy_stealth = 0x6CFC4C
     gameadd_cheat_instance = 0x6CFDF0
     gameadd_cutscene_active = 0x6CFB94
     #gameadd_cheats = 0x8F04B4
@@ -162,7 +163,7 @@ def cheat_toggle(cheat_index: int, cheat_state: bool):
         pcsx2.write_int8(cheat_address + CheatIndex.cheat_powerlink, 0)
         pcsx2.write_int8(cheat_address + CheatIndex.cheat_immortal, 0)
         pcsx2.write_int8(cheat_address + CheatIndex.cheat_oneshot, 0)
-        pcsx2.write_int8(cheat_address + CheatIndex.cheat_enemystealth, 0)
+        #pcsx2.write_int8(cheat_address + CheatIndex.cheat_enemystealth, 0)
         pcsx2.write_int8(cheat_address + CheatIndex.cheat_bighead, 0)
         pcsx2.write_int8(cheat_address + CheatIndex.cheat_turbo, 0)
     else:
@@ -172,7 +173,6 @@ def cheat_toggle(cheat_index: int, cheat_state: bool):
 def set_mission_status(status_index: int):
     #Used by effects.py to directly set the mission status bit
     pcsx2.write_int32(GameAddress.gameadd_mission_status, status_index)
-
 
 def handle_initial_values(context):
     '''Sets values in RAM to allow Archipelago randomizers to work'''
@@ -490,7 +490,7 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
             #pcsx2.write_int32(GameAddress.gameadd_minicon_unlocks, minicon_unlocks ^ 0x1000) #we no longer overwrite the minicon unlocks, since minicons aren't unlocked until HQ
         elif pickup_id == 0x3: #is a datacon
             datacon_pickup = pcsx2.read_int64(pickup_instance + 0x240)
-            if datacon_pickup == 0x4000: #not 100% sure that this is the right one. May be 0x8000 instead. Needs to be verified.:
+            if datacon_pickup == 0x8000:
                 print("Archipelago Datacon pickup detected")
         return (PineCommand.comm_read_location, pickup_instance,)
 
@@ -509,6 +509,10 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
         #checking_spawn is the memory address, get the location from offset 0xB from that address
         pcsx2.write_int32(CleanAddress.cleanadd_pickup_spawn_pointer, 0)
         return (PineCommand.comm_check_spawn, checking_spawn,)
+
+    # datacon_unlocks = pcsx2.read_int64(GameAddress.gameadd_datacon_unlocks)
+    # if datacon_unlocks != 0: #& 0x8000:
+    #     pcsx2.write_int64(GameAddress.gameadd_datacon_unlocks, 0) #datacon_unlocks ^ 0x8000)
 
     cheat_address = pcsx2.read_int32(GameAddress.gameadd_cheat_instance)
     check_cheats = pcsx2.read_int32(cheat_address)
