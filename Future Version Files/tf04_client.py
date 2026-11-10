@@ -1,0 +1,651 @@
+import asyncio
+import logging
+
+from CommonClient import CommonContext, server_loop, ClientStatus, ClientCommandProcessor
+from .. import database
+from ..scripts import memory_manager
+from ..scripts.memory_manager import PineCommand as PineCommand
+from ..scripts.memory_manager import CheatIndex as CheatIndex
+from enum import IntEnum
+from ..scripts import effects as Effects
+from Utils import gui_enabled
+from contextlib import suppress
+
+
+# list of unhandled locations. Kept out of context incase there is some issue when someone leaves
+# the game and returns later to a lost save or something.
+# unhandled_locations: list[int] = []
+
+# int to store the index of the list of received items. Same as list, leaving out of context incase
+# there is a save issue and data is lost, it will try to unlock all items that were previously unlocked.
+
+
+
+
+
+#Enum for what type of item is received
+class ItemType(IntEnum):
+    minicon = 0
+    datacon = 1
+    level_unlock = 2
+    special = 3
+
+
+class Transformers04CommandProcessor(ClientCommandProcessor):
+    def _cmd_boss(self, boss: str = "") -> bool:
+        """Mark a boss as defeated. Does not complete the check. Usage: /boss <level>"""
+
+        boss_ids = {
+            "amazon": 0,
+            "antarctica": 1,
+            "deep_amazon": 2,
+            "mid_atlantic": 3,
+            "alaska": 4,
+            "starship": 5,
+            "pacific_island": 6,
+        }
+
+        boss_index = boss_ids.get(boss.lower())
+
+        if boss_index is None:
+            self.logger.info(
+                "Unknown boss. Use amazon, antarctica, deep_amazon, "
+                "mid_atlantic, alaska, starship, or pacific_island."
+            )
+            return False
+        
+        asyncio.create_task(
+            self.ctx.set_server_variable(f"Boss_{boss_index}", True)
+        )
+        self.output(f"Marked {boss} as defeated.")
+        return True
+
+
+# Context is how Archipelago stores data for the game, like slot number, name, server connections, etc.
+# It also can hold variables we want persistant, so if we need to save some data and lose connection, we will still
+#   have it when we reconnect. Some other data might be data we need to make poptracker more interactive, like in some
+#   games where it follows what level you currently are in.
+class Transformers04Context(CommonContext):
+    game = "Transformers (2004)"
+    items_handling = 0b111
+    command_processor = Transformers04CommandProcessor
+
+    def __init__(self, server_address, password):
+        super().__init__(server_address, password)
+        
+        self.seed = None
+        
+        self.game_completion = False
+        self.minicons_required = 0
+        self.minicons_collected = 0
+        
+        self.logger = logging.getLogger("Client")
+        self.cli_log = logging.getLogger("tf04_client")
+        self.memman_log = logging.getLogger("memory_manager")
+        self.archi_connected = asyncio.Event()
+        self.memory_manager_task = None
+        self.disconnected = False
+        self.memory_manager_closed = False
+        self.debug_mode = False
+        
+        self.deathlink_pending = False
+        self.sent_death = False
+        self.deathlink_enabled = False
+        
+        self.bosses_killed = False
+        self.cybertron_unlocked = False
+        self.bosses_mode = False
+        self.bosses_goal_done = False
+        #Amazon, Antarctica, Deep Amazon, Mid Atlantic, Alaska, Starship, Pacific Island, Unicron
+        self.bosses_array = [False, False, False, False, False, False, False, False]
+        self.boss_storage_keys = []
+        #16 warp gates per level, 7 levels
+        self.warp_gates = [0 for _ in range(7)]
+        self.warp_keys = []
+        
+        self.in_HQ = False
+        self.first_HQ_visit = True
+        self.previous_HQ = False
+        
+        self.last_item_index = 0
+        self.big_head = False
+        self.big_head_status = False
+        self.big_head_count = 0
+        
+        self.random_level_enabled = False
+        self.powerlink_enabled = False
+        
+        self.random_stats = False
+        # Variables to store stats of autobots to display in client
+        # Health, Height, Power Capacity, Dash Speed, Powerlinx Regen
+        self.Optimus_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.Hot_Shot_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        self.Red_Alert_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        
+        
+    def make_gui(self):
+        ui = super().make_gui()
+        ui.base_title = "Transformers (2004) Client"
+        
+        return ui
+        
+    
+    def on_deathlink(self, data):
+        self.deathlink_pending = True
+        super().on_deathlink(data)
+    
+    def on_package(self, cmd, args):
+        super().on_package(cmd,args)
+        
+        if cmd == "RoomInfo":
+            self.seed = args["seed_name"]
+        
+        if cmd == "Connected":
+            slot_data = args.get("slot_data", {})
+            death_link_status = slot_data.get("death_link", False)
+            
+            self.deathlink_enabled = death_link_status
+            asyncio.create_task(self.update_death_link(death_link_status))
+            
+            self.output(f"Received Goal Option: {slot_data.get("goal_option", "Default")}")
+            if slot_data.get("goal_option",0) == 1:
+                self.bosses_mode = True
+            else:
+                self.bosses_mode = False
+            self.output(f"Bosses: {self.bosses_mode}")
+            
+            self.debug_mode = slot_data.get("debug_mode", False)
+            self.random_level_enabled = slot_data.get("randomize_levels", False)
+            self.random_stats = slot_data.get("randomize_stats", False)
+            
+            self.minicons_required = slot_data.get("minicon_count", 0)
+            self.minicons_collected = 0
+            
+            self.boss_storage_keys = [
+                self.get_storage_key(f"Boss_{x}")
+                for x in range(len(self.bosses_array))
+            ]
+            self.set_notify(*self.boss_storage_keys)
+            asyncio.create_task(self.set_server_bosses())
+            
+            self.warp_keys = [
+                self.get_storage_key(f"WarpGates_{x}")
+                for x in range(len(self.warp_gates))
+            ]
+            self.set_notify(*self.warp_keys)
+            asyncio.create_task(self.set_server_warp_gates())
+            
+            self.archi_connected.set()
+            self.output("Connected to Server, waiting for HQ")
+        
+        elif cmd == "SetReply":
+            key = args.get("key")
+
+            if key in self.boss_storage_keys:
+                self.cli_log.info(f"SetReply: key={key}, value={args.get('value')!r}")
+                x = self.boss_storage_keys.index(key)
+                value = args["value"]
+                if isinstance(value, bool):
+                    self.bosses_array[x] = value
+            
+            if key in self.warp_keys:
+                self.cli_log.info(f"SetReply: Key={key}, value={args.get('value')!r}")
+                x = self.warp_keys.index(key)
+                value = args["value"]
+                if isinstance(value, int):
+                    self.warp_gates[x] = value
+                    memory_manager.write_warp_gates(context, x)
+                
+    
+    def output(self, text: str):
+        if self.debug_mode:
+            self.logger.info(text)
+        else:
+            self.cli_log.info(text)
+            
+    def memman_out(self, text: str):
+        if self.debug_mode:
+            self.logger.info(text)
+        else:
+            self.memman_log.info(text)
+        
+    async def server_auth(self, password_requested: bool = False):
+        if password_requested and not self.password:
+            await super().server_auth(password_requested)
+        await self.get_username()
+        await self.send_connect()
+        
+    async def connection_closed(self):
+        self.archi_connected.clear()
+        await super().connection_closed()
+        
+    def get_storage_key(self, variable: str) -> str:
+        return f"tf04_{self.seed}_{self.team}_{self.slot}_{variable}"
+        
+    async def set_server_variable(self, variable: str, value):
+        key = self.get_storage_key(variable)
+        
+        await self.send_msgs([{
+            "cmd": "Set",
+            "key": key,
+            "default": value,
+            "want_reply": True,
+            "operations": [{
+                "operation": "replace",
+                "value": value
+            }]
+        }])
+    
+    async def set_server_bosses(self):
+        for x in range(len(self.bosses_array)):
+            key = self.get_storage_key(f"Boss_{x}")
+            await self.send_msgs([{
+                "cmd": "Set",
+                "key": key,
+                "default": False,
+                "want_reply": True,
+                "operations": [{
+                    "operation": "default",
+                    "value": None
+                }]
+            }])
+    
+    async def set_server_warp_gates(self):
+        for x in range(len(self.warp_gates)):
+            key = self.get_storage_key(f"WarpGates_{x}")
+            await self.send_msgs([{
+                "cmd": "Set",
+                "key": key,
+                "default": 0,
+                "want_reply": True,
+                "operations": [{
+                    "operation": "default",
+                    "value": None
+                }]
+            }])
+    
+
+# This function takes the location ID from Memory Manager and stores it in a list for the client to
+# handle. It also changes the ID if it was a linked location to the location's original ID
+# Needs to receive 2 arguments, the location ID and the context (already imported on MemMan as TFContext)
+# def send_location(location_id: int):
+    # if location_id in database.Linked_Locations:
+        # location_id = database.Linked_Locations[location_id]
+        
+    # unhandled_locations.append(location_id)     # adds location ID to list
+    # memory_manager.checked_locations.append(location_id)   # adds location ID to MemMan list
+    
+
+# Function to tell Archipelago that the game has been completed upon goal completion (typically killing Unicron)
+async def Archipelago_Completed(context: Transformers04Context):
+    if not context.game_completion:
+        context.output("Unicron Defeated")
+        context.game_completion = True
+        await context.send_msgs([{"cmd": "StatusUpdate", "status": ClientStatus.CLIENT_GOAL}])
+
+
+
+async def game_loop(context: Transformers04Context):
+    """
+    This is the function that communicates between the game and the archipelago server.
+    It is continuously called and run asyncronous to the archipelago server stuff.
+    """
+    
+    #item = ""
+    item_id = 0
+    item_type = ItemType.minicon
+    current_health = 1.0
+    num_bosses_killed = 0
+    
+    pine_previous_connection = False
+    item_index = 0
+    loc_id = 0
+    num_unlocked_levels = 0
+    amazon_first = False
+    self_pickup = False
+    context.powerlink_enabled = False
+    
+    
+    
+    #Game Loop
+    while not context.exit_event.is_set():
+        
+        #if server disconnects, wait till reconnect
+        if not context.archi_connected.is_set():
+            item_index = 0
+            context.minicons_collected = 0
+            context.disconnected = True
+            if not context.memory_manager_closed:
+                context.logger.info("Client Disconnected, Closing Memory Manager")
+                memory_manager.execute_command((PineCommand.comm_exit,), context)
+                context.memory_manager_closed = True
+                context.memory_manager_task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await context.memory_manager_task
+            await asyncio.sleep(0.1)
+            continue
+            
+        if context.disconnected and context.archi_connected.is_set():
+            context.logger.info("Client Reconnected, Restarting Memory Manager")
+            context.memory_manager_closed = False
+            context.disconnected = False
+            context.memory_manager_task = asyncio.create_task(memory_manager.monitor_ram(context))
+        
+        #if we are in the HQ and its the first visit, output it for Debug purposes
+        if context.in_HQ and context.first_HQ_visit and memory_manager.pine_is_connected:
+            context.first_HQ_visit = False
+            context.output("First HQ Visit")
+            
+            if context.random_stats:
+                #print stats of Autobots for player
+                context.logger.info("")
+                context.logger.info( "----Optimus Prime Stats-----")
+                context.logger.info(f"Health: {context.Optimus_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Optimus_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Optimus_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Optimus_Stats[3]:.2f}")
+                context.logger.info(f"Powerlinx Regen: {context.Optimus_Stats[4]:.2f}")
+                context.logger.info( "-------Hot Shot Stats-------")
+                context.logger.info(f"Health: {context.Hot_Shot_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Hot_Shot_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Hot_Shot_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Hot_Shot_Stats[3]:.2f}")
+                context.logger.info(f"Powerlinx Regen: {context.Hot_Shot_Stats[4]:.2f}")
+                context.logger.info( "------Red Alert Stats-------")
+                context.logger.info(f"Health: {context.Red_Alert_Stats[0]:.2f}")
+                context.logger.info(f"Height: {context.Red_Alert_Stats[1]:.2f}")
+                context.logger.info(f"Power Capacity: {int(context.Red_Alert_Stats[2]/10)}")
+                context.logger.info(f"Dash Speed: {context.Red_Alert_Stats[3]:.2f}")
+                context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
+                context.logger.info("")
+            
+        
+        #the first time pine connects to the game, make sure the checked locations list matches the archipelago
+        # list. This should only happen the first time and not if the game disconnects and reconnects.
+        if memory_manager.pine_is_connected and not pine_previous_connection:
+            memory_manager.checked_locations.extend(context.checked_locations)
+            for loc in context.checked_locations:
+                if loc == 999:
+                    memory_manager.checked_locations.append(1999)
+                    memory_manager.checked_locations.append(2999)
+                    memory_manager.checked_locations.append(3999)
+                    memory_manager.checked_locations.append(4999)
+                    memory_manager.checked_locations.append(5999)
+                    memory_manager.checked_locations.append(6999)
+                if loc in database.Reverse_Linked_Locations:
+                    memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc])
+        pine_previous_connection = memory_manager.pine_is_connected
+
+
+
+
+
+        # make sure Pine is connected and the game is not complete. If that is true, do the rest of the client code
+        if memory_manager.pine_is_connected and not context.game_completion:
+            
+            #Unlock power link if the levels are randomized and you dont start on amazon, otherwise when 2 levels
+            # have been unlocked.
+            num_unlocked_levels = 0
+            for x in context.items_received:
+                if x.item >= 160:
+                    num_unlocked_levels += 1
+                    if num_unlocked_levels == 1 and x.item == database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
+                        amazon_first = True
+                    elif num_unlocked_levels == 1 and x.item != database.ITEM_NAME_TO_ID["Amazon Level Unlock"]:
+                        amazon_first = False
+            if ((context.random_level_enabled and not amazon_first) or num_unlocked_levels >= 2) and not context.powerlink_enabled:
+                #Unlock Power Link
+                memory_manager.execute_command((PineCommand.comm_unlock_sidekick,), context)
+                context.powerlink_enabled = True
+            
+            #If in HQ and were not previously, unlock all available levels, then handle Big Head Mode if needed
+            if context.in_HQ and not context.previous_HQ:
+                context.output("In HQ")
+                for x in context.items_received:
+                    if x.item >= 160:
+                        level = x.item - 160
+                        if level == 7 and context.bosses_mode:
+                        #if level == 7 and not context.unicron_requirements_met:
+                            context.cybertron_unlocked = True
+                        else:
+                            context.output(f"Unlocking Level {database.Level_Name[level]}")
+                            memory_manager.execute_command((PineCommand.comm_unlock_episode,level), context)
+                for x in context.checked_locations:
+                    if x in database.Boss_Locations or x == 9008:
+                        level = x - 9001
+                        if context.bosses_array[level]:
+                            context.output(f"Marking Level {database.Level_Name[level]} Complete")
+                            memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
+                if context.big_head_status:
+                    if context.big_head_count > 0:
+                        context.big_head_count -= 1
+                    if context.big_head_count == 0:
+                        context.output("Disabling Big Head")
+                        context.big_head_status = False
+                        memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, False)
+                if context.big_head:
+                    context.output("Enabling Big Head")
+                    context.big_head = False
+                    context.big_head_status = True
+                    memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
+                memory_manager.read_warp_gates(context)
+            context.previous_HQ = context.in_HQ
+            
+            
+            #if bosses mode is the goal
+            if context.bosses_mode:
+                #count how many bosses have been killed (or alaska completed)
+                num_bosses_killed = 0
+                for x in range(len(context.bosses_array)):
+                    if context.bosses_array[x] and ((9001 + x) in context.checked_locations):
+                        num_bosses_killed += 1
+                #if we reached the amount, set the state true
+                if num_bosses_killed >= 7:
+                    context.bosses_killed = True
+                #if we picked up the unicron level unlock (cybertron unlocked), killed all bosses, and have not
+                #   unlocked cybertron yet, then unlock cybertron
+                if context.bosses_killed and context.cybertron_unlocked and not context.bosses_goal_done:
+                    memory_manager.execute_command((PineCommand.comm_unlock_episode,7), context)
+                    context.bosses_goal_done = True
+                # if context.minicons_done and context.bosses_goal_done and not context.unicron_requirements_met:
+                    # context.unicron_requirements_met = True
+            # else:
+                # if context.minicons_done and not context.unicron_requirements_met:
+                    # context.unicron_requirements_met = True
+            
+            
+            #check if new location was checked and if so, send the ID to Archipelago
+            if len(memory_manager.unhandled_locations) > 0:
+                if not (memory_manager.unhandled_locations[0] == 0):
+                    context.output("Unhandled Location Detected")
+                    loc_id = memory_manager.unhandled_locations[0]
+                    if loc_id == 9008:
+                        asyncio.create_task(Archipelago_Completed(context))
+                    else:
+                        if loc_id > 9000 and loc_id < 9009:
+                            context.bosses_array[loc_id - 9001] = True
+                            await context.set_server_variable(f"Boss_{loc_id - 9001}", True)
+                        result = await context.check_locations([loc_id])
+                        # text = ", ".join(str(item) for item in result)
+                        if loc_id < 9000 or loc_id > 10000:
+                            memory_manager.checked_locations.append(loc_id)
+                            if loc_id == 999:
+                                memory_manager.checked_locations.append(1999)
+                                memory_manager.checked_locations.append(2999)
+                                memory_manager.checked_locations.append(3999)
+                                memory_manager.checked_locations.append(4999)
+                                memory_manager.checked_locations.append(5999)
+                                memory_manager.checked_locations.append(6999)
+                            if loc_id in database.Reverse_Linked_Locations:
+                                memory_manager.checked_locations.append(database.Reverse_Linked_Locations[loc_id])
+                    memory_manager.adjust_cybertron_count(context)
+                del memory_manager.unhandled_locations[0]
+                
+                
+            # Give received items
+            # context.items_received is a list of all items our game should have received from Archipelago. This helps if
+            #   the game had to reconnect and get all items given while gone, or if the game had to restart from a crash
+            #   or something like that. 
+            
+            # check if the length of received items is bigger than the index, meaning there is an item to receive
+            if len(context.items_received) > item_index:
+                item_id = context.items_received[item_index].item   # get the item ID
+                if context.items_received[item_index].player == context.slot:
+                    self_pickup = True
+                else:
+                    self_pickup = False
+                item_index += 1     #increase the index
+                
+                #if the ID is less than 50, then the item is a minicon
+                if item_id < 50:
+                    item_type = ItemType.minicon
+                    
+                #if the item is somewhere between 50 and 150, its a datacon, so we need to subtract 50 from the ID
+                elif item_id < 150:
+                    item_type = ItemType.datacon
+                    item_id -= 50
+                    
+                #if its between 150 and 160, its a special item, like a trap or health drop, so subtract 150
+                elif item_id < 160:
+                    item_type = ItemType.special
+                    item_id -= 150
+                    
+                # if its 160 or higher, its a level unlock, so subtract 160 (level ids range from 0-7)
+                else:
+                    item_type = ItemType.level_unlock
+                    item_id -= 160
+                
+                #give the item based on the type of item
+                match item_type:
+                    case ItemType.minicon:
+                        memory_manager.execute_command((PineCommand.comm_unlock_minicon,item_id), context)
+                        context.minicons_collected += 1
+                        memory_manager.adjust_cybertron_count(context)
+                        # if context.minicons_collected >= context.minicons_required:
+                            # context.minicons_done = True
+                    
+                    case ItemType.datacon:
+                        memory_manager.unlock_datacon(item_id)
+                    
+                    case ItemType.level_unlock:
+                        if context.in_HQ:
+                            if item_id == 7 and context.bosses_mode:
+                            #if level == 7 and not context.unicron_requirements_met:
+                                context.cybertron_unlocked = True
+                            else:
+                                context.output(f"Unlocking Level {database.Level_Name[item_id]}")
+                                memory_manager.execute_command((PineCommand.comm_unlock_episode,item_id), context)
+                    
+                    case ItemType.special:
+                        if item_id == 1:    #Health Drop
+                            memory_manager.execute_command((PineCommand.comm_set_max_health,), context)
+                        elif item_id == 2 and item_index > context.last_item_index:   #big head
+                            #asyncio.create_task(Effects.apply_effect(Effects.get_effect("BuffBigHead")))
+                            context.big_head = True
+                            context.big_head_count += 1
+                            if context.in_HQ:
+                                context.output("Enabling Big Head")
+                                context.big_head = False
+                                context.big_head_status = True
+                                memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
+                        elif item_id == 3 and item_index > context.last_item_index:   #Stealth Trap
+                            stealth_trap = Effects.get_effect("TrapEnemyStealth")
+                            asyncio.create_task(Effects.apply_effect(stealth_trap,context))
+                        elif item_id == 4 and item_index > context.last_item_index:   #Freeze Trap
+                            asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapFreeze"),context))
+                        # elif item_id == 5 and item_index > context.last_item_index:   #warp trap
+                            # asyncio.create_task(Effects.apply_effect(Effects.get_effect("TrapWarpToHQ"),context))
+                context.last_item_index = item_index
+            
+            
+            #Deathlink Handling
+            if context.deathlink_enabled:
+                #If we have received a deathlink, kill the player, and set variables as needed.
+                if context.deathlink_pending:
+                    asyncio.create_task(Effects.apply_effect(Effects.get_effect("StasisLock"), context))
+                    context.deathlink_pending = False
+                    context.sent_death = True
+                
+                #Get the current player health
+                current_health = memory_manager.execute_command((PineCommand.comm_get_health,), context)
+                
+                #If current health is 0 or less, and a death is not currently being sent_death
+                #   (deathlink isnt triggering and it doesnt sent infinite while waiting on player
+                #   to hit continue or something), then send the death
+                if current_health <= 0 and not context.sent_death:
+                    await context.send_death(f"{context.player_names[context.slot]} has Stasis Locked")
+                    context.sent_death = True
+                    
+                #Check to see if player is back above 0 health to reset the death state
+                if context.sent_death and current_health > 0:
+                    context.sent_death = False
+            
+            # if context.minicons_collected != last_minicons:
+                # memory_manager.adjust_cybertron_count(context)
+                # last_minicons = context.minicons_collected
+            
+        await asyncio.sleep(0.1)
+    
+    
+    memory_manager.execute_command((PineCommand.comm_exit,), context)
+    
+
+
+
+
+
+async def main(args):
+    context = Transformers04Context(
+        args.connect,
+        args.password
+    )
+    
+    context.auth = args.name
+    
+    # Start the Archipelago Server connection.
+    # If no address was supplied, the GUI will allow us to connect.
+    context.server_task = asyncio.create_task(server_loop(context), name="ServerLoop")
+    
+    # start the Archipelago Client Window
+    if gui_enabled:
+        context.run_gui()
+        
+    # Enable normal command-line input when available. Used by other Archipelago Processes.
+    context.run_cli()
+    
+    await context.archi_connected.wait()
+    
+    #Setup the game loop to handle items and locations from the game
+    context.logger.info("Starting Client Loop")
+    asyncio.create_task(game_loop(context))
+    context.logger.info("Starting Memory Manager")
+    context.memory_manager_task = asyncio.create_task(memory_manager.monitor_ram(context))
+    
+    # keep the client alive until the user closes it
+    await context.exit_event.wait()
+    
+    context.archi_connected.clear()
+    
+    context.server_address = None
+    await context.shutdown()
+
+
+
+
+
+
+
+# This is only if we want to test the client without using the APLauncher.
+# I personally plan to use the launcher, so I will comment it out.
+"""
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("connect", nargs="?", default=None)
+    parser.add_argument("--password", default=None)
+
+    args = parser.parse_args()
+
+    asyncio.run(main(args))
+"""
