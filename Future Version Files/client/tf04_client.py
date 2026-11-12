@@ -57,8 +57,14 @@ class Transformers04CommandProcessor(ClientCommandProcessor):
         asyncio.create_task(
             self.ctx.set_server_variable(f"Boss_{boss_index}", True)
         )
-        self.output(f"Marked {boss} as defeated.")
+        self.logger.info(f"Marked {boss} as defeated.")
         return True
+    
+    def _cmd_debug_mode(self) -> bool:
+        """Toggle Debug Mode on or off. Usage: /debug_mode"""
+        
+        self.debug_mode = not self.debug_mode
+        self.logger.info(f"Set Debug Mode to {self.debug_mode}")
 
 
 # Context is how Archipelago stores data for the game, like slot number, name, server connections, etc.
