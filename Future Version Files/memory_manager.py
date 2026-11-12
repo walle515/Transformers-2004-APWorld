@@ -106,14 +106,18 @@ async def read_warp_gates(context):
         episode_offset = episode_id * 0x4C
         episode_gates = 0
         
+        gate_data = pcsx2.read_bytes(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x40)
+        
         for x in range(16):
-            warp_gate_offset = (x+1) * 4
-            warp_status = pcsx2.read_int32(GameAddress.gameadd_level_unlocks + episode_offset + warp_gate_offset)
-            warp_int = warp_status << (2*x)
-            episode_gates |= warp_int
+            warp_gate_offset = x*4
+            warp_status = gate_data[warp_gate_offset] & 0x3
+            if not warp_status == 0x3:
+                warp_int = warp_status << (2*x)
+                episode_gates |= warp_int
         
         context.warp_gates[episode_id] = episode_gates
         if context.warp_gates[episode_id] != context.warp_gates_last[episode_id]:
+            context.memman_out(f"Sending {database.Level_Name[episode_id]} Warp Gates to Server")
             await context.set_server_variable(f"WarpGates_{episode_id}",context.warp_gates[episode_id])
             context.warp_gates_last[episode_id] = context.warp_gates[episode_id]
         
@@ -125,7 +129,7 @@ def write_warp_gates(context, episode_id):
     
     for x in range(15):
         warp_gate_offset = (x+2) * 4
-        warp_status = (episode_gates >> (2*(x+1))) | 0x3
+        warp_status = (episode_gates >> (2*(x+1))) & 0x3
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + warp_gate_offset, warp_status)
 
 

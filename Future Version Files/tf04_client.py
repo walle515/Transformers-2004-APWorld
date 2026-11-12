@@ -103,6 +103,9 @@ class Transformers04Context(CommonContext):
         self.warp_gates = [0 for _ in range(7)]
         self.warp_gates_last = [0 for _ in range(7)]
         self.warp_keys = []
+        self.server_warps_received = 0
+        self.warps_ready = False
+        self.warps_written = False
         
         self.in_HQ = False
         self.first_HQ_visit = True
@@ -195,7 +198,9 @@ class Transformers04Context(CommonContext):
                 value = args["value"]
                 if isinstance(value, int):
                     self.warp_gates[x] = value
-                    #memory_manager.write_warp_gates(self, x)
+                    self.server_warps_received += 1
+                    if self.server_warps_received >= 7:
+                        self.warps_ready = True
                 
     
     def output(self, text: str):
@@ -316,6 +321,8 @@ async def game_loop(context: Transformers04Context):
             item_index = 0
             context.minicons_collected = 0
             context.disconnected = True
+            context.warps_ready = False
+            context.warps_written = False
             if not context.memory_manager_closed:
                 context.logger.info("Client Disconnected, Closing Memory Manager")
                 memory_manager.execute_command((PineCommand.comm_exit,), context)
@@ -360,8 +367,7 @@ async def game_loop(context: Transformers04Context):
                 context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
                 context.logger.info("")
             
-            for x in range(len(context.warp_gates)):
-                memory_manager.write_warp_gates(context, x)
+            
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago
         # list. This should only happen the first time and not if the game disconnects and reconnects.
@@ -385,6 +391,12 @@ async def game_loop(context: Transformers04Context):
 
         # make sure Pine is connected and the game is not complete. If that is true, do the rest of the client code
         if memory_manager.pine_is_connected and not context.game_completion:
+            
+            if context.warps_ready and not context.warps_written:
+                context.output("Writing Warp Gates from Server")
+                for x in range(len(context.warp_gates)):
+                    memory_manager.write_warp_gates(context, x)
+                context.warps_written = True
             
             #Unlock power link if the levels are randomized and you dont start on amazon, otherwise when 2 levels
             # have been unlocked.
