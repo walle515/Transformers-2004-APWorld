@@ -392,7 +392,7 @@ async def game_loop(context: Transformers04Context):
         # make sure Pine is connected and the game is not complete. If that is true, do the rest of the client code
         if memory_manager.pine_is_connected and not context.game_completion:
             
-            if context.warps_ready and not context.warps_written:
+            if context.in_HQ and context.warps_ready and not context.warps_written:
                 context.output("Writing Warp Gates from Server")
                 for x in range(len(context.warp_gates)):
                     memory_manager.write_warp_gates(context, x)
