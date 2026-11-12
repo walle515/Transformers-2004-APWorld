@@ -105,14 +105,19 @@ class Transformers04Context(CommonContext):
         #Amazon, Antarctica, Deep Amazon, Mid Atlantic, Alaska, Starship, Pacific Island, Unicron
         self.bosses_array = [False, False, False, False, False, False, False, False]
         self.boss_storage_keys = []
+        
+        
         #16 warp gates per level, 7 levels
-        self.warp_gates = [0 for _ in range(7)]
-        self.warp_gates_last = [0 for _ in range(7)]
+        self.warp_init = 0
+        for x in range(16):
+            warp_init |= 0x1 << (2*x)
+        self.warp_gates = [warp_init for _ in range(7)]
+        self.warp_gates_last = [warp_init for _ in range(7)]
         self.warp_keys = []
         self.server_warps_received = 0
         self.warps_ready = False
         self.warps_written = False
-        self.warp_replies_received = set()
+        #self.warp_replies_received = set()
         
         self.in_HQ = False
         self.first_HQ_visit = True
@@ -205,9 +210,13 @@ class Transformers04Context(CommonContext):
                 value = args["value"]
                 if isinstance(value, int):
                     self.warp_gates[x] = value
-                    self.warp_replies_received.add(key)
-                    if len(self.warp_replies_received) >= 7:
-                        self.warps_ready = True
+                    # self.warp_replies_received.add(key)
+                    # if len(self.warp_replies_received) >= 7:
+                        # self.warps_ready = True
+                    if value > 0:
+                        self.server_warps_received += 1
+                        if self.server_warps_received >= 7:
+                            self.warps_ready = True
                 
     
     def output(self, text: str):
@@ -269,7 +278,7 @@ class Transformers04Context(CommonContext):
             await self.send_msgs([{
                 "cmd": "Set",
                 "key": key,
-                "default": 0,
+                "default": self.warp_init,
                 "want_reply": True,
                 "operations": [{
                     "operation": "default",

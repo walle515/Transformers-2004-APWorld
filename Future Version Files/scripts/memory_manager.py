@@ -214,7 +214,7 @@ def handle_initial_values(context):
     
     #set amazon locked at start, Archipelago will unlock start level
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
-    pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
+    pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x1)
     
     #save stats
     context.Optimus_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
@@ -477,7 +477,8 @@ async def monitor_ram(context):
         if command[0] != PineCommand.comm_nothing:
             execute_command(command,context)
         
-        await read_warp_gates(context)
+        if context.warps_ready:
+            await read_warp_gates(context)
         
         if not pcsx2.is_connected():
             print("PINE Disconnected, attempting reconnect")
