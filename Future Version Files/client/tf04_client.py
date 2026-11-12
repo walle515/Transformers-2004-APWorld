@@ -106,6 +106,7 @@ class Transformers04Context(CommonContext):
         self.server_warps_received = 0
         self.warps_ready = False
         self.warps_written = False
+        self.warp_replies_received = set()
         
         self.in_HQ = False
         self.first_HQ_visit = True
@@ -198,8 +199,8 @@ class Transformers04Context(CommonContext):
                 value = args["value"]
                 if isinstance(value, int):
                     self.warp_gates[x] = value
-                    self.server_warps_received += 1
-                    if self.server_warps_received >= 7:
+                    self.warp_replies_received.add(key)
+                    if len(self.warp_replies_received) >= 7:
                         self.warps_ready = True
                 
     
@@ -322,6 +323,7 @@ async def game_loop(context: Transformers04Context):
             context.minicons_collected = 0
             context.disconnected = True
             context.warps_ready = False
+            context.warp_replies_received.clear()
             context.warps_written = False
             if not context.memory_manager_closed:
                 context.logger.info("Client Disconnected, Closing Memory Manager")
