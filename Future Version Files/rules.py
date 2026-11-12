@@ -156,10 +156,10 @@ def set_all_location_rules(world: Transformers04World) -> None:
         for location in database.Starship_Tall_Rocks:
             world.set_rule(world.get_location(location), rule_slipstream)
         
-        for location in database.Slipstream_Hard_Skip:
+        for location in database.Slipstream_Hard_Skips:
             world.set_rule(world.get_location(location), rule_slipstream)
         
-        for location in database.Explosive_Hard_Skip:
+        for location in database.Explosive_Hard_Skips:
             world.set_rule(world.get_location(location), rule_explosive)
     
     

@@ -589,7 +589,7 @@ Slipstream_Easy_Dash_and_Highjump_Skips = [
 
 
 
-Slipstream_Easy_Skip = [
+Slipstream_Easy_Skips = [
     "Amazon-Spire",
     "Antarctica-Lonely Island",
     "Deep Amazon-Patrolling Dropship",
@@ -608,7 +608,7 @@ Slipstream_Easy_Skip = [
 ]
 
 
-Highjump_Easy_Skip = [
+Highjump_Easy_Skips = [
     "Alaska-Mountaintop",
     "Alaska-Cave's Right Fork",
     "Alaska-Cave's Left Fork",
@@ -698,13 +698,13 @@ Highjump_Hard_Slipstream_Skips = [
 
 
 
-Slipstream_Hard_Skip = [
+Slipstream_Hard_Skips = [
     "Deep Amazon-Patrolling Dropship",
     "Mid Atlantic-Distant Island"
 ]
 
 
-Explosive_Hard_Skip = [
+Explosive_Hard_Skips = [
     "Antarctica-Research Base Office 1",
     "Antarctica-Research Base Containers 1",
     "Antarctica-Research Base Containers 2",
