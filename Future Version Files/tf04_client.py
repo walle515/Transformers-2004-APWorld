@@ -101,6 +101,7 @@ class Transformers04Context(CommonContext):
         self.boss_storage_keys = []
         #16 warp gates per level, 7 levels
         self.warp_gates = [0 for _ in range(7)]
+        self.warp_gates_last = [0 for _ in range(7)]
         self.warp_keys = []
         
         self.in_HQ = False
@@ -194,7 +195,7 @@ class Transformers04Context(CommonContext):
                 value = args["value"]
                 if isinstance(value, int):
                     self.warp_gates[x] = value
-                    memory_manager.write_warp_gates(context, x)
+                    #memory_manager.write_warp_gates(self, x)
                 
     
     def output(self, text: str):
@@ -359,6 +360,8 @@ async def game_loop(context: Transformers04Context):
                 context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
                 context.logger.info("")
             
+            for x in range(len(context.warp_gates)):
+                memory_manager.write_warp_gates(context, x)
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago
         # list. This should only happen the first time and not if the game disconnects and reconnects.
@@ -428,7 +431,7 @@ async def game_loop(context: Transformers04Context):
                     context.big_head = False
                     context.big_head_status = True
                     memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
-                memory_manager.read_warp_gates(context)
+                #memory_manager.read_warp_gates(context)
             context.previous_HQ = context.in_HQ
             
             
