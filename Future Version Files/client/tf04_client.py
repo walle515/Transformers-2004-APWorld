@@ -110,9 +110,9 @@ class Transformers04Context(CommonContext):
         #16 warp gates per level, 7 levels
         self.warp_init = 0
         for x in range(16):
-            warp_init |= 0x1 << (2*x)
-        self.warp_gates = [warp_init for _ in range(7)]
-        self.warp_gates_last = [warp_init for _ in range(7)]
+            self.warp_init |= 0x1 << (2*x)
+        self.warp_gates = [self.warp_init for _ in range(7)]
+        self.warp_gates_last = [self.warp_init for _ in range(7)]
         self.warp_keys = []
         self.server_warps_received = 0
         self.warps_ready = False

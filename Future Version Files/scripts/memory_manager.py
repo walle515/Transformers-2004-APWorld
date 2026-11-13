@@ -18,7 +18,7 @@ monitor_ram()
 the checked_locations list, just to populate its values.'''
 
 #The checked_locations list should be populated from Archipelago on connection to the server to keep our
-# local checks in sync. TODO: Populate this list on connection
+# local checks in sync.
 checked_locations: list[int] = []
 
 
