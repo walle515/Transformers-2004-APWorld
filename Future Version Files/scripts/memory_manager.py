@@ -477,7 +477,7 @@ async def monitor_ram(context):
         if command[0] != PineCommand.comm_nothing:
             execute_command(command,context)
         
-        if context.warps_ready:
+        if context.warps_written:
             await read_warp_gates(context)
         
         if not pcsx2.is_connected():
