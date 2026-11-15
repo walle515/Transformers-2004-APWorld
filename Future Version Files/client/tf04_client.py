@@ -338,7 +338,7 @@ async def game_loop(context: Transformers04Context):
             context.minicons_collected = 0
             context.disconnected = True
             context.warps_ready = False
-            context.warp_replies_received.clear()
+            #context.warp_replies_received.clear()
             context.warps_written = False
             if not context.memory_manager_closed:
                 context.logger.info("Client Disconnected, Closing Memory Manager")
