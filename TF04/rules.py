@@ -63,8 +63,20 @@ def set_all_location_rules(world: Transformers04World) -> None:
     rule_dash_or_hail = rule_dash | Has("Hailstorm")
     rule_dash_and_high = rule_dash & rule_highjump
     rule_dash_or_damageboost = rule_dash | rule_damage_boost
+    rule_beginner_location = (  
+        Has("Amazon Level Unlock") |
+        Has ("Antarctica Level Unlock") |
+        Has ("Deep Amazon Level Unlock") | 
+        Has ("Mid Atlantic Level Unlock") |
+        Has ("Alaska Level Unlock") |
+        Has ("Starship Level Unlock") |
+        Has ("Pacific Island Level Unlock")
+    )
     
     world.set_rule(world.get_location("Defeat All Bosses"), rule_all_levels)
+    
+    if world.options.add_starting_location:
+        world.set_rule(world.get_location("Beginner Location"), rule_beginner_location)
     
     if world.options.logic_difficulty == options.LogicDifficulty.option_Default:
         world.set_rule(world.get_location("Amazon-Spidertank Triplets"), rule_slip_or_high)

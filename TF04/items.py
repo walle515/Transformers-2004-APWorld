@@ -161,6 +161,15 @@ DEFAULT_ITEM_CLASSIFICATIONS = {
 class Transformers04Item(Item):
     game = "Transformers (2004)"
     
+
+
+def create_item_not_starting(world,item_name):
+    starting_items = world.options.start_inventory.value
+    if starting_items.get(item_name, 0) == 0:
+        return world.create_item(item_name)
+    return None
+
+
 def get_random_filler_item_name(world: Transformers04World) -> str:
     if world.random.randint(0,99) < world.options.trap_chance:
         num = world.random.randint(0,1)
@@ -193,154 +202,180 @@ def create_all_items(world: Transformers04World) -> None:
     rand_num_2 = world.random.randint(0,5)
     num_players = world.multiworld.players
     
+    starting_items = world.options.start_inventory.value
+    start_levels = [False for _ in range(len(database.Level_Unlocks))]
+    start_inventory_level = False
+    for x in range(len(database.Level_Unlocks)):
+        if starting_items.get(database.Level_Unlocks[x], 0) > 0:
+            print(f"Starting Inventory Level Detected: {database.Level_Name[x]}")
+            start_levels[x] = True
+            start_inventory_level = True
+    add_amazon = False
+    
+    
     itempool: list[Item] = [
-        world.create_item("Skirmish"),
-        world.create_item("Firefight"),
-        world.create_item("Aftershock"),
-        world.create_item("Sparkjump"),
-        world.create_item("Jumpstart"),
-        world.create_item("Overwatch"),
-        world.create_item("Aurora"),
-        world.create_item("Corona"),
-        #world.create_item("UltimatePrimary"),
-        world.create_item("Flashbang"),
-        world.create_item("Hailstorm"),
-        world.create_item("Knockdown"),
-        world.create_item("Airburst"),
-        world.create_item("Slapshot"),
-        world.create_item("Lock-on"),
-        world.create_item("Watchdog"),
-        world.create_item("Claymore"),
-        world.create_item("Lookout"),
-        world.create_item("Twister"),
-        #world.create_item("UltimateR1"),
-        world.create_item("Shockpunch"),
-        world.create_item("Slipstream"),
-        #world.create_item("UltimateGlide"),
-        world.create_item("Discord"),
-        world.create_item("Safeguard"),
-        world.create_item("Bulletproof"),
-        world.create_item("Stronghold"),
-        world.create_item("Highgear"),
-        world.create_item("Smackdown"),
-        world.create_item("Shieldwall"),
-        world.create_item("Hawkeye"),
-        world.create_item("Deflector"),
-        world.create_item("Fullspeed"),
-        world.create_item("Pressurepoint"),
-        world.create_item("Shepherd"),
-        world.create_item("Rangefinder"),
-        world.create_item("Kickback"),
-        world.create_item("Covert"),
-        world.create_item("Tractor"),
-        #world.create_item("UltimateShield"),
-        world.create_item("Buildup"),
-        world.create_item("Comeback"),
-        world.create_item("Highjump"),
-        world.create_item("Failsafe"),
-        #world.create_item("Datacon (None)"),
-        world.create_item("Datacon (CharacterEnergon)"),
-        world.create_item("Datacon (RendersAutobots2)"),
-        world.create_item("Datacon (CardArtwork)"),
-        world.create_item("Datacon (DecepticloneSubmission)"),
-        world.create_item("Datacon (LeClezio1)"),
-        world.create_item("Datacon (RendersDecepticons2)"),
-        world.create_item("Datacon (ConceptArtDecepticlone)"),
-        world.create_item("Datacon (LeClezio2)"),
-        world.create_item("Datacon (TVSeriesThemeMusic)"),
-        world.create_item("Datacon (LevelStoryboardsAmazon)"),
-        world.create_item("Datacon (ArtPostcards)"),
-        world.create_item("Datacon (InstructionSheetOptimus)"),
-        world.create_item("Datacon (ConceptArtAutobots)"),
-        world.create_item("Datacon (MovieStills6)"),
-        #world.create_item("Datacon (MovieStills7)"),
-        world.create_item("Datacon (RendersDecepticon)"),
-        world.create_item("Datacon (ThemeRegurgitator)"),
-        world.create_item("Datacon (MiniComic1)"),
-        world.create_item("Datacon (MiniComic2)"),
-        world.create_item("Datacon (MiniComic3)"),
-        world.create_item("Datacon (MiniComic4)"),
-        world.create_item("Datacon (ProductionArtAmazon)"),
-        world.create_item("Datacon (ProductionArtAntarctica)"),
-        world.create_item("Datacon (ProductionArtDeepAmazon)"),
-        world.create_item("Datacon (ProductionArtMidAtlantic)"),
-        world.create_item("Datacon (ProductionArtAlaska)"),
-        world.create_item("Datacon (ProductionArtStarship)"),
-        world.create_item("Datacon (ProdcutionArtPacificIsland)"),
-        world.create_item("Datacon (ProductionArtAutobotHQ)"),
-        world.create_item("Datacon (RendersAutobots)"),
-        world.create_item("Datacon (RendersDecepticlone)"),
-        world.create_item("Datacon (RendersMiniCons)"),
-        world.create_item("Datacon (ToyProductionHotShot)"),
-        world.create_item("Datacon (ToyProductionOptimus)"),
-        world.create_item("Datacon (ToyProductionRedAlert)"),
-        world.create_item("Datacon (ToyProductionMinicons)"),
-        world.create_item("Datacon (ToyProductionCyclonus)"),
-        world.create_item("Datacon (ToyProductionStarscream)"),
-        world.create_item("Datacon (ToyProductionTidalWave)"),
-        world.create_item("Datacon (ToyProductionMegatron)"),
-        world.create_item("Datacon (RendersAutobots3)"),
-        world.create_item("Datacon (CGProductionSequence2)"),
-        world.create_item("Datacon (CGProductionSequence)"),
-        world.create_item("Datacon (InstructionSheetMegatron)"),
-        world.create_item("Datacon (InstructionSheetHotShot)"),
-        world.create_item("Datacon (RendersDecepticlone2)"),
-        world.create_item("Datacon (RendersDecepticlone3)"),
-        world.create_item("Datacon (RendersDecepticlone4)"),
-        world.create_item("Datacon (TVSpot1)"),
-        world.create_item("Datacon (TVSpot2)"),
-        world.create_item("Datacon (TVSpot3)"),
-        world.create_item("Datacon (TVSpot4)"),
-        world.create_item("Datacon (TVSpot5)"),
-        world.create_item("Datacon (InstructionSheetRedAlert)"),
-        world.create_item("Datacon (MovieStills1)"),
-        world.create_item("Datacon (MovieStills2)"),
-        world.create_item("Datacon (MovieStills3)"),
-        world.create_item("Datacon (MovieStills4)"),
-        world.create_item("Datacon (MovieStills5)"),
-        world.create_item("Datacon (Dropbox_Wishbone)"),
-        world.create_item("Datacon (ThemeDropbox)"),
-        world.create_item("Datacon (LaunchPhotos)"),
-        world.create_item("Datacon (ThemeOrchestral)"),
+        item for item in [
+            create_item_not_starting(world, "Skirmish"),
+            create_item_not_starting(world, "Firefight"),
+            create_item_not_starting(world, "Aftershock"),
+            create_item_not_starting(world, "Sparkjump"),
+            create_item_not_starting(world, "Jumpstart"),
+            create_item_not_starting(world, "Overwatch"),
+            create_item_not_starting(world, "Aurora"),
+            create_item_not_starting(world, "Corona"),
+            #create_item_not_starting(world, "UltimatePrimary"),
+            create_item_not_starting(world, "Flashbang"),
+            create_item_not_starting(world, "Hailstorm"),
+            create_item_not_starting(world, "Knockdown"),
+            create_item_not_starting(world, "Airburst"),
+            create_item_not_starting(world, "Slapshot"),
+            create_item_not_starting(world, "Lock-on"),
+            create_item_not_starting(world, "Watchdog"),
+            create_item_not_starting(world, "Claymore"),
+            create_item_not_starting(world, "Lookout"),
+            create_item_not_starting(world, "Twister"),
+            #create_item_not_starting(world, "UltimateR1"),
+            create_item_not_starting(world, "Shockpunch"),
+            create_item_not_starting(world, "Slipstream"),
+            #create_item_not_starting(world, "UltimateGlide"),
+            create_item_not_starting(world, "Discord"),
+            create_item_not_starting(world, "Safeguard"),
+            create_item_not_starting(world, "Bulletproof"),
+            create_item_not_starting(world, "Stronghold"),
+            create_item_not_starting(world, "Highgear"),
+            create_item_not_starting(world, "Smackdown"),
+            create_item_not_starting(world, "Shieldwall"),
+            create_item_not_starting(world, "Hawkeye"),
+            create_item_not_starting(world, "Deflector"),
+            create_item_not_starting(world, "Fullspeed"),
+            create_item_not_starting(world, "Pressurepoint"),
+            create_item_not_starting(world, "Shepherd"),
+            create_item_not_starting(world, "Rangefinder"),
+            create_item_not_starting(world, "Kickback"),
+            create_item_not_starting(world, "Covert"),
+            create_item_not_starting(world, "Tractor"),
+            #create_item_not_starting(world, "UltimateShield"),
+            create_item_not_starting(world, "Buildup"),
+            create_item_not_starting(world, "Comeback"),
+            create_item_not_starting(world, "Highjump"),
+            create_item_not_starting(world, "Failsafe"),
+            #create_item_not_starting(world, "Datacon (None)"),
+            create_item_not_starting(world, "Datacon (CharacterEnergon)"),
+            create_item_not_starting(world, "Datacon (RendersAutobots2)"),
+            create_item_not_starting(world, "Datacon (CardArtwork)"),
+            create_item_not_starting(world, "Datacon (DecepticloneSubmission)"),
+            create_item_not_starting(world, "Datacon (LeClezio1)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticons2)"),
+            create_item_not_starting(world, "Datacon (ConceptArtDecepticlone)"),
+            create_item_not_starting(world, "Datacon (LeClezio2)"),
+            create_item_not_starting(world, "Datacon (TVSeriesThemeMusic)"),
+            create_item_not_starting(world, "Datacon (LevelStoryboardsAmazon)"),
+            create_item_not_starting(world, "Datacon (ArtPostcards)"),
+            create_item_not_starting(world, "Datacon (InstructionSheetOptimus)"),
+            create_item_not_starting(world, "Datacon (ConceptArtAutobots)"),
+            create_item_not_starting(world, "Datacon (MovieStills6)"),
+            #create_item_not_starting(world, "Datacon (MovieStills7)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticon)"),
+            create_item_not_starting(world, "Datacon (ThemeRegurgitator)"),
+            create_item_not_starting(world, "Datacon (MiniComic1)"),
+            create_item_not_starting(world, "Datacon (MiniComic2)"),
+            create_item_not_starting(world, "Datacon (MiniComic3)"),
+            create_item_not_starting(world, "Datacon (MiniComic4)"),
+            create_item_not_starting(world, "Datacon (ProductionArtAmazon)"),
+            create_item_not_starting(world, "Datacon (ProductionArtAntarctica)"),
+            create_item_not_starting(world, "Datacon (ProductionArtDeepAmazon)"),
+            create_item_not_starting(world, "Datacon (ProductionArtMidAtlantic)"),
+            create_item_not_starting(world, "Datacon (ProductionArtAlaska)"),
+            create_item_not_starting(world, "Datacon (ProductionArtStarship)"),
+            create_item_not_starting(world, "Datacon (ProdcutionArtPacificIsland)"),
+            create_item_not_starting(world, "Datacon (ProductionArtAutobotHQ)"),
+            create_item_not_starting(world, "Datacon (RendersAutobots)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticlone)"),
+            create_item_not_starting(world, "Datacon (RendersMiniCons)"),
+            create_item_not_starting(world, "Datacon (ToyProductionHotShot)"),
+            create_item_not_starting(world, "Datacon (ToyProductionOptimus)"),
+            create_item_not_starting(world, "Datacon (ToyProductionRedAlert)"),
+            create_item_not_starting(world, "Datacon (ToyProductionMinicons)"),
+            create_item_not_starting(world, "Datacon (ToyProductionCyclonus)"),
+            create_item_not_starting(world, "Datacon (ToyProductionStarscream)"),
+            create_item_not_starting(world, "Datacon (ToyProductionTidalWave)"),
+            create_item_not_starting(world, "Datacon (ToyProductionMegatron)"),
+            create_item_not_starting(world, "Datacon (RendersAutobots3)"),
+            create_item_not_starting(world, "Datacon (CGProductionSequence2)"),
+            create_item_not_starting(world, "Datacon (CGProductionSequence)"),
+            create_item_not_starting(world, "Datacon (InstructionSheetMegatron)"),
+            create_item_not_starting(world, "Datacon (InstructionSheetHotShot)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticlone2)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticlone3)"),
+            create_item_not_starting(world, "Datacon (RendersDecepticlone4)"),
+            create_item_not_starting(world, "Datacon (TVSpot1)"),
+            create_item_not_starting(world, "Datacon (TVSpot2)"),
+            create_item_not_starting(world, "Datacon (TVSpot3)"),
+            create_item_not_starting(world, "Datacon (TVSpot4)"),
+            create_item_not_starting(world, "Datacon (TVSpot5)"),
+            create_item_not_starting(world, "Datacon (InstructionSheetRedAlert)"),
+            create_item_not_starting(world, "Datacon (MovieStills1)"),
+            create_item_not_starting(world, "Datacon (MovieStills2)"),
+            create_item_not_starting(world, "Datacon (MovieStills3)"),
+            create_item_not_starting(world, "Datacon (MovieStills4)"),
+            create_item_not_starting(world, "Datacon (MovieStills5)"),
+            create_item_not_starting(world, "Datacon (Dropbox_Wishbone)"),
+            create_item_not_starting(world, "Datacon (ThemeDropbox)"),
+            create_item_not_starting(world, "Datacon (LaunchPhotos)"),
+            create_item_not_starting(world, "Datacon (ThemeOrchestral)")
+        ]
+        if item is not None
     ]
     
     # if world.options.start_with_random_weapon:
         # itempool.append(world.create_item("Blaster"))
         
     if world.options.randomize_levels:
-        if world.options.add_starting_location:
-            print("TF04 World Random Num: " + str(rand_num))
-            if rand_num != 0:
+        if start_inventory_level:
+            levels = 0
+            for x in range(len(database.Level_Unlocks)):
+                if not start_levels[x] and x != database.Level_Unlocks.index("Amazon Level Unlock"):
+                    itempool.append(world.create_item(database.Level_Unlocks[x]))
+                else:
+                    levels += 1
+            if levels == 1 and starting_items.get("Unicron Level Unlock", 0) > 0:
+                add_amazon = True
+            else:
                 itempool.append(world.create_item("Amazon Level Unlock"))
-            if rand_num != 1:
-                itempool.append(world.create_item("Antarctica Level Unlock"))
-            if rand_num != 2:
-                itempool.append(world.create_item("Deep Amazon Level Unlock"))
-            if rand_num != 3:
-                itempool.append(world.create_item("Mid Atlantic Level Unlock"))
-            if rand_num != 4:
-                itempool.append(world.create_item("Alaska Level Unlock"))
-            if rand_num != 5:
-                itempool.append(world.create_item("Starship Level Unlock"))
-            if rand_num != 6:
-                itempool.append(world.create_item("Pacific Island Level Unlock"))
-            itempool.append(world.create_item("Unicron Level Unlock"))
         else:
-            print("TF04 World Random Num: " + str(rand_num_2))
-            if rand_num_2 != 0:
-                itempool.append(world.create_item("Amazon Level Unlock"))
-            if rand_num_2 != 1:
-                itempool.append(world.create_item("Antarctica Level Unlock"))
-            if rand_num_2 != 2:
-                itempool.append(world.create_item("Deep Amazon Level Unlock"))
-            if rand_num_2 != 3:
-                itempool.append(world.create_item("Mid Atlantic Level Unlock"))
-            if rand_num_2 != 4:
-                itempool.append(world.create_item("Alaska Level Unlock"))
-            if rand_num_2 != 5:
-                itempool.append(world.create_item("Pacific Island Level Unlock"))
-            itempool.append(world.create_item("Starship Level Unlock"))
-            itempool.append(world.create_item("Unicron Level Unlock"))
+            if world.options.add_starting_location:
+                print("TF04 World Random Num: " + str(rand_num))
+                if rand_num != 0:
+                    itempool.append(world.create_item("Amazon Level Unlock"))
+                if rand_num != 1:
+                    itempool.append(world.create_item("Antarctica Level Unlock"))
+                if rand_num != 2:
+                    itempool.append(world.create_item("Deep Amazon Level Unlock"))
+                if rand_num != 3:
+                    itempool.append(world.create_item("Mid Atlantic Level Unlock"))
+                if rand_num != 4:
+                    itempool.append(world.create_item("Alaska Level Unlock"))
+                if rand_num != 5:
+                    itempool.append(world.create_item("Starship Level Unlock"))
+                if rand_num != 6:
+                    itempool.append(world.create_item("Pacific Island Level Unlock"))
+                itempool.append(world.create_item("Unicron Level Unlock"))
+            else:
+                print("TF04 World Random Num: " + str(rand_num_2))
+                if rand_num_2 != 0:
+                    itempool.append(world.create_item("Amazon Level Unlock"))
+                if rand_num_2 != 1:
+                    itempool.append(world.create_item("Antarctica Level Unlock"))
+                if rand_num_2 != 2:
+                    itempool.append(world.create_item("Deep Amazon Level Unlock"))
+                if rand_num_2 != 3:
+                    itempool.append(world.create_item("Mid Atlantic Level Unlock"))
+                if rand_num_2 != 4:
+                    itempool.append(world.create_item("Alaska Level Unlock"))
+                if rand_num_2 != 5:
+                    itempool.append(world.create_item("Pacific Island Level Unlock"))
+                itempool.append(world.create_item("Starship Level Unlock"))
+                itempool.append(world.create_item("Unicron Level Unlock"))
     else:
         amazon_boss = world.get_location("Amazon Boss")
         amazon_boss.place_locked_item(world.create_item("Antarctica Level Unlock"))
@@ -356,7 +391,7 @@ def create_all_items(world: Transformers04World) -> None:
         starship_boss.place_locked_item(world.create_item("Pacific Island Level Unlock"))
         pacific_island_boss = world.get_location("Pacific Island Boss")
         pacific_island_boss.place_locked_item(world.create_item("Unicron Level Unlock"))
-        
+    
     
     
     number_of_items = len(itempool)
@@ -379,33 +414,37 @@ def create_all_items(world: Transformers04World) -> None:
     #world.push_precollected(starting_confetti_cannon)
     
     if world.options.randomize_levels:
-        if world.options.add_starting_location and num_players < 4:
-            if rand_num == 0:
+        if start_inventory_level:
+            if add_amazon:
                 world.push_precollected(world.create_item("Amazon Level Unlock"))
-            if rand_num == 1:
-                world.push_precollected(world.create_item("Antarctica Level Unlock"))
-            if rand_num == 2:
-                world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
-            if rand_num == 3:
-                world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
-            if rand_num == 4:
-                world.push_precollected(world.create_item("Alaska Level Unlock"))
-            if rand_num == 5:
-                world.push_precollected(world.create_item("Starship Level Unlock"))
-            if rand_num == 6:
-                world.push_precollected(world.create_item("Pacific Island Level Unlock"))
         else:
-            if rand_num_2 == 0:
-                world.push_precollected(world.create_item("Amazon Level Unlock"))
-            if rand_num_2 == 1:
-                world.push_precollected(world.create_item("Antarctica Level Unlock"))
-            if rand_num_2 == 2:
-                world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
-            if rand_num_2 == 3:
-                world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
-            if rand_num_2 == 4:
-                world.push_precollected(world.create_item("Alaska Level Unlock"))
-            if rand_num_2 == 5:
-                world.push_precollected(world.create_item("Pacific Island Level Unlock"))
+            if world.options.add_starting_location and num_players < 4:
+                if rand_num == 0:
+                    world.push_precollected(world.create_item("Amazon Level Unlock"))
+                if rand_num == 1:
+                    world.push_precollected(world.create_item("Antarctica Level Unlock"))
+                if rand_num == 2:
+                    world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
+                if rand_num == 3:
+                    world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
+                if rand_num == 4:
+                    world.push_precollected(world.create_item("Alaska Level Unlock"))
+                if rand_num == 5:
+                    world.push_precollected(world.create_item("Starship Level Unlock"))
+                if rand_num == 6:
+                    world.push_precollected(world.create_item("Pacific Island Level Unlock"))
+            else:
+                if rand_num_2 == 0:
+                    world.push_precollected(world.create_item("Amazon Level Unlock"))
+                if rand_num_2 == 1:
+                    world.push_precollected(world.create_item("Antarctica Level Unlock"))
+                if rand_num_2 == 2:
+                    world.push_precollected(world.create_item("Deep Amazon Level Unlock"))
+                if rand_num_2 == 3:
+                    world.push_precollected(world.create_item("Mid Atlantic Level Unlock"))
+                if rand_num_2 == 4:
+                    world.push_precollected(world.create_item("Alaska Level Unlock"))
+                if rand_num_2 == 5:
+                    world.push_precollected(world.create_item("Pacific Island Level Unlock"))
     else:
         world.push_precollected(world.create_item("Amazon Level Unlock"))

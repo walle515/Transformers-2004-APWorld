@@ -57,8 +57,14 @@ class Transformers04CommandProcessor(ClientCommandProcessor):
         asyncio.create_task(
             self.ctx.set_server_variable(f"Boss_{boss_index}", True)
         )
-        self.output(f"Marked {boss} as defeated.")
+        self.logger.info(f"Marked {boss} as defeated.")
         return True
+    
+    def _cmd_debug_mode(self) -> bool:
+        """Toggle Debug Mode on or off. Usage: /debug_mode"""
+        
+        self.debug_mode = not self.debug_mode
+        self.logger.info(f"Set Debug Mode to {self.debug_mode}")
 
 
 # Context is how Archipelago stores data for the game, like slot number, name, server connections, etc.
@@ -99,6 +105,19 @@ class Transformers04Context(CommonContext):
         #Amazon, Antarctica, Deep Amazon, Mid Atlantic, Alaska, Starship, Pacific Island, Unicron
         self.bosses_array = [False, False, False, False, False, False, False, False]
         self.boss_storage_keys = []
+        
+        
+        #16 warp gates per level, 7 levels
+        self.warp_init = 0
+        for x in range(16):
+            self.warp_init |= 0x1 << (2*x)
+        self.warp_gates = [self.warp_init for _ in range(7)]
+        self.warp_gates_last = [self.warp_init for _ in range(7)]
+        self.warp_keys = []
+        self.server_warps_received = 0
+        self.warps_ready = False
+        self.warps_written = False
+        #self.warp_replies_received = set()
         
         self.in_HQ = False
         self.first_HQ_visit = True
@@ -165,6 +184,13 @@ class Transformers04Context(CommonContext):
             self.set_notify(*self.boss_storage_keys)
             asyncio.create_task(self.set_server_bosses())
             
+            self.warp_keys = [
+                self.get_storage_key(f"WarpGates_{x}")
+                for x in range(len(self.warp_gates))
+            ]
+            self.set_notify(*self.warp_keys)
+            asyncio.create_task(self.set_server_warp_gates())
+            
             self.archi_connected.set()
             self.output("Connected to Server, waiting for HQ")
         
@@ -172,12 +198,26 @@ class Transformers04Context(CommonContext):
             key = args.get("key")
 
             if key in self.boss_storage_keys:
-                self.cli_log.info(f"[Boss Debug] SetReply: key={key}, value={args.get('value')!r}")
+                self.cli_log.info(f"SetReply: key={key}, value={args.get('value')!r}")
                 x = self.boss_storage_keys.index(key)
                 value = args["value"]
-
                 if isinstance(value, bool):
                     self.bosses_array[x] = value
+            
+            if key in self.warp_keys:
+                self.cli_log.info(f"SetReply: Key={key}, value={args.get('value')!r}")
+                x = self.warp_keys.index(key)
+                value = args["value"]
+                if isinstance(value, int):
+                    self.warp_gates[x] = value
+                    # self.warp_replies_received.add(key)
+                    # if len(self.warp_replies_received) >= 7:
+                        # self.warps_ready = True
+                    if value > 0:
+                        self.server_warps_received += 1
+                        if self.server_warps_received >= 7:
+                            self.warps_ready = True
+                
     
     def output(self, text: str):
         if self.debug_mode:
@@ -202,9 +242,9 @@ class Transformers04Context(CommonContext):
         await super().connection_closed()
         
     def get_storage_key(self, variable: str) -> str:
-        return f"tf04_{self.team}_{self.slot}_{variable}"
+        return f"tf04_{self.seed}_{self.team}_{self.slot}_{variable}"
         
-    async def set_server_variable(self, variable: str, value: bool):
+    async def set_server_variable(self, variable: str, value):
         key = self.get_storage_key(variable)
         
         await self.send_msgs([{
@@ -225,6 +265,20 @@ class Transformers04Context(CommonContext):
                 "cmd": "Set",
                 "key": key,
                 "default": False,
+                "want_reply": True,
+                "operations": [{
+                    "operation": "default",
+                    "value": None
+                }]
+            }])
+    
+    async def set_server_warp_gates(self):
+        for x in range(len(self.warp_gates)):
+            key = self.get_storage_key(f"WarpGates_{x}")
+            await self.send_msgs([{
+                "cmd": "Set",
+                "key": key,
+                "default": self.warp_init,
                 "want_reply": True,
                 "operations": [{
                     "operation": "default",
@@ -283,6 +337,9 @@ async def game_loop(context: Transformers04Context):
             item_index = 0
             context.minicons_collected = 0
             context.disconnected = True
+            context.warps_ready = False
+            #context.warp_replies_received.clear()
+            context.warps_written = False
             if not context.memory_manager_closed:
                 context.logger.info("Client Disconnected, Closing Memory Manager")
                 memory_manager.execute_command((PineCommand.comm_exit,), context)
@@ -327,6 +384,7 @@ async def game_loop(context: Transformers04Context):
                 context.logger.info(f"Powerlinx Regen: {context.Red_Alert_Stats[4]:.2f}")
                 context.logger.info("")
             
+            
         
         #the first time pine connects to the game, make sure the checked locations list matches the archipelago
         # list. This should only happen the first time and not if the game disconnects and reconnects.
@@ -350,6 +408,12 @@ async def game_loop(context: Transformers04Context):
 
         # make sure Pine is connected and the game is not complete. If that is true, do the rest of the client code
         if memory_manager.pine_is_connected and not context.game_completion:
+            
+            if context.in_HQ and context.warps_ready and not context.warps_written:
+                context.output("Writing Warp Gates from Server")
+                for x in range(len(context.warp_gates)):
+                    memory_manager.write_warp_gates(context, x)
+                context.warps_written = True
             
             #Unlock power link if the levels are randomized and you dont start on amazon, otherwise when 2 levels
             # have been unlocked.
@@ -396,6 +460,7 @@ async def game_loop(context: Transformers04Context):
                     context.big_head = False
                     context.big_head_status = True
                     memory_manager.cheat_toggle(Effects.get_effect("BuffBigHead").value, True)
+                #memory_manager.read_warp_gates(context)
             context.previous_HQ = context.in_HQ
             
             

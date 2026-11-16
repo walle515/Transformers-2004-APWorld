@@ -312,6 +312,19 @@ Level_Name = {
 
 
 
+Level_Unlocks = [
+    "Amazon Level Unlock",
+    "Antarctica Level Unlock",
+    "Deep Amazon Level Unlock",
+    "Mid Atlantic Level Unlock",
+    "Alaska Level Unlock",
+    "Starship Level Unlock",
+    "Pacific Island Level Unlock",
+    "Unicron Level Unlock"
+]
+
+
+
 Boss_Locations = [
     9001,
     9002,

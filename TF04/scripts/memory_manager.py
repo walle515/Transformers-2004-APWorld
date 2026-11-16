@@ -18,7 +18,7 @@ monitor_ram()
 the checked_locations list, just to populate its values.'''
 
 #The checked_locations list should be populated from Archipelago on connection to the server to keep our
-# local checks in sync. TODO: Populate this list on connection
+# local checks in sync.
 checked_locations: list[int] = []
 
 
@@ -100,6 +100,41 @@ def send_location(location_id: int):
     unhandled_locations.append(location_id)     # adds location ID to list
 
 
+
+async def read_warp_gates(context):
+    for episode_id in range(7):
+        episode_offset = episode_id * 0x4C
+        episode_gates = 0
+        
+        gate_data = pcsx2.read_bytes(GameAddress.gameadd_level_unlocks + episode_offset + 4, 0x40)
+        
+        for x in range(16):
+            warp_gate_offset = x*4
+            warp_status = gate_data[warp_gate_offset] & 0x3
+            if not warp_status == 0x3:
+                warp_int = warp_status << (2*x)
+                episode_gates |= warp_int
+        
+        context.warp_gates[episode_id] = episode_gates
+        if context.warp_gates[episode_id] != context.warp_gates_last[episode_id]:
+            context.memman_out(f"Sending {database.Level_Name[episode_id]} Warp Gates to Server")
+            await context.set_server_variable(f"WarpGates_{episode_id}",context.warp_gates[episode_id])
+            context.warp_gates_last[episode_id] = context.warp_gates[episode_id]
+        
+
+
+def write_warp_gates(context, episode_id):
+    episode_offset = episode_id * 0x4C
+    episode_gates = context.warp_gates[episode_id]
+    
+    for x in range(15):
+        warp_gate_offset = (x+2) * 4
+        warp_status = (episode_gates >> (2*(x+1))) & 0x3
+        pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + warp_gate_offset, warp_status)
+
+
+
+
 def raw_bytes_to_float(read_output: int) -> float:
     #helper function for converting byte data from PCSX2's RAM to a float value
     return struct.unpack("<f", struct.pack("<I", read_output))[0]
@@ -179,7 +214,7 @@ def handle_initial_values(context):
     
     #set amazon locked at start, Archipelago will unlock start level
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
-    pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x0)
+    pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x1)
     
     #save stats
     context.Optimus_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
@@ -442,6 +477,9 @@ async def monitor_ram(context):
         if command[0] != PineCommand.comm_nothing:
             execute_command(command,context)
         
+        if context.warps_written:
+            await read_warp_gates(context)
+        
         if not pcsx2.is_connected():
             print("PINE Disconnected, attempting reconnect")
             context.memman_out("PINE Disconnected, attempting reconnect")
@@ -474,7 +512,9 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
     # if datacon_unlocks & archi_datacon_bit:
         # datacon_unlocks &= ~archi_datacon_bit
         # pcsx2.write_int64(GameAddress.gameadd_datacon_unlocks, datacon_unlocks)
-
+    
+    
+    
     pickup_check = pcsx2.read_int32(CleanAddress.cleanadd_pickup_collect_pointer)
     if pickup_check != 0:
         print("Item pickup detected")
