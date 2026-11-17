@@ -49,6 +49,28 @@ There are a few options for randomization.
 - <ins>**Visible Progression Items**:</ins> Makes Progression and Trap items for any game into Minicon Locations, while Useful and Filler items will be Datacon Locations. If off, items from other games will be Datacon locations, while any added items for this game will be Minicon Locations
 - <ins>**Debug Mode**:</ins> Enables extra information to be printed to the Client to help track down bugs. If it is not on, info is still printed in the log files.
 - <ins>**Starting Inventory**:</ins> Like other games, you can set starting inventory. If you set random levels and start with any level unlocks, it wont give any extra levels (unless its only Unicron, then it gives you Amazon)
+- <ins>**Logic Difficulty**:</ins> Lets you set if you want to include skips in the logic.
+  - **Default Logic** - Vanilla Logic
+  - **Easy Skips**
+    - Easy Jump Transforms, Untransforms, or just driving to skip (A lot of Amazon plus Rock of Power and Deep Amazon Antechamber Alcove)
+    - Alaska Dropship Easter Egg
+    - Hailstorm to Antarctica Midfield beacon and Deep Amazon Island Altar
+    - Dash to Deep Amazon Waterfall Rock
+    - Dash or Hailstorm to Deep Amazon Spawn Ledge
+    - Dash and Highjump to Alaska Cave's Far Ledge
+    - Alaska and Starship still need Highjump (Alaska because jump transforming everywhere sounds awful and Starship because its a glitch that might require multiple trips to HQ and back)
+    - Pacific Island Lighthouse and Plateau Bunkers and minicons in the area (walk up wall and jumping)
+  - **Hard Skips**
+    - Harder/perfect timing Transformations (Jump transform or otherwise), including Alaska
+    - Dash for Alaska Spire, Cave Far Ledge (no highjump), and any Pacific Island location after the volcano path (no slipstream)
+    - Dash or any Damage Boost (Flashbang or Hailstorm) - Antarctica Midfield Beacon or Deep Amazon Spawn Ledge
+    - Hailstorm - Antarctica Lonely Island
+    - Hailstorm or Dash - Deep Amazon Waterfall Rock
+    - Damage Boost (Flashbang or Hailstorm) - Deep Amazon Island Altar
+    - Starship Skip, so basically all of Starship behind Slipstream or Highjump (slipstream for tall rocks no matter what)
+    - Jump Transform/Careful Walking Pacific Island (till the volcano path, which needs dash)
+    - Deep Amazon Patrolling Dropship, Tidal Wave, and Mid Atlantic Distant Island all normal logic
+    - Buildings still need explosives
 
 # Installation
 You will need the following to use the AP World:
