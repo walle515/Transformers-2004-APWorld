@@ -109,3 +109,6 @@ If you need to quit and come back later, follow the same process as above. It wi
 - SkullAdult
 - TheGreenTyphoon
 - Wirebot
+
+# A.I. Usage
+AI was only used by Wirebot to learn the client API. The AI did not write any code, it was just used as a learning tool.
