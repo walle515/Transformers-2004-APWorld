@@ -205,6 +205,7 @@ def create_all_items(world: Transformers04World) -> None:
     starting_items = world.options.start_inventory.value
     start_levels = [False for _ in range(len(database.Level_Unlocks))]
     start_inventory_level = False
+    print(f"Length of Start Inventory: {len(starting_items)}")
     for x in range(len(database.Level_Unlocks)):
         if starting_items.get(database.Level_Unlocks[x], 0) > 0:
             print(f"Starting Inventory Level Detected: {database.Level_Name[x]}")
@@ -334,7 +335,7 @@ def create_all_items(world: Transformers04World) -> None:
         if start_inventory_level:
             levels = 0
             for x in range(len(database.Level_Unlocks)):
-                if not start_levels[x] and x != database.Level_Unlocks.index("Amazon Level Unlock"):
+                if not start_levels[x] and x != 0:
                     itempool.append(world.create_item(database.Level_Unlocks[x]))
                 else:
                     levels += 1
