@@ -1,9 +1,13 @@
 # Transformers 2004 AP World
-`Version 1.0`
 
 This is the AP Client for integrating Transformers 2004 for PS2 into [Archipelago](https://archipelago.gg).
 
 This must be used with the rebuilt game, as explained in the installation instructions below.
+
+# Known Bugs
+- Current Exodus version causes a couple bugs due to the Zip File system used in PS2 games. These bugs include the game crashing if you leave a level and immediately return (fixed by opening another menu in HQ or going to main menu then back to the level) and some small FPS hitches.
+- Occasionally, one or more Amazon locations don't spawn on initial level entrance. They do spawn when you leave and come back to the level (using methods mentioned above).
+- When randomizing power level of minicons, you can get one with 3 power. Since the game only ever had 1, 2, or 4 power minicons, we have made a code mod to show 3 power. This will only be visible when selecting the minicon. When viewing the minicon in the equipment menu (showing all 4 equipped minicons), it will show as 4 power, but the middle bar will still treat it as 3 power.
 
 # Gameplay
 There are a few options you can set in the YAML that will decide how much your experience changes from normal. That said, base play is the same, collect Minicons, defeat Unicron.
@@ -15,6 +19,8 @@ Powerlinx will unlock based on the following criteria:
 - Completing Amazon, random levels or not
 
 *Note*: For Archipelago Items, the item received <ins>wont</ins> be displayed in game. You will need to look at the client to see what was received.
+
+The client also currently reads all warp gates in each level and saves their states to the server as they are opened. This will allow you to start a new save or return if the save got corrupted and not lose your level progress.
 
 ## Goal
 You have the option to decide between two goal options, Unicron and Bosses. Unicron just means beat Unicron as normal. Bosses means you must beat all level bosses before you can fight Unicron (Unicron will be locked behind minicons and bosses). Bosses is really only necessary if you randomize levels.
@@ -41,7 +47,8 @@ There are a few options for randomization.
 - <ins>**Randomize Minicon Team Colors**:</ins> Randomizes the team color of each minicon. Minicons will still use their normal 3D model, but the icon in the hud and HQ will be colored to show the team color.
 - <ins>**Balance Minicon Team Colors**:</ins> Balances the random team colors so not all or most are in one team color.
 - <ins>**Visible Progression Items**:</ins> Makes Progression and Trap items for any game into Minicon Locations, while Useful and Filler items will be Datacon Locations. If off, items from other games will be Datacon locations, while any added items for this game will be Minicon Locations
-- <ins>**Debug Mode**:</ins> Enables extra information to be printed to the Client to help track down bugs.
+- <ins>**Debug Mode**:</ins> Enables extra information to be printed to the Client to help track down bugs. If it is not on, info is still printed in the log files.
+- <ins>**Starting Inventory**:</ins> Like other games, you can set starting inventory. If you set random levels and start with any level unlocks, it wont give any extra levels (unless its only Unicron, then it gives you Amazon)
 
 # Installation
 You will need the following to use the AP World:
