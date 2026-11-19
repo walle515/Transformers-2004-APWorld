@@ -216,6 +216,9 @@ def handle_initial_values(context):
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks,0x0)
     pcsx2.write_int32(GameAddress.gameadd_level_unlocks + 4, 0x1)
     
+    #Clear Datacon Unlocks
+    pcsx2.write_int64(GameAddress.gameadd_datacon_unlocks, 0)
+    
     #save stats
     context.Optimus_Stats[0] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats))
     context.Optimus_Stats[1] = raw_bytes_to_float(pcsx2.read_int32(GameAddress.gameadd_Optimus_Stats + 0x20))
