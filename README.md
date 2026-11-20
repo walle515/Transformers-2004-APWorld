@@ -76,7 +76,7 @@ There are a few options for randomization.
 You will need the following to use the AP World:
 - A legally obtained ISO of the game (currently only the USA version is setup (SLUS-20668))
 - PCSX2 and a legally obtained PS2 BIOS (will not be explaining how to do basic set up for PCSX2)
-- [Exodus](https://darlingeclipseprogramming.com/Exodus/Exodus): Game Rebuilder and Randomizer
+- [Exodus](http://darlingeclipseprogramming.com/Exodus/ArchiExodus.7z): Game Rebuilder and Randomizer (New version coming very soon, expect announcement in Archipelago Discord)
 - 7-Zip
 
 ## Setting Up PCSX2 (PINE)
