@@ -82,6 +82,8 @@ class Transformers04World(World):
         
         contents = ""
         
+        contents += "Archipelago \r\n"
+        contents += "1 \r\n"
         contents += str(int(self.options.randomize_stats)) + " "
         contents += str(int(self.options.randomize_mini_power)) + " "
         contents += str(int(self.options.balance_minicon_levels)) + " "
