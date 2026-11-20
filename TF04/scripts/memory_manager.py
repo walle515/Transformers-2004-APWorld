@@ -323,7 +323,7 @@ def unlock_datacon(datacon_id: int):
         context.memman_out("Datacon ID out of bounds")
         return -1
 
-    bit = 0x1 << (datacon_id - 1)
+    bit = 0x1 << (datacon_id)
     old_inventory = pcsx2.read_int64(GameAddress.gameadd_datacon_unlocks)
     new_inventory = old_inventory | bit
     pcsx2.write_int64(GameAddress.gameadd_datacon_unlocks, new_inventory)
