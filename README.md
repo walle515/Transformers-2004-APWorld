@@ -98,10 +98,19 @@ The first time you open Exodus, you will need to make a folder somewhere for it 
 1. Download the patch file (file extension `.aptf`) from your Archipelago Room
 2. Open Exodus and go to the `Randomizer` tab. On your first time, it will ask for the `Unmodified Source`, which is the `Extract_Transformers (USA)` from before. If you get an error, its likely because you did not unpack the game first. You will know you did the setup right if you see a few files load on the left.
 3. Select `Import Placements`, `Automatically Build`, and `Beginner Weapon`
-4. Press the `Randomize` Button. The first time, it will ask for an output Folder, and its recommended to make a folder labeled `Output` next to the `Extract_Transformers (USA)` folder and selecting that. This is just a placeholder for some reference files.
-5. You should be prompted to `Import Randomizer Placements` so select the patch file you downloaded. This will unzip it into a folder as it imports it, so if you see the file and a folder with the same name, its normal.
-6. You should then be prompted to select the original game ISO again. This allows Exodus to copy the files, then edit them based on the imported settings and any other adjustments made by Exodus.
-7. The new ISO you need to run will be put into the same folder as the original ISO named `Transformers (USA)_Rebuild.iso` (name may be different based on the game version you use).
+4. Define the paths in the center of the program:
+  - Game Extract Path: This should already show the "Unmodified Source" folder from step 2
+  - Modified Game Path: This is a folder that's used to stage files during the Randomizing and Rebuild process. It should be a separate folder from the Game Extract Path, otherwise this will overwrite the unmodded extract.
+  - Archipelago Import Path: The location of your .aptf file
+  - Unmodified Game ISO: A clean Transformers (2004) ISO. This can be the same one that was extracted during your Exodus setup.
+
+A set of example paths are shown below (note that slash direction does not matter in these paths).
+<img width="759" height="133" alt="image" src="https://github.com/user-attachments/assets/236039ec-5135-4d9b-98f5-16ce539e98f3" />
+
+5. Press the `Randomize` Button. 
+6. If you did not set the Archipelago import path above, you should be prompted to `Import Randomizer Placements` now. This will unzip it into a folder as it imports it, so if you see the file and a folder with the same name, its normal.
+7. If you did not set the original game ISO above, you should then be prompted to select the original game ISO again. 
+8. The new ISO you need to run will be put into the same folder as the original ISO named `Transformers (USA)_Randomizer.iso` (name may be different based on the game version you use).
 
 ## Client
 1. Run the rebuilt game in PCSX2. There will be a short delay of black screen before the transformers title appears, this is normal and part of running the rebuilt game.
