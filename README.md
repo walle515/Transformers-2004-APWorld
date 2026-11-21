@@ -91,7 +91,7 @@ It is also recommended that you right click `Title` at the top of the game list,
 ## Setting Up Exodus
 When you download Exodus, it will download in a .7z archive, so extract all of the contents into a folder of your choosing.
 
-The first time you open Exodus, you will need to make a folder somewhere for it to extract all the files from the original ISO. This folder should not be where the normal ISO is stored. Then, at the top of the screen, go to `Build->Unpack ISO` and set the output to the folder you made. It should also ask for you to find where 7-Zip is installed. When this happens, go to `C:\Program Files\7-Zip` and select the 7z.exe file. This will read the original ISO and copy all the files from it into a folder called `Extract_Transformers (USA)` (name may be different based on the game version you use) inside the folder you created. **<ins>This only needs to happen once</ins>**
+The first time you open Exodus, you will need to make a folder somewhere for it to extract all the files from the original ISO. This folder should not be where the normal ISO is stored. Then, at the top of the screen, go to `Build->Unpack ISO` and set the output to the folder you made. This will read the original ISO and copy all the files from it into a folder called `Extract_Transformers (USA)` (name may be different based on the game version you use) inside the folder you created. **<ins>This only needs to happen once</ins>**
 
 # How to Play
 ## Creating the Rebuilt ISO
