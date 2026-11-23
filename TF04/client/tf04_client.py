@@ -97,6 +97,7 @@ class Transformers04Context(CommonContext):
         self.deathlink_pending = False
         self.sent_death = False
         self.deathlink_enabled = False
+        self.stasis_locked = False
         
         self.bosses_killed = False
         self.cybertron_unlocked = False
@@ -604,7 +605,7 @@ async def game_loop(context: Transformers04Context):
                 #If current health is 0 or less, and a death is not currently being sent_death
                 #   (deathlink isnt triggering and it doesnt sent infinite while waiting on player
                 #   to hit continue or something), then send the death
-                if current_health <= 0 and not context.sent_death:
+                if current_health <= 0 and context.stasis_locked and not context.sent_death:
                     await context.send_death(f"{context.player_names[context.slot]} has Stasis Locked")
                     context.sent_death = True
                     

@@ -510,6 +510,14 @@ def read_target_addresses(context) -> tuple[PineCommand, ...]:
         player_in_HQ = False
         context.in_HQ = False
     
+    
+    mission_status = pcsx2.read_int32(GameAddress.gameadd_mission_status)
+    if mission_status == MissionStatus.status_stasis_lock:
+        context.stasis_locked = True
+    else:
+        context.stasis_locked = False
+    
+    
     # datacon_unlocks = pcsx2.read_int64(GameAddress.gameadd_datacon_unlocks)
     # archi_datacon_bit = 0x1 << (database.Archipelago_Datacon_ID - 51)
     # if datacon_unlocks & archi_datacon_bit:

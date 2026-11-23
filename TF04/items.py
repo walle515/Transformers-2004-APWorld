@@ -419,7 +419,7 @@ def create_all_items(world: Transformers04World) -> None:
             if add_amazon:
                 world.push_precollected(world.create_item("Amazon Level Unlock"))
         else:
-            if world.options.add_starting_location and num_players < 4:
+            if world.options.add_starting_location:
                 if rand_num == 0:
                     world.push_precollected(world.create_item("Amazon Level Unlock"))
                 if rand_num == 1:
