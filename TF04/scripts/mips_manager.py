@@ -8,18 +8,18 @@ class CodeAddress(IntEnum):
     cleanadd_pickup_spawn_custom = 0x1FAEF00
     codeadd_extras_unlock = 0x351CE0
     codeadd_minicon_cutscene = 0x37BC18
+    codeadd_slipstream_cutscene = 0x37BC3C
+    codeadd_datacon_cutscene = 0x37BC70
     codeadd_three_power_render = 0x4E4110
 
 def remove_pickup_limit():
-    # increase PickupPlaced limit from 13 to 32 (0x14)
+    # increase PickupPlaced limit from 13 to 32 (0x20)
     pcsx2.write_int32(0x379534, 0x2A230020)
 
-def remove_slipstream_cutscene():
-    # Fix Slipstream pickup (remove check for special camera script)
-    pcsx2.write_int32(0x37BC3C, 0x10000014)
-
-def remove_minicon_intro():
+def remove_pickup_intros():
+    pcsx2.write_int32(CodeAddress.codeadd_slipstream_cutscene, 0x10000014)
     pcsx2.write_int32(CodeAddress.codeadd_minicon_cutscene, 0x10000006) #beq zero,zero,0x0037BC34
+    pcsx2.write_int32(CodeAddress.codeadd_datacon_cutscene, 0x10000006) #beq zero,zero,0x0037BC8C
 
 def prevent_datacon_unlocks():
     pcsx2.write_int32(CodeAddress.codeadd_extras_unlock + 0x4, 0) #NOP
@@ -84,11 +84,11 @@ def prevent_datacon_unlocks():
 
 
 def write_code_mods():
-    '''Writes single-line ELF codes to allow Archipelago randomizers to work'''
+    '''Writes individual ELF mods to allow Archipelago randomizers to work and make quality of life improvements'''
 
     remove_pickup_limit()
-
-    remove_slipstream_cutscene()
+    
+    remove_pickup_intros()
 
     redirect_pickup_collection()
 
@@ -97,8 +97,6 @@ def write_code_mods():
     redirect_pickup_spawn()
     
     prevent_datacon_unlocks()
-
-    remove_minicon_intro()
 
     fix_three_power_render()
 
