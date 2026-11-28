@@ -1,5 +1,6 @@
 import asyncio
 import logging
+import array
 
 from CommonClient import CommonContext, server_loop, ClientStatus, ClientCommandProcessor
 from .. import database
@@ -138,6 +139,9 @@ class Transformers04Context(CommonContext):
         self.Optimus_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
         self.Hot_Shot_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
         self.Red_Alert_Stats = [0.0, 0.0, 0.0, 0.0, 0.0]
+        
+        
+        self.equipped_minicons = array('q', [0] * 4)
         
         
     def make_gui(self):
@@ -449,6 +453,7 @@ async def game_loop(context: Transformers04Context):
                         if context.bosses_array[level]:
                             context.output(f"Marking Level {database.Level_Name[level]} Complete")
                             memory_manager.execute_command((PineCommand.comm_complete_episode,level), context)
+                            memory_manager.write_equipped_minicons(context)
                 if context.big_head_status:
                     if context.big_head_count > 0:
                         context.big_head_count -= 1
@@ -498,6 +503,7 @@ async def game_loop(context: Transformers04Context):
                         if loc_id > 9000 and loc_id < 9009:
                             context.bosses_array[loc_id - 9001] = True
                             await context.set_server_variable(f"Boss_{loc_id - 9001}", True)
+                            memory_manager.save_equipped_minicons(context)
                         result = await context.check_locations([loc_id])
                         # text = ", ".join(str(item) for item in result)
                         if loc_id < 9000 or loc_id > 10000:

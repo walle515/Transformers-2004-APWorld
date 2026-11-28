@@ -49,6 +49,7 @@ class GameAddress(IntEnum):
     gameadd_Optimus_Stats = 0x717490
     gameadd_HotShot_Stats = 0x7176D0
     gameadd_RedAlert_Stats = 0x717910
+    gameadd_equipped_minicon = 0x716FF0
 
 class CleanAddress(IntEnum):
     cleanadd_level_unlocked = 0x1FAEE00
@@ -131,6 +132,20 @@ def write_warp_gates(context, episode_id):
         warp_gate_offset = (x+2) * 4
         warp_status = (episode_gates >> (2*(x+1))) & 0x3
         pcsx2.write_int32(GameAddress.gameadd_level_unlocks + episode_offset + warp_gate_offset, warp_status)
+
+
+
+def save_equipped_minicons(context):
+    for x in range(4):
+        offset = x * 8
+        context.equipped_minicons[x] = pcsx2.read_int64(GameAddress.gameadd_equipped_minicon + offset)
+
+
+
+def write_equipped_minicons(context):
+    for x in range(4):
+        offset = x * 8
+        pcsx2.write_int64(GameAddress.gameadd_equipped_minicon + offset, context.equipped_minicons[x])
 
 
 
